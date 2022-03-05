@@ -1,24 +1,50 @@
 {
-	"name": "obsidian-sample-plugin",
-	"version": "1.0.1",
-	"description": "This is a sample plugin for Obsidian (https://obsidian.md)",
-	"main": "main.js",
-	"scripts": {
-		"dev": "node esbuild.config.mjs",
-		"build": "tsc -noEmit -skipLibCheck && node esbuild.config.mjs production",
-		"version": "node version-bump.mjs && git add manifest.json versions.json"
-	},
-	"keywords": [],
-	"author": "",
-	"license": "MIT",
-	"devDependencies": {
-		"@types/node": "^16.11.6",
-		"@typescript-eslint/eslint-plugin": "^5.2.0",
-		"@typescript-eslint/parser": "^5.2.0",
-		"builtin-modules": "^3.2.0",
-		"esbuild": "0.13.12",
-		"obsidian": "^0.13.26",
-		"tslib": "2.3.1",
-		"typescript": "4.4.4"
-	}
+  "name": "obsidian-pw",
+  "version": "1.0.1",
+  "description": "This is a sample plugin for Obsidian (https://obsidian.md)",
+  "main": "main.js",
+  "scripts": {
+    "dev": "node esbuild.config.mjs",
+    "build": "tsc -noEmit -skipLibCheck && node esbuild.config.mjs production",
+    "version": "node version-bump.mjs && git add manifest.json versions.json"
+  },
+  "keywords": [],
+  "author": "cfe84",
+  "license": "MIT",
+  "devDependencies": {
+    "@types/node": "^16.11.6",
+    "@typescript-eslint/eslint-plugin": "^5.2.0",
+    "@typescript-eslint/parser": "^5.2.0",
+    "builtin-modules": "^3.2.0",
+    "esbuild": "0.13.12",
+    "obsidian": "^0.13.26",
+    "tslib": "2.3.1",
+    "typescript": "4.4.4"
+  },
+  "dependencies": {
+    "esbuild-darwin-64": "^0.13.12",
+    "esbuild-darwin-arm64": "^0.13.12",
+    "esbuild-freebsd-64": "^0.13.12",
+    "esbuild-freebsd-arm64": "^0.13.12",
+    "esbuild-linux-32": "^0.13.12",
+    "esbuild-linux-64": "^0.13.12",
+    "esbuild-linux-arm": "^0.13.12",
+    "esbuild-linux-arm64": "^0.13.12",
+    "esbuild-linux-mips64le": "^0.13.12",
+    "esbuild-linux-ppc64le": "^0.13.12",
+    "esbuild-netbsd-64": "^0.13.12",
+    "esbuild-openbsd-64": "^0.13.12",
+    "esbuild-sunos-64": "^0.13.12",
+    "esbuild-windows-32": "^0.13.12",
+    "esbuild-windows-arm64": "^0.13.12",
+    "luxon": "^2.3.1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/cfe84/obsidian-pw.git"
+  },
+  "bugs": {
+    "url": "https://github.com/cfe84/obsidian-pw/issues"
+  },
+  "homepage": "https://github.com/cfe84/obsidian-pw#readme"
 }

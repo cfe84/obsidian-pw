@@ -1,4 +1,7 @@
-/* Sets all the text color to red! */
-body {
-    color: red;
+.HyperMD-task-line {
+    color: #f39;
+}
+
+.pw-container {
+    font-size: small;
 }
