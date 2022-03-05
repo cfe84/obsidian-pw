@@ -12,6 +12,7 @@
   "author": "cfe84",
   "license": "MIT",
   "devDependencies": {
+    "@types/luxon": "^2.3.0",
     "@types/node": "^16.11.6",
     "@typescript-eslint/eslint-plugin": "^5.2.0",
     "@typescript-eslint/parser": "^5.2.0",
@@ -22,21 +23,6 @@
     "typescript": "4.4.4"
   },
   "dependencies": {
-    "esbuild-darwin-64": "^0.13.12",
-    "esbuild-darwin-arm64": "^0.13.12",
-    "esbuild-freebsd-64": "^0.13.12",
-    "esbuild-freebsd-arm64": "^0.13.12",
-    "esbuild-linux-32": "^0.13.12",
-    "esbuild-linux-64": "^0.13.12",
-    "esbuild-linux-arm": "^0.13.12",
-    "esbuild-linux-arm64": "^0.13.12",
-    "esbuild-linux-mips64le": "^0.13.12",
-    "esbuild-linux-ppc64le": "^0.13.12",
-    "esbuild-netbsd-64": "^0.13.12",
-    "esbuild-openbsd-64": "^0.13.12",
-    "esbuild-sunos-64": "^0.13.12",
-    "esbuild-windows-32": "^0.13.12",
-    "esbuild-windows-arm64": "^0.13.12",
     "luxon": "^2.3.1"
   },
   "repository": {

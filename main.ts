@@ -3,7 +3,7 @@ import { FolderTodoParser } from './domain/FolderTodoParser';
 import { FileTodoParser } from './domain/FileTodoParser';
 import { ILogger } from 'ILogger';
 import { ObsidianFile } from './infrastructure/ObsidianFile';
-import { App, Editor, MarkdownView, Modal, Notice, Plugin, PluginSettingTab, Setting, TFile, Vault } from 'obsidian';
+import { App, Editor, MarkdownView, Modal, Notice, Plugin, PluginManifest, PluginSettingTab, Setting, TFile, Vault } from 'obsidian';
 import { TodoListView } from './Views/TodoListView';
 import { TodoIndex } from './domain/TodoIndex';
 
@@ -23,6 +23,11 @@ export default class MyPlugin extends Plugin {
 	fileTodoParser: FileTodoParser<TFile> = new FileTodoParser();
 	folderTodoParser: FolderTodoParser<TFile> = new FolderTodoParser({ fileTodoParser: this.fileTodoParser, logger: this.logger });
 	todoIndex = new TodoIndex({ fileTodoParser: this.fileTodoParser, folderTodoParser: this.folderTodoParser, logger: this.logger });
+
+	constructor(app: App, manifest: PluginManifest) {
+		super(app, manifest);
+		this.openFile = this.openFile.bind(this);
+	}
 
 	async onload() {
 		this.logger.info(`Loading PW`)
@@ -57,7 +62,7 @@ export default class MyPlugin extends Plugin {
 		// When registering intervals, this function will automatically clear the interval when the plugin is disabled.
 		// this.registerInterval(window.setInterval(() => console.log('setInterval'), 5 * 60 * 1000));
 		this.registerView(TodoListView.viewType, (leaf) => {
-			let view = new TodoListView(leaf)
+			let view = new TodoListView(leaf, this.openFile, { logger: this.logger })
 			this.todoIndex.onUpdateAsync = async (items) => {
 				view.onTodosChanged(items)
 			}
@@ -76,6 +81,10 @@ export default class MyPlugin extends Plugin {
 			});
 		})
 
+	}
+
+	private openFile(file: TFile) {
+		this.app.workspace.activeLeaf.openFile(file);
 	}
 
 	private loadFiles() {

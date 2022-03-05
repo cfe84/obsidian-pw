@@ -1,11 +1,17 @@
 import { TodoItem, TodoStatus } from "../domain/TodoItem";
 import { ItemView, TFile, WorkspaceLeaf } from "obsidian";
 import { IDictionary } from "../domain/IDictionary";
+import { DateTime } from "luxon";
+import { ILogger } from "ILogger";
+
+export interface TodoListViewDeps {
+  logger: ILogger
+}
 
 export class TodoListView extends ItemView {
   static viewType: string = "pw.todo-list";
   private todos: TodoItem<TFile>[] = []
-  constructor(leaf: WorkspaceLeaf) {
+  constructor(leaf: WorkspaceLeaf, private openFile: (file: TFile) => void, private deps: TodoListViewDeps) {
     super(leaf);
   }
 
@@ -37,10 +43,7 @@ export class TodoListView extends ItemView {
   private getDueTodos(): TodoItem<TFile>[] {
     const dueDateAttributes = ["due", "duedate", "when", "expire", "expires"];
     const now = DateTime.now();
-    const allTodos = this.getAllTodosIncludingSubs(
-      this.context.parsedFolder.todos
-    );
-    const todosWithOverdueDate = allTodos.filter(
+    const todosWithOverdueDate = this.todos.filter(
       (todo) =>
         todo.attributes &&
         dueDateAttributes.find((attribute) => {
@@ -53,9 +56,6 @@ export class TodoListView extends ItemView {
             return false;
           try {
             const date = DateTime.fromISO(`${todo.attributes[attribute]}`);
-            if (date.startOf("day") < now.endOf("day")) {
-              this.deps.logger.log(`Now: ${now}, Due: ${date}`);
-            }
             return date < now;
           } catch (err) {
             this.deps.logger.error(`Error while parsing date: ${err}`);
@@ -63,6 +63,7 @@ export class TodoListView extends ItemView {
           }
         })
     );
+    return todosWithOverdueDate
   }
 
   private statusToIcon = (status: TodoStatus): string => {
@@ -109,14 +110,15 @@ export class TodoListView extends ItemView {
       : "";
   }
 
-
   public render(): void {
     const container = this.containerEl.children[1];
     container.empty();
     container.createDiv('pw-container', (el) => {
-      el.createEl("span", { text: "Selected:" })
+      el.createEl("b", { text: "Selected:" })
       this.renderTodos(this.getSelectedTodos(), el);
-      el.createEl("span", { text: "Due:" })
+      el.createEl("b", { text: "Due:" })
+      this.renderTodos(this.getDueTodos(), el);
+      el.createEl("b", { text: "All:" })
       this.renderTodos(this.todos, el);
     });
   }
@@ -124,7 +126,10 @@ export class TodoListView extends ItemView {
   private renderTodos(todos: TodoItem<TFile>[], el: HTMLElement) {
     el.createDiv(undefined, (el) => {
       todos.forEach(todo => {
-        el.createEl("div", { text: `${this.statusToIcon(todo.status)} ${this.priorityToIcon(todo.attributes)} ${todo.text}` })
+        const todoElement = el.createEl("div", {
+          text: `${this.statusToIcon(todo.status)} ${this.priorityToIcon(todo.attributes)} ${todo.text}`
+        })
+        todoElement.onclick = () => this.openFile(todo.file.file);
       })
     })
   }
