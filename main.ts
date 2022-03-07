@@ -6,6 +6,8 @@ import { ObsidianFile } from './infrastructure/ObsidianFile';
 import { App, Editor, MarkdownView, Modal, Notice, Plugin, PluginManifest, PluginSettingTab, Setting, TFile, Vault } from 'obsidian';
 import { TodoListView } from './Views/TodoListView';
 import { TodoIndex } from './domain/TodoIndex';
+import { ToggleTodoCommand } from './Commands/ToggleTodoCommand';
+import { LineOperations } from './domain/LineOperations';
 
 // Remember to rename these classes and interfaces!
 
@@ -34,14 +36,7 @@ export default class MyPlugin extends Plugin {
 		await this.loadSettings();
 
 		// To build req 1.5
-		// this.addCommand({
-		// 	id: 'sample-editor-command',
-		// 	name: 'Sample editor command',
-		// 	editorCallback: (editor: Editor, view: MarkdownView) => {
-		// 		console.log(editor.getSelection());
-		// 		editor.replaceSelection('Sample Editor Command');
-		// 	}
-		// });
+		this.addCommand(new ToggleTodoCommand(new LineOperations()));
 		// This adds a complex command that can check whether the current state of the app allows execution of the command
 
 		// Add 

@@ -143,6 +143,9 @@ export class TodoListView extends ItemView {
   };
 
   private sortTodos(todos: TodoItem<TFile>[]): TodoItem<TFile>[] {
+    if (!todos) {
+      return todos
+    }
     return todos.sort((a, b) => {
       const priorityDiff = this.getPriorityValue(b) - this.getPriorityValue(a);
       if (!priorityDiff) {
