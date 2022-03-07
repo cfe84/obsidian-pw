@@ -124,12 +124,37 @@ export class TodoListView extends ItemView {
   }
 
   private renderTodos(todos: TodoItem<TFile>[], el: HTMLElement) {
+    const foldedText = ` ▶`
+    const unfoldedText = " ▼"
     el.createDiv(undefined, (el) => {
       todos.forEach(todo => {
-        const todoElement = el.createEl("div", {
-          text: `${this.statusToIcon(todo.status)} ${this.priorityToIcon(todo.attributes)} ${todo.text}`
+        el.createDiv("div", (container) => {
+          container.createEl("span", {
+            text: `${this.statusToIcon(todo.status)} `,
+            cls: "todo-checkbox"
+          })
+          const textElement = container.createEl("span", {
+            text: `${this.priorityToIcon(todo.attributes)} ${todo.text}`,
+            cls: "todo-text"
+          })
+          const subDisplay = container.createEl("span", {
+            text: todo.subtasks && todo.subtasks.length ? foldedText : "  ",
+            cls: "todo-sub"
+          })
+          const subElementsContainer = container.createEl("div", "todo-sub-container")
+          textElement.onclick = () => this.openFile(todo.file.file, todo.line || 0);
+          let subTasksUnfolded = false
+          subDisplay.onclick = () => {
+            if (subTasksUnfolded) {
+              subDisplay.innerText = foldedText
+              subElementsContainer.childNodes.forEach(child => subElementsContainer.removeChild(child))
+            } else {
+              subDisplay.innerText = unfoldedText
+              this.renderTodos(todo.subtasks, subElementsContainer);
+            }
+            subTasksUnfolded = !subTasksUnfolded
+          }
         })
-        todoElement.onclick = () => this.openFile(todo.file.file, todo.line || 0);
       })
     })
   }

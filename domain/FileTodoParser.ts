@@ -62,11 +62,12 @@ export class FileTodoParser<TFile> {
   public async parseMdFileAsync(file: IFile<TFile>): Promise<TodoItem<TFile>[]> {
     const content = await file.getContentAsync();
     const lines = content.split("\n")
-    const parsingResults = lines.map((line, number) => this.lineOperations.toTodo(line, number))
+    const parsingResults = lines.map((line, number) => this.lineOperations.toTodo<TFile>(line, number))
     // this.createTodoTreeStructure(lines, parsingResults)
-    const todos = parsingResults
-      .filter(todoParsingResult => todoParsingResult.isTodo)
-      .map(result => result.todo) as TodoItem<TFile>[]
+    const todoParsingResults = parsingResults
+      .filter(todoParsingResult => todoParsingResult.isTodo);
+    this.createTodoTreeStructure(lines, todoParsingResults);
+    const todos = todoParsingResults.map(result => result.todo) as TodoItem<TFile>[]
     // const inspectionResults = this.fileInspector.inspect(file)
     todos.forEach((todo) => {
       todo.file = file
