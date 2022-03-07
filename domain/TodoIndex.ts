@@ -59,7 +59,6 @@ export class TodoIndex<T> {
 
   private findTodo(file: IFile<T>) {
     const index = this.files.findIndex((todosInFile) => todosInFile.file.id === file.id)
-    this.deps.logger.info(`${this.files.find((todosInFile) => todosInFile.file.name === file.name).file.id}`)
     if (index < 0) {
       this.deps.logger.error(`Todos not found for file '${file.name}'`)
       throw Error(`TodoIndex: File not found in index: ${file}`)

@@ -8,6 +8,8 @@ import { TodoListView } from './Views/TodoListView';
 import { TodoIndex } from './domain/TodoIndex';
 import { ToggleTodoCommand } from './Commands/ToggleTodoCommand';
 import { LineOperations } from './domain/LineOperations';
+import { CreateDailyNoteCommand } from 'Commands/CreateDailyNote';
+import { PwPrefs } from 'PwPrefs';
 
 // Remember to rename these classes and interfaces!
 
@@ -22,6 +24,7 @@ const DEFAULT_SETTINGS: MyPluginSettings = {
 export default class MyPlugin extends Plugin {
 	logger: ILogger = new ConsoleLogger();
 	settings: MyPluginSettings;
+	prefs: PwPrefs = { dailyNotes: { folder: "21 - Recurrence\\daily-notes", template: "# Notes\n\n" } };
 	fileTodoParser: FileTodoParser<TFile> = new FileTodoParser();
 	folderTodoParser: FolderTodoParser<TFile> = new FolderTodoParser({ fileTodoParser: this.fileTodoParser, logger: this.logger });
 	todoIndex = new TodoIndex({ fileTodoParser: this.fileTodoParser, folderTodoParser: this.folderTodoParser, logger: this.logger });
@@ -35,9 +38,8 @@ export default class MyPlugin extends Plugin {
 		this.logger.info(`Loading PW`)
 		await this.loadSettings();
 
-		// To build req 1.5
 		this.addCommand(new ToggleTodoCommand(new LineOperations()));
-		// This adds a complex command that can check whether the current state of the app allows execution of the command
+		this.addCommand(new CreateDailyNoteCommand(this.prefs, this.app));
 
 		// Add 
 		// this.addSettingTab(new SampleSettingTab(this.app, this));
