@@ -12,34 +12,44 @@ export interface TodoIndexDeps<T> {
 }
 
 export class TodoIndex<T> {
-  items: ITodosInFiles<T>[] = [];
+  files: ITodosInFiles<T>[] = [];
 
   constructor(private deps: TodoIndexDeps<T>) { }
 
   filesLoaded(files: IFile<T>[]) {
     this.deps.folderTodoParser.ParseFilesAsync(files).then(todos => {
-      this.items = todos;
+      this.files = todos;
       this.triggerUpdate();
     })
   }
 
   fileUpdated(file: IFile<T>) {
+    this.deps.logger.debug(`TodoIndex: File updated: ${file.id}`)
     const index = this.findTodo(file);
     this.deps.fileTodoParser.parseMdFileAsync(file).then(todos => {
-      this.items[index].todos = todos
+      this.files[index].todos = todos
+      this.triggerUpdate();
     });
-    this.triggerUpdate();
+  }
+
+  fileRenamed(id: string, file: IFile<T>) {
+    this.deps.logger.debug(`TodoIndex: File renamed: ${id} to ${file.id}`)
+
+    // Nothing needs to happen because files are updating themselves.
+    // this.triggerUpdate();
   }
 
   fileDeleted(file: IFile<T>) {
+    this.deps.logger.debug(`TodoIndex: File deleted: ${file.id}`)
     const index = this.findTodo(file);
-    this.items.splice(index, 1);
+    this.files.splice(index, 1);
     this.triggerUpdate();
   }
 
   fileCreated(file: IFile<T>) {
+    this.deps.logger.debug(`TodoIndex: File created: ${file.id}`)
     this.deps.fileTodoParser.parseMdFileAsync(file).then(todos => {
-      this.items.push({
+      this.files.push({
         todos,
         file
       });
@@ -48,12 +58,18 @@ export class TodoIndex<T> {
   }
 
   private findTodo(file: IFile<T>) {
-    return this.items.findIndex((todosInFile) => todosInFile.file === file)
+    const index = this.files.findIndex((todosInFile) => todosInFile.file.id === file.id)
+    this.deps.logger.info(`${this.files.find((todosInFile) => todosInFile.file.name === file.name).file.id}`)
+    if (index < 0) {
+      this.deps.logger.error(`Todos not found for file '${file.name}'`)
+      throw Error(`TodoIndex: File not found in index: ${file}`)
+    }
+    return index
   }
 
   private triggerUpdate() {
     if (this.onUpdateAsync) {
-      const todos = this.items.reduce((res, ts) => res.concat(ts.todos), [])
+      const todos = this.files.reduce((res, ts) => res.concat(ts.todos), [])
       this.onUpdateAsync(todos).then(() => { })
     }
   }

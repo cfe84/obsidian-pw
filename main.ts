@@ -47,17 +47,6 @@ export default class MyPlugin extends Plugin {
 		// Add 
 		// this.addSettingTab(new SampleSettingTab(this.app, this));
 
-		// this.registerEvent(this.app.vault.on("modify", (file) => {
-		// 	this.todoIndex.fileUpdated(new ObsidianFile(this.app, file as TFile))
-		// }));
-
-		// this.registerEvent(this.app.vault.on("create", (file) => {
-		// 	this.todoIndex.fileCreated(new ObsidianFile(this.app, file as TFile))
-		// }));
-
-		// this.registerEvent(this.app.vault.on("delete", (file) => {
-		// 	this.todoIndex.fileDeleted(new ObsidianFile(this.app, file as TFile))
-		// }));
 
 		// When registering intervals, this function will automatically clear the interval when the plugin is disabled.
 		// this.registerInterval(window.setInterval(() => console.log('setInterval'), 5 * 60 * 1000));
@@ -66,6 +55,22 @@ export default class MyPlugin extends Plugin {
 			this.todoIndex.onUpdateAsync = async (items) => {
 				view.onTodosChanged(items)
 			}
+
+			this.registerEvent(this.app.vault.on("modify", (file) => {
+				this.todoIndex.fileUpdated(new ObsidianFile(this.app, file as TFile))
+			}));
+
+			this.registerEvent(this.app.vault.on("create", (file) => {
+				this.todoIndex.fileCreated(new ObsidianFile(this.app, file as TFile))
+			}));
+
+			this.registerEvent(this.app.vault.on("delete", (file) => {
+				this.todoIndex.fileDeleted(new ObsidianFile(this.app, file as TFile))
+			}));
+			this.registerEvent(this.app.vault.on("rename", (file, oldPath) => {
+				this.todoIndex.fileRenamed(oldPath, new ObsidianFile(this.app, file as TFile))
+			}));
+
 			view.render()
 			return view
 		});

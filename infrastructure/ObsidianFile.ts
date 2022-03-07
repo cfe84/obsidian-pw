@@ -3,6 +3,7 @@ import { App, TFile } from "obsidian";
 
 export class ObsidianFile implements IFile<TFile> {
   name: string;
+  get id(): string { return this.file.path }
   constructor(private app: App, public file: TFile) {
     this.name = file.basename;
   }
