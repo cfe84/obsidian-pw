@@ -26,7 +26,7 @@ export default class MyPlugin extends Plugin {
 
 	constructor(app: App, manifest: PluginManifest) {
 		super(app, manifest);
-		this.openFile = this.openFile.bind(this);
+		this.openFileAsync = this.openFileAsync.bind(this);
 	}
 
 	async onload() {
@@ -44,7 +44,7 @@ export default class MyPlugin extends Plugin {
 		// });
 		// This adds a complex command that can check whether the current state of the app allows execution of the command
 
-		// Add settings
+		// Add 
 		// this.addSettingTab(new SampleSettingTab(this.app, this));
 
 		// this.registerEvent(this.app.vault.on("modify", (file) => {
@@ -62,7 +62,7 @@ export default class MyPlugin extends Plugin {
 		// When registering intervals, this function will automatically clear the interval when the plugin is disabled.
 		// this.registerInterval(window.setInterval(() => console.log('setInterval'), 5 * 60 * 1000));
 		this.registerView(TodoListView.viewType, (leaf) => {
-			let view = new TodoListView(leaf, this.openFile, { logger: this.logger })
+			let view = new TodoListView(leaf, this.openFileAsync, { logger: this.logger })
 			this.todoIndex.onUpdateAsync = async (items) => {
 				view.onTodosChanged(items)
 			}
@@ -83,8 +83,11 @@ export default class MyPlugin extends Plugin {
 
 	}
 
-	private openFile(file: TFile) {
-		this.app.workspace.activeLeaf.openFile(file);
+	private async openFileAsync(file: TFile, line: number) {
+		await this.app.workspace.activeLeaf.openFile(file)
+		const view = this.app.workspace.getActiveViewOfType(MarkdownView)
+		const lineContent = await view.editor.getLine(line)
+		view.editor.setSelection({ ch: 0, line }, { ch: lineContent.length, line })
 	}
 
 	private loadFiles() {

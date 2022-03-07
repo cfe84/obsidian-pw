@@ -11,7 +11,7 @@ export interface TodoListViewDeps {
 export class TodoListView extends ItemView {
   static viewType: string = "pw.todo-list";
   private todos: TodoItem<TFile>[] = []
-  constructor(leaf: WorkspaceLeaf, private openFile: (file: TFile) => void, private deps: TodoListViewDeps) {
+  constructor(leaf: WorkspaceLeaf, private openFile: (file: TFile, line: number) => Promise<void>, private deps: TodoListViewDeps) {
     super(leaf);
   }
 
@@ -129,7 +129,7 @@ export class TodoListView extends ItemView {
         const todoElement = el.createEl("div", {
           text: `${this.statusToIcon(todo.status)} ${this.priorityToIcon(todo.attributes)} ${todo.text}`
         })
-        todoElement.onclick = () => this.openFile(todo.file.file);
+        todoElement.onclick = () => this.openFile(todo.file.file, todo.line || 0);
       })
     })
   }
