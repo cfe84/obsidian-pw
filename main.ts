@@ -24,7 +24,7 @@ const DEFAULT_SETTINGS: MyPluginSettings = {
 export default class MyPlugin extends Plugin {
 	logger: ILogger = new ConsoleLogger();
 	settings: MyPluginSettings;
-	prefs: PwPrefs = { dailyNotes: { folder: "21 - Recurrence\\daily-notes", template: "# Notes\n\n" } };
+	prefs: PwPrefs = { dailyNotes: { folder: "21 - Recurrence/daily-notes", template: "# Notes\n\n" } };
 	fileTodoParser: FileTodoParser<TFile> = new FileTodoParser();
 	folderTodoParser: FolderTodoParser<TFile> = new FolderTodoParser({ fileTodoParser: this.fileTodoParser, logger: this.logger });
 	todoIndex = new TodoIndex({ fileTodoParser: this.fileTodoParser, folderTodoParser: this.folderTodoParser, logger: this.logger });

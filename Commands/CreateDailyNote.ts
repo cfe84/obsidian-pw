@@ -20,7 +20,7 @@ export class CreateDailyNoteCommand implements Command {
   private getDailyNoteFileName() {
     const date = DateTime.now().toISODate()
     const name = `${date} - daily-notes.md`
-    const file = path.join(this.prefs.dailyNotes.folder, name)
+    const file = this.prefs.dailyNotes.folder + '/' + name
     return file
   }
 
@@ -28,6 +28,7 @@ export class CreateDailyNoteCommand implements Command {
     const fileName = this.getDailyNoteFileName()
     let file = this.app.vault.getAbstractFileByPath(fileName)
     if (!file) {
+      console.debug(`Creating file ${fileName}`)
       const directory = path.dirname(fileName)
       try {
         await this.app.vault.createFolder(directory)
