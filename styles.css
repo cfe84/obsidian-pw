@@ -2,10 +2,18 @@
     color: #f39;
 }
 
-.pw-container {
+.pw-todo-panel {
     font-size: small;
 }
 
-.todo-sub-container {
+.pw-todo-container {
+    cursor: pointer;
+}
+
+.pw-todo-container:hover {
+    background-color: #ddd;
+}
+
+.pw-todo-sub-container {
     margin-left: 10px;
 }

@@ -117,7 +117,7 @@ export class TodoListView extends ItemView {
   public render(): void {
     const container = this.containerEl.children[1];
     container.empty();
-    container.createDiv('pw-container', (el) => {
+    container.createDiv('pw-todo-panel', (el) => {
       el.createEl("b", { text: "Selected:" })
       this.renderTodos(this.getSelectedTodos(), el);
       el.createEl("b", { text: "Due:" })
@@ -164,7 +164,7 @@ export class TodoListView extends ItemView {
     const unfoldedText = " ▼"
     el.createDiv(undefined, (el) => {
       this.sortTodos(todos).forEach(todo => {
-        el.createDiv("div", (container) => {
+        el.createDiv("pw-todo-container", (container) => {
           container.createEl("span", {
             text: `${this.statusToIcon(todo.status)} `,
             cls: "todo-checkbox"
