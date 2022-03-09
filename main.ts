@@ -8,24 +8,14 @@ import { TodoListView } from './Views/TodoListView';
 import { TodoIndex } from './domain/TodoIndex';
 import { ToggleTodoCommand } from './Commands/ToggleTodoCommand';
 import { LineOperations } from './domain/LineOperations';
-import { CreateDailyNoteCommand } from 'Commands/CreateDailyNote';
-import { PwPrefs } from 'PwPrefs';
-import { ToggleOngoingTodoCommand } from 'Commands/ToggleOngoingTodoCommand';
+import { CreateDailyNoteCommand } from './Commands/CreateDailyNote';
+import { ToggleOngoingTodoCommand } from './Commands/ToggleOngoingTodoCommand';
+import { ProletarianWizardSettingsTab } from './Views/ProletarianWizardSettingsTab';
+import { DEFAULT_SETTINGS, ProletarianWizardSettings } from './ProletarianWizardSettings';
 
-// Remember to rename these classes and interfaces!
-
-interface MyPluginSettings {
-	mySetting: string;
-}
-
-const DEFAULT_SETTINGS: MyPluginSettings = {
-	mySetting: 'default'
-}
-
-export default class MyPlugin extends Plugin {
+export default class ProletarianWizard extends Plugin {
 	logger: ILogger = new ConsoleLogger();
-	settings: MyPluginSettings;
-	prefs: PwPrefs = { dailyNotes: { folder: "21 - Recurrence/daily-notes", template: "# Notes\n\n" } };
+	settings: ProletarianWizardSettings;
 	fileTodoParser: FileTodoParser<TFile> = new FileTodoParser();
 	folderTodoParser: FolderTodoParser<TFile> = new FolderTodoParser({ fileTodoParser: this.fileTodoParser, logger: this.logger });
 	todoIndex = new TodoIndex({ fileTodoParser: this.fileTodoParser, folderTodoParser: this.folderTodoParser, logger: this.logger });
@@ -41,10 +31,10 @@ export default class MyPlugin extends Plugin {
 
 		this.addCommand(new ToggleTodoCommand(new LineOperations()));
 		this.addCommand(new ToggleOngoingTodoCommand(new LineOperations()));
-		this.addCommand(new CreateDailyNoteCommand(this.prefs, this.app));
+		this.addCommand(new CreateDailyNoteCommand(this.settings, this.app));
 
 		// Add 
-		// this.addSettingTab(new SampleSettingTab(this.app, this));
+		this.addSettingTab(new ProletarianWizardSettingsTab(this.app, this));
 
 
 		// When registering intervals, this function will automatically clear the interval when the plugin is disabled.
@@ -113,32 +103,3 @@ export default class MyPlugin extends Plugin {
 	}
 
 }
-
-// class SampleSettingTab extends PluginSettingTab {
-// 	plugin: MyPlugin;
-
-// 	constructor(app: App, plugin: MyPlugin) {
-// 		super(app, plugin);
-// 		this.plugin = plugin;
-// 	}
-
-// 	display(): void {
-// 		const { containerEl } = this;
-
-// 		containerEl.empty();
-
-// 		containerEl.createEl('h2', { text: 'Settings for my awesome plugin.' });
-
-// 		new Setting(containerEl)
-// 			.setName('Setting #1')
-// 			.setDesc('It\'s a secret')
-// 			.addText(text => text
-// 				.setPlaceholder('Enter your secret')
-// 				.setValue(this.plugin.settings.mySetting)
-// 				.onChange(async (value) => {
-// 					console.log('Secret: ' + value);
-// 					this.plugin.settings.mySetting = value;
-// 					await this.plugin.saveSettings();
-// 				}));
-// 	}
-// }

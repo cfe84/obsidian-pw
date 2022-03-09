@@ -2,10 +2,10 @@ import { DateTime } from "luxon";
 import { App, Command, Editor, Hotkey, MarkdownView, TFile } from "obsidian";
 import * as path from "path";
 import * as fs from "fs";
-import { PwPrefs } from "../PwPrefs";
+import { ProletarianWizardSettings } from "../ProletarianWizardSettings";
 
 export class CreateDailyNoteCommand implements Command {
-  constructor(private prefs: PwPrefs, private app: App) { }
+  constructor(private prefs: ProletarianWizardSettings, private app: App) { }
 
   id = "pw-openDailyNote";
   name = "Open or create daily note";
