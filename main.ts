@@ -10,6 +10,7 @@ import { ToggleTodoCommand } from './Commands/ToggleTodoCommand';
 import { LineOperations } from './domain/LineOperations';
 import { CreateDailyNoteCommand } from 'Commands/CreateDailyNote';
 import { PwPrefs } from 'PwPrefs';
+import { ToggleOngoingTodoCommand } from 'Commands/ToggleOngoingTodoCommand';
 
 // Remember to rename these classes and interfaces!
 
@@ -39,6 +40,7 @@ export default class MyPlugin extends Plugin {
 		await this.loadSettings();
 
 		this.addCommand(new ToggleTodoCommand(new LineOperations()));
+		this.addCommand(new ToggleOngoingTodoCommand(new LineOperations()));
 		this.addCommand(new CreateDailyNoteCommand(this.prefs, this.app));
 
 		// Add 
@@ -48,7 +50,7 @@ export default class MyPlugin extends Plugin {
 		// When registering intervals, this function will automatically clear the interval when the plugin is disabled.
 		// this.registerInterval(window.setInterval(() => console.log('setInterval'), 5 * 60 * 1000));
 		this.registerView(TodoListView.viewType, (leaf) => {
-			let view = new TodoListView(leaf, this.openFileAsync, { logger: this.logger })
+			let view = new TodoListView(leaf, { openFile: this.openFileAsync }, { logger: this.logger })
 			this.todoIndex.onUpdateAsync = async (items) => {
 				view.onTodosChanged(items)
 			}
@@ -78,6 +80,7 @@ export default class MyPlugin extends Plugin {
 			if (this.app.workspace.getLeavesOfType(TodoListView.viewType).length) {
 				return;
 			}
+
 			this.app.workspace.getRightLeaf(false).setViewState({
 				type: TodoListView.viewType,
 			});
