@@ -82,7 +82,9 @@ export class TodoItemComponent {
       const toggleSubElement = () => {
         if (subTasksUnfolded) {
           subDisplay.innerText = this.foldedText
-          subElementsContainer.childNodes.forEach(child => subElementsContainer.removeChild(child))
+          if (subElementsContainer.childNodes) {
+            subElementsContainer.childNodes.forEach(child => subElementsContainer.removeChild(child))
+          }
         } else {
           subDisplay.innerText = this.unfoldedText
           new TodoListComponent(this.events, this.todo.subtasks).render(subElementsContainer);

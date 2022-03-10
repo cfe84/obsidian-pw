@@ -40,7 +40,10 @@ export class TodoListComponent {
 
   public render(el: HTMLElement) {
     el.createDiv(undefined, (el) => {
-      this.sortTodos(this.todos).forEach(todo => new TodoItemComponent(this.events, todo).render(el))
+      const todos = this.sortTodos(this.todos)
+      if (todos) {
+        this.todos.forEach(todo => new TodoItemComponent(this.events, todo).render(el))
+      }
     })
   }
 }
