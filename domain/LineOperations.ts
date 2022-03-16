@@ -1,6 +1,6 @@
 import { TodoItem, TodoStatus } from "./TodoItem";
 import { IDictionary } from "./IDictionary";
-import { TextDecoder } from "util";
+import { Completion } from "./Completion";
 
 interface ILineStructure {
   indentation: string;
@@ -71,21 +71,21 @@ export class LineOperations {
     );
   }
 
-  // convertDateAttributes(line: string): string {
-  //   const parsedLine = this.parseLine(line);
-  //   const parsedAttributes = this.parseAttributes(parsedLine.line);
-  //   Object.keys(parsedAttributes.attributes).forEach((key) => {
-  //     const val = parsedAttributes.attributes[key];
-  //     if (typeof val === "string") {
-  //       const completion = Completion.completeDate(val as string);
-  //       if (completion !== null) {
-  //         parsedAttributes.attributes[key] = completion;
-  //       }
-  //     }
-  //   });
-  //   parsedLine.line = this.attributesToString(parsedAttributes);
-  //   return this.lineToString(parsedLine);
-  // }
+  convertDateAttributes(line: string): string {
+    const parsedLine = this.parseLine(line);
+    const parsedAttributes = this.parseAttributes(parsedLine.line);
+    Object.keys(parsedAttributes.attributes).forEach((key) => {
+      const val = parsedAttributes.attributes[key];
+      if (typeof val === "string") {
+        const completion = Completion.completeDate(val as string);
+        if (completion !== null) {
+          parsedAttributes.attributes[key] = completion;
+        }
+      }
+    });
+    parsedLine.line = this.attributesToString(parsedAttributes);
+    return this.lineToString(parsedLine);
+  }
 
   // addDate(line: string): string {
   //   const todaysDate = this.deps.date.todayAsYMDString();

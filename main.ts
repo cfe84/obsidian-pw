@@ -12,6 +12,7 @@ import { CreateDailyNoteCommand } from './Commands/CreateDailyNote';
 import { ToggleOngoingTodoCommand } from './Commands/ToggleOngoingTodoCommand';
 import { ProletarianWizardSettingsTab } from './Views/ProletarianWizardSettingsTab';
 import { DEFAULT_SETTINGS, ProletarianWizardSettings } from './ProletarianWizardSettings';
+import { CompleteLineCommand } from 'Commands/CompleteLineCommand';
 
 export default class ProletarianWizard extends Plugin {
 	logger: ILogger = new ConsoleLogger();
@@ -30,6 +31,7 @@ export default class ProletarianWizard extends Plugin {
 		await this.loadSettings();
 
 		this.addCommand(new ToggleTodoCommand(new LineOperations()));
+		this.addCommand(new CompleteLineCommand(new LineOperations()));
 		this.addCommand(new ToggleOngoingTodoCommand(new LineOperations()));
 		this.addCommand(new CreateDailyNoteCommand(this.settings, this.app));
 
@@ -46,18 +48,26 @@ export default class ProletarianWizard extends Plugin {
 			}
 
 			this.registerEvent(this.app.vault.on("modify", (file) => {
-				this.todoIndex.fileUpdated(new ObsidianFile(this.app, file as TFile))
+				if (file.path.endsWith(".md")) {
+					this.todoIndex.fileUpdated(new ObsidianFile(this.app, file as TFile))
+				}
 			}));
 
 			this.registerEvent(this.app.vault.on("create", (file) => {
-				this.todoIndex.fileCreated(new ObsidianFile(this.app, file as TFile))
+				if (file.path.endsWith(".md")) {
+					this.todoIndex.fileCreated(new ObsidianFile(this.app, file as TFile))
+				}
 			}));
 
 			this.registerEvent(this.app.vault.on("delete", (file) => {
-				this.todoIndex.fileDeleted(new ObsidianFile(this.app, file as TFile))
+				if (file.path.endsWith(".md")) {
+					this.todoIndex.fileDeleted(new ObsidianFile(this.app, file as TFile))
+				}
 			}));
 			this.registerEvent(this.app.vault.on("rename", (file, oldPath) => {
-				this.todoIndex.fileRenamed(oldPath, new ObsidianFile(this.app, file as TFile))
+				if (file.path.endsWith(".md")) {
+					this.todoIndex.fileRenamed(oldPath, new ObsidianFile(this.app, file as TFile))
+				}
 			}));
 
 			view.render()

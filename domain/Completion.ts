@@ -1,16 +1,15 @@
-import { IContext } from "../contract/IContext";
 import { deepStrictEqual } from "assert";
-import { IDependencies } from "../contract/IDependencies";
 import * as chrono from "chrono-node";
 import { DateTime } from "luxon";
 
 export class Completion {
-  constructor(private deps: IDependencies, private context: IContext) {}
+  constructor() { }
 
   private completeAttribute(beginning: string): string[] {
-    return this.context.parsedFolder.attributes.filter((attr) =>
-      attr.startsWith(beginning)
-    );
+    // return this.context.parsedFolder.attributes.filter((attr: string) =>
+    //   attr.startsWith(beginning)
+    // );
+    return []
   }
 
   public static completeDate(prompt: string): string | null {
@@ -25,9 +24,10 @@ export class Completion {
     attributeName: string,
     beginning: string
   ) {
-    const values = this.context.parsedFolder.attributeValues[attributeName];
+    const values: string[] = [];
+    // const values = this.context.parsedFolder.attributeValues[attributeName];
     if (!values) return [];
-    return values.filter((value) => value.startsWith(beginning));
+    return values.filter((value: string) => value.startsWith(beginning));
   }
 
   private completeAttributeValue(
