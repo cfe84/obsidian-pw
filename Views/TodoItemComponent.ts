@@ -74,7 +74,7 @@ export class TodoItemComponent {
         text: this.todo.subtasks && this.todo.subtasks.length ? this.foldedText : "  ",
         cls: "todo-sub"
       })
-      const subElementsContainer = container.createEl("div", "todo-sub-container")
+      const subElementsContainer = container.createDiv("pw-todo-sub-container")
       textElement.onclick = () => this.events.openFile(this.todo.file.file, this.todo.line || 0);
 
       const todoId = this.getTodoId(this.todo)
