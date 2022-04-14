@@ -33,7 +33,6 @@ export default class ProletarianWizard extends Plugin {
 		this.addCommand(new ToggleTodoCommand(new LineOperations()));
 		this.addCommand(new CompleteLineCommand(new LineOperations()));
 		this.addCommand(new ToggleOngoingTodoCommand(new LineOperations()));
-		this.addCommand(new CreateDailyNoteCommand(this.settings, this.app));
 
 		// Add 
 		this.addSettingTab(new ProletarianWizardSettingsTab(this.app, this));
