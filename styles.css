@@ -2,12 +2,28 @@
     color: #f39;
 }
 
+.pw-todo-text-complete {
+    text-decoration: line-through;
+    display: inline-block;
+}
+
+.pw-todo-checkbox {
+    /* height: 100%; */
+    display: inline;
+}
+
+.pw-todo-text {
+    display: inline;
+}
+
 .pw-todo-panel {
     font-size: small;
 }
 
 .pw-todo-container {
     cursor: pointer;
+    /* display: inline; */
+    flex-direction: row;
 }
 
 .pw-todo-container:hover {
@@ -16,4 +32,27 @@
 
 .pw-todo-sub-container {
     margin-left: 10px;
+}
+
+.pw-planning-column {
+    width: 260px;
+    margin: 5px;
+    display: inline-block;
+    height: 260px;
+}
+
+.pw-planning-column-title { 
+    width: 100%;
+    margin-bottom: 15px;
+    font-weight: bold;
+    text-align: center;
+}
+
+.pw-planning-column-content {
+    padding: 8px;
+    font-size: .8em;
+    border: 1px solid #ddd;
+    height: 100%;
+    overflow: auto;
+    border-radius: 10px;
 }

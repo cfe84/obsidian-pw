@@ -3,6 +3,7 @@ import { TFile } from "obsidian"
 import { IDictionary } from "../domain/IDictionary"
 import { TodoListComponent } from "./TodoListComponent"
 import { TodoListEvents } from "./TodoListView"
+import { Consts } from "../domain/Consts"
 
 export class TodoItemComponent {
   private static foldState: IDictionary<boolean> = {}
@@ -62,20 +63,32 @@ export class TodoItemComponent {
 
   public render(el: HTMLElement) {
     el.createDiv("pw-todo-container", (container) => {
-      container.createEl("span", {
+      container.createEl("div", {
         text: `${this.statusToIcon(this.todo.status)} `,
-        cls: "todo-checkbox"
+        cls: "pw-todo-checkbox"
       })
-      const textElement = container.createEl("span", {
+      if (this.events.onDrag) {
+        container.draggable = true
+        container.ondragstart = (ev) => {
+          const id = this.getTodoId(this.todo)
+          ev.dataTransfer.setData(Consts.TodoItemDragType, id)
+          this.events.onDrag(id, this.todo)
+        }
+      }
+      const textElement = container.createEl("div", {
         text: `${this.priorityToIcon(this.todo.attributes)} ${this.todo.text}`,
-        cls: "todo-text"
+        cls: `pw-todo-text ${this.todo.status === TodoStatus.Complete || this.todo.status === TodoStatus.Canceled
+          ? "pw-todo-text-complete"
+          : ""}`
       })
       const subDisplay = container.createEl("span", {
         text: this.todo.subtasks && this.todo.subtasks.length ? this.foldedText : "  ",
         cls: "todo-sub"
       })
       const subElementsContainer = container.createDiv("pw-todo-sub-container")
-      textElement.onclick = () => this.events.openFile(this.todo.file.file, this.todo.line || 0);
+      if (this.events.openFile) {
+        textElement.onclick = () => this.events.openFile(this.todo.file.file, this.todo.line || 0);
+      }
 
       const todoId = this.getTodoId(this.todo)
       let subTasksUnfolded = false

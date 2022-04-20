@@ -10,7 +10,8 @@ export interface TodoListViewDeps {
 }
 
 export interface TodoListEvents {
-  openFile: (file: TFile, line: number) => Promise<void>
+  openFile?: (file: TFile, line: number) => Promise<void>
+  onDrag?: (id: string, todo: TodoItem<TFile>) => void
 }
 
 export class TodoListView extends ItemView {

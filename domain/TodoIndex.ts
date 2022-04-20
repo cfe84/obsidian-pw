@@ -11,8 +11,13 @@ export interface TodoIndexDeps<T> {
   logger: ILogger;
 }
 
+export type TodosUpdatedHandler<T> = (items: TodoItem<T>[]) => Promise<void>;
+
 export class TodoIndex<T> {
   files: ITodosInFiles<T>[] = [];
+  get todos(): TodoItem<T>[] {
+    return this.files.reduce((res, ts) => res.concat(ts.todos), [])
+  }
 
   constructor(private deps: TodoIndexDeps<T>) { }
 
@@ -68,10 +73,10 @@ export class TodoIndex<T> {
 
   private triggerUpdate() {
     if (this.onUpdateAsync) {
-      const todos = this.files.reduce((res, ts) => res.concat(ts.todos), [])
+      const todos = this.todos
       this.onUpdateAsync(todos).then(() => { })
     }
   }
 
-  onUpdateAsync: (items: TodoItem<T>[]) => Promise<void>;
+  onUpdateAsync: TodosUpdatedHandler<T>;
 }

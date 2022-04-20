@@ -5,14 +5,16 @@ import { ILogger } from 'ILogger';
 import { ObsidianFile } from './infrastructure/ObsidianFile';
 import { App, Editor, MarkdownView, Modal, Notice, Plugin, PluginManifest, PluginSettingTab, Setting, TFile, Vault } from 'obsidian';
 import { TodoListView } from './Views/TodoListView';
-import { TodoIndex } from './domain/TodoIndex';
+import { TodoIndex, TodosUpdatedHandler } from './domain/TodoIndex';
 import { ToggleTodoCommand } from './Commands/ToggleTodoCommand';
 import { LineOperations } from './domain/LineOperations';
-import { CreateDailyNoteCommand } from './Commands/CreateDailyNote';
 import { ToggleOngoingTodoCommand } from './Commands/ToggleOngoingTodoCommand';
 import { ProletarianWizardSettingsTab } from './Views/ProletarianWizardSettingsTab';
 import { DEFAULT_SETTINGS, ProletarianWizardSettings } from './ProletarianWizardSettings';
 import { CompleteLineCommand } from 'Commands/CompleteLineCommand';
+import { PlanningView } from 'Views/PlanningView';
+import { OpenPlanningCommand } from 'Commands/OpenPlanningCommand';
+import { TodoItem } from 'domain/TodoItem';
 
 export default class ProletarianWizard extends Plugin {
 	logger: ILogger = new ConsoleLogger();
@@ -30,48 +32,58 @@ export default class ProletarianWizard extends Plugin {
 		this.logger.info(`Loading PW`)
 		await this.loadSettings();
 
+		let todosUpdatedHandlers: TodosUpdatedHandler<TFile>[] = []
+
 		this.addCommand(new ToggleTodoCommand(new LineOperations()));
 		this.addCommand(new CompleteLineCommand(new LineOperations()));
 		this.addCommand(new ToggleOngoingTodoCommand(new LineOperations()));
-
-		// Add 
+		this.addCommand(new OpenPlanningCommand(this.app.workspace))
 		this.addSettingTab(new ProletarianWizardSettingsTab(this.app, this));
 
+		this.todoIndex.onUpdateAsync = async (items) => {
+			Promise.all(todosUpdatedHandlers.map(handler => handler(items)))
+		}
 
-		// When registering intervals, this function will automatically clear the interval when the plugin is disabled.
-		// this.registerInterval(window.setInterval(() => console.log('setInterval'), 5 * 60 * 1000));
+		const events = { openFile: this.openFileAsync }
+
 		this.registerView(TodoListView.viewType, (leaf) => {
-			let view = new TodoListView(leaf, { openFile: this.openFileAsync }, { logger: this.logger })
-			this.todoIndex.onUpdateAsync = async (items) => {
+			let view = new TodoListView(leaf, events, { logger: this.logger })
+			todosUpdatedHandlers.push(async (items: TodoItem<TFile>[]) => {
 				view.onTodosChanged(items)
-			}
-
-			this.registerEvent(this.app.vault.on("modify", (file) => {
-				if (file.path.endsWith(".md")) {
-					this.todoIndex.fileUpdated(new ObsidianFile(this.app, file as TFile))
-				}
-			}));
-
-			this.registerEvent(this.app.vault.on("create", (file) => {
-				if (file.path.endsWith(".md")) {
-					this.todoIndex.fileCreated(new ObsidianFile(this.app, file as TFile))
-				}
-			}));
-
-			this.registerEvent(this.app.vault.on("delete", (file) => {
-				if (file.path.endsWith(".md")) {
-					this.todoIndex.fileDeleted(new ObsidianFile(this.app, file as TFile))
-				}
-			}));
-			this.registerEvent(this.app.vault.on("rename", (file, oldPath) => {
-				if (file.path.endsWith(".md")) {
-					this.todoIndex.fileRenamed(oldPath, new ObsidianFile(this.app, file as TFile))
-				}
-			}));
-
+			})
 			view.render()
 			return view
 		});
+
+		this.registerEvent(this.app.vault.on("modify", (file) => {
+			if (file.path.endsWith(".md")) {
+				this.todoIndex.fileUpdated(new ObsidianFile(this.app, file as TFile))
+			}
+		}));
+
+		this.registerEvent(this.app.vault.on("create", (file) => {
+			if (file.path.endsWith(".md")) {
+				this.todoIndex.fileCreated(new ObsidianFile(this.app, file as TFile))
+			}
+		}));
+
+		this.registerEvent(this.app.vault.on("delete", (file) => {
+			if (file.path.endsWith(".md")) {
+				this.todoIndex.fileDeleted(new ObsidianFile(this.app, file as TFile))
+			}
+		}));
+		this.registerEvent(this.app.vault.on("rename", (file, oldPath) => {
+			if (file.path.endsWith(".md")) {
+				this.todoIndex.fileRenamed(oldPath, new ObsidianFile(this.app, file as TFile))
+			}
+		}));
+
+		this.registerView(PlanningView.viewType, (leaf) => {
+			const view = new PlanningView({ logger: this.logger, todoIndex: this.todoIndex }, events, leaf)
+			todosUpdatedHandlers.push((items) => view.onTodosChanged(items))
+			view.render()
+			return view
+		})
 
 		this.app.workspace.onLayoutReady(() => {
 			this.loadFiles()
