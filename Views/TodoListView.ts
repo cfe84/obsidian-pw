@@ -4,6 +4,7 @@ import { IDictionary } from "../domain/IDictionary";
 import { DateTime } from "luxon";
 import { ILogger } from "ILogger";
 import { TodoListComponent } from "./TodoListComponent";
+import { TodoItemComponent } from "./TodoItemComponent";
 
 export interface TodoListViewDeps {
   logger: ILogger
@@ -11,7 +12,7 @@ export interface TodoListViewDeps {
 
 export interface TodoListEvents {
   openFile?: (file: TFile, line: number) => Promise<void>
-  onDrag?: (id: string, todo: TodoItem<TFile>) => void
+  onDrag?: (id: string, todo: TodoItemComponent) => void
 }
 
 export class TodoListView extends ItemView {

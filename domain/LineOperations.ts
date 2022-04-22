@@ -25,7 +25,7 @@ interface IAttributesStructure {
 export class LineOperations {
   constructor() { }
 
-  private parseLine(line: string): ILineStructure {
+  parseLine(line: string): ILineStructure {
     const regexp =
       /^(\s*)?(?:([*-]|\d+\.)\s*)?(?:(\[.?\])\s+)?(?:((?:\d\d\d\d-)?\d\d-\d\d):\s*)?(.+)/;
     const parsed = regexp.exec(line);
@@ -47,7 +47,7 @@ export class LineOperations {
     };
   }
 
-  private lineToString(line: ILineStructure): string {
+  lineToString(line: ILineStructure): string {
     const space = (item: string, char: string = " ") =>
       item ? `${item}${char}` : "";
     return `${line.indentation}${space(line.listMarker)}${space(
@@ -55,7 +55,7 @@ export class LineOperations {
     )}${space(line.date, ": ")}${line.line}`;
   }
 
-  private attributesToString(
+  attributesToString(
     attributesStructure: IAttributesStructure
   ): string {
     return (
@@ -129,7 +129,7 @@ export class LineOperations {
                   : TodoStatus.Todo;
   };
 
-  private parseAttributes(text: string): IAttributesStructure {
+  parseAttributes(text: string): IAttributesStructure {
     const regexp = / @(\w+)(?:\(([^)]+)\))?/g;
     const matches = text.match(regexp);
     const res: IDictionary<string | boolean> = {};

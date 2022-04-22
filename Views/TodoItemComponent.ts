@@ -7,11 +7,12 @@ import { Consts } from "../domain/Consts"
 
 export class TodoItemComponent {
   private static foldState: IDictionary<boolean> = {}
+  public element: HTMLDivElement
 
   foldedText = ` ▶`
   unfoldedText = " ▼"
 
-  constructor(private events: TodoListEvents, private todo: TodoItem<TFile>) { }
+  constructor(private events: TodoListEvents, public todo: TodoItem<TFile>) { }
 
   private statusToIcon = (status: TodoStatus): string => {
     switch (status) {
@@ -62,7 +63,7 @@ export class TodoItemComponent {
   }
 
   public render(el: HTMLElement) {
-    el.createDiv("pw-todo-container", (container) => {
+    this.element = el.createDiv("pw-todo-container", (container) => {
       container.createEl("div", {
         text: `${this.statusToIcon(this.todo.status)} `,
         cls: "pw-todo-checkbox"
@@ -72,7 +73,7 @@ export class TodoItemComponent {
         container.ondragstart = (ev) => {
           const id = this.getTodoId(this.todo)
           ev.dataTransfer.setData(Consts.TodoItemDragType, id)
-          this.events.onDrag(id, this.todo)
+          this.events.onDrag(id, this)
         }
       }
       const textElement = container.createEl("div", {

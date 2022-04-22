@@ -109,6 +109,7 @@ export default class ProletarianWizard extends Plugin {
 	private loadFiles() {
 		const files = this.app.vault.getMarkdownFiles().map(file => new ObsidianFile(this.app, file));
 		this.todoIndex.filesLoaded(files);
+
 	}
 
 	onunload() {

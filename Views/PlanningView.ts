@@ -7,6 +7,7 @@ import { TodoListEvents } from "./TodoListView";
 import { TodoIndex } from "../domain/TodoIndex";
 import { TodoListComponent } from "./TodoListComponent";
 import { Consts } from "../domain/Consts";
+import { FileOperations } from "../domain/FileOperations";
 
 const dueDateAttributes = ["due", "duedate", "when", "expire", "expires"];
 
@@ -14,11 +15,13 @@ export interface PlanningViewDeps {
   logger: ILogger,
   todoIndex: TodoIndex<TFile>
 }
+
 export class PlanningView extends ItemView {
   private contentView: HTMLDivElement
+  private hideEmpty = true
   private todos: TodoItem<TFile>[] = []
   private events: TodoListEvents
-  private draggedTodos: { [key: string]: TodoItem<TFile> } = {}
+  private draggedTodos: { [key: string]: TodoItemComponent } = {}
 
   constructor(private deps: PlanningViewDeps, events: TodoListEvents, leaf: WorkspaceLeaf) {
     super(leaf)
@@ -26,9 +29,10 @@ export class PlanningView extends ItemView {
     this.contentView = this.containerEl.getElementsByClassName("view-content")[0] as HTMLDivElement
     this.events = {
       openFile: events.openFile,
-      onDrag: (id: string, todo: TodoItem<TFile>) => this.draggedTodos[id] = todo
+      onDrag: (id: string, todo: TodoItemComponent) => this.draggedTodos[id] = todo
     }
   }
+
   static viewType: string = "pw.planning";
   getViewType() { return PlanningView.viewType }
   getDisplayText() { return "Todo planning" }
@@ -82,7 +86,8 @@ export class PlanningView extends ItemView {
       && todo.status !== TodoStatus.Canceled && todo.status !== TodoStatus.Complete)
   }
 
-  private renderColumn(container: Element, columName: string, todos: TodoItem<TFile>[], hideIfEmpty = false) {
+
+  private renderColumn(container: Element, columName: string, todos: TodoItem<TFile>[], ondrop: (todo: TodoItem<TFile>) => void | null = null, hideIfEmpty = false) {
     if (todos.length === 0 && hideIfEmpty) {
       return
     }
@@ -92,19 +97,35 @@ export class PlanningView extends ItemView {
     const todoList = new TodoListComponent(this.events, todos)
     todoList.render(contentEl)
 
-    contentEl.ondragover = ev => {
-      const todoId = ev.dataTransfer.getData(Consts.TodoItemDragType)
-      if (todoId) {
+    if (ondrop) {
+      contentEl.ondragover = ev => {
         ev.preventDefault()
+      }
+      contentEl.ondragenter = ev => {
+        contentEl.style.borderColor = "blue"
+      }
+      contentEl.ondragleave = ev => {
+        contentEl.style.borderColor = "#ddd"
+      }
+      contentEl.ondrop = ev => {
+        const todoId = ev.dataTransfer.getData(Consts.TodoItemDragType)
+        if (todoId) {
+          ev.preventDefault()
+          const todo = this.draggedTodos[todoId]
+          if (Array.from(contentEl.children).indexOf(todo.element) < 0) {
+            contentEl.appendChild(todo.element)
+            ondrop(todo.todo)
+          }
+        }
       }
     }
-    contentEl.ondrop = ev => {
-      const todoId = ev.dataTransfer.getData(Consts.TodoItemDragType)
-      if (todoId) {
-        ev.preventDefault()
-        const todo = this.draggedTodos[todoId]
-        this.deps.logger.debug(`Dropped ${todoId} into ${columName}`)
-      }
+  }
+
+  moveToDate(date: DateTime) {
+    return (todo: TodoItem<TFile>) => {
+      todo.file.getContentAsync()
+        .then(content => FileOperations.updateAttribute(content, todo.line, "due", date.toISODate()))
+        .then(content => todo.file.setContentAsync(content))
     }
   }
 
@@ -113,6 +134,7 @@ export class PlanningView extends ItemView {
     this.renderColumn(container, "🕸️ Past", this.getTodosByDueDate(null, today).filter(
       todo => todo.status !== TodoStatus.Canceled
         && todo.status !== TodoStatus.Complete),
+      null,
       true)
     let bracketStart = today
     let bracketEnd = today.plus({ day: 1 })
@@ -123,7 +145,7 @@ export class PlanningView extends ItemView {
         }
         const dueDate = this.findTodoDueDate(todo)
         return dueDate !== undefined && dueDate > today.minus({ days: 1 })
-      }))
+      }), this.moveToDate(bracketStart))
 
 
     for (let i = 0; i < 6; i++) {
@@ -133,29 +155,41 @@ export class PlanningView extends ItemView {
         continue
       }
       const label = i === 0 ? "📅 Tomorrow" : bracketStart.toFormat("📅 cccc dd/MM")
-      this.renderColumn(container, label, this.getTodosByDueDate(bracketStart, bracketEnd))
+      this.renderColumn(container, label, this.getTodosByDueDate(bracketStart, bracketEnd), this.moveToDate(bracketStart))
     }
 
     for (let i = 1; i < 5; i++) {
       bracketStart = bracketEnd
       bracketEnd = bracketStart.plus({ weeks: 1 })
       const label = `📅 Week +${i} (${bracketStart.toFormat("dd/MM")} - ${bracketEnd.minus({ days: 1 }).toFormat("dd/MM")})`
-      this.renderColumn(container, label, this.getTodosByDueDate(bracketStart, bracketEnd))
+      this.renderColumn(container, label, this.getTodosByDueDate(bracketStart, bracketEnd), this.moveToDate(bracketStart), this.hideEmpty)
     }
 
     for (let i = 1; i < 4; i++) {
       bracketStart = bracketEnd
       bracketEnd = bracketStart.plus({ months: 1 })
       const label = `📅 Month +${i} (${bracketStart.toFormat("dd/MM")} - ${bracketEnd.minus({ days: 1 }).toFormat("dd/MM")})`
-      this.renderColumn(container, label, this.getTodosByDueDate(bracketStart, bracketEnd), true)
+      this.renderColumn(container, label, this.getTodosByDueDate(bracketStart, bracketEnd), this.moveToDate(bracketStart), this.hideEmpty)
     }
-    this.renderColumn(container, "📅 Later", this.getTodosByDueDate(bracketEnd, null), true)
-    this.renderColumn(container, "📃 Backlog", this.getTodosWithNoDate(), true)
+    this.renderColumn(container, "📅 Later", this.getTodosByDueDate(bracketEnd, null), this.moveToDate(bracketStart), this.hideEmpty)
+    this.renderColumn(container, "📃 Backlog", this.getTodosWithNoDate(), null, this.hideEmpty)
+  }
+
+  private renderHideEmptyToggle(el: HTMLElement) {
+    const cont = el.createDiv()
+    const checkbox = cont.createEl("input", { type: "checkbox" })
+    checkbox.checked = this.hideEmpty
+    cont.appendText(" hide empty containers")
+    checkbox.onclick = () => {
+      this.hideEmpty = checkbox.checked
+      this.render()
+    }
   }
 
   render() {
     Array.from(this.contentView.children).forEach(child => this.contentView.removeChild(child))
     this.deps.logger.debug(`Rendering planning view`)
+    this.renderHideEmptyToggle(this.contentView)
     this.renderColumns(this.contentView)
   }
 }
