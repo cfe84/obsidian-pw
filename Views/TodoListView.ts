@@ -12,6 +12,7 @@ export interface TodoListViewDeps {
 
 export interface TodoListEvents {
   openFile?: (file: TFile, line: number) => Promise<void>
+  onCheckboxClicked?: (todo: TodoItem<TFile>) => Promise<void>
   onDrag?: (id: string, todo: TodoItemComponent) => void
 }
 

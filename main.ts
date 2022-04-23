@@ -1,20 +1,21 @@
 import { ConsoleLogger } from 'ConsoleLogger';
 import { FolderTodoParser } from './domain/FolderTodoParser';
 import { FileTodoParser } from './domain/FileTodoParser';
-import { ILogger } from 'ILogger';
+import { ILogger } from './ILogger';
 import { ObsidianFile } from './infrastructure/ObsidianFile';
 import { App, Editor, MarkdownView, Modal, Notice, Plugin, PluginManifest, PluginSettingTab, Setting, TFile, Vault } from 'obsidian';
-import { TodoListView } from './Views/TodoListView';
+import { TodoListEvents, TodoListView } from './Views/TodoListView';
 import { TodoIndex, TodosUpdatedHandler } from './domain/TodoIndex';
 import { ToggleTodoCommand } from './Commands/ToggleTodoCommand';
 import { LineOperations } from './domain/LineOperations';
 import { ToggleOngoingTodoCommand } from './Commands/ToggleOngoingTodoCommand';
 import { ProletarianWizardSettingsTab } from './Views/ProletarianWizardSettingsTab';
 import { DEFAULT_SETTINGS, ProletarianWizardSettings } from './ProletarianWizardSettings';
-import { CompleteLineCommand } from 'Commands/CompleteLineCommand';
-import { PlanningView } from 'Views/PlanningView';
-import { OpenPlanningCommand } from 'Commands/OpenPlanningCommand';
-import { TodoItem } from 'domain/TodoItem';
+import { CompleteLineCommand } from './Commands/CompleteLineCommand';
+import { PlanningView } from './Views/PlanningView';
+import { OpenPlanningCommand } from './Commands/OpenPlanningCommand';
+import { TodoItem, TodoStatus } from './domain/TodoItem';
+import { FileOperations } from './domain/FileOperations';
 
 export default class ProletarianWizard extends Plugin {
 	logger: ILogger = new ConsoleLogger();
@@ -26,6 +27,7 @@ export default class ProletarianWizard extends Plugin {
 	constructor(app: App, manifest: PluginManifest) {
 		super(app, manifest);
 		this.openFileAsync = this.openFileAsync.bind(this);
+		this.toggleCheckmarkAsync = this.toggleCheckmarkAsync.bind(this);
 	}
 
 	async onload() {
@@ -44,7 +46,10 @@ export default class ProletarianWizard extends Plugin {
 			Promise.all(todosUpdatedHandlers.map(handler => handler(items)))
 		}
 
-		const events = { openFile: this.openFileAsync }
+		const events: TodoListEvents = {
+			openFile: this.openFileAsync,
+			onCheckboxClicked: this.toggleCheckmarkAsync
+		}
 
 		this.registerView(TodoListView.viewType, (leaf) => {
 			let view = new TodoListView(leaf, events, { logger: this.logger })
@@ -106,10 +111,14 @@ export default class ProletarianWizard extends Plugin {
 		view.editor.setSelection({ ch: 0, line }, { ch: lineContent.length, line })
 	}
 
+	private async toggleCheckmarkAsync(todo: TodoItem<TFile>) {
+		const newStatus = todo.status === TodoStatus.Todo ? "[x]" : "[ ]"
+		await FileOperations.updateCheckboxAsync(todo, newStatus)
+	}
+
 	private loadFiles() {
 		const files = this.app.vault.getMarkdownFiles().map(file => new ObsidianFile(this.app, file));
 		this.todoIndex.filesLoaded(files);
-
 	}
 
 	onunload() {

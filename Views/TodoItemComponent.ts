@@ -64,16 +64,21 @@ export class TodoItemComponent {
 
   public render(el: HTMLElement) {
     this.element = el.createDiv("pw-todo-container", (container) => {
-      container.createEl("div", {
-        text: `${this.statusToIcon(this.todo.status)} `,
-        cls: "pw-todo-checkbox"
-      })
       if (this.events.onDrag) {
         container.draggable = true
         container.ondragstart = (ev) => {
           const id = this.getTodoId(this.todo)
           ev.dataTransfer.setData(Consts.TodoItemDragType, id)
           this.events.onDrag(id, this)
+        }
+      }
+      const checkbox = container.createEl("div", {
+        text: `${this.statusToIcon(this.todo.status)} `,
+        cls: "pw-todo-checkbox"
+      })
+      if (this.events.onCheckboxClicked) {
+        checkbox.onclick = () => {
+          this.events.onCheckboxClicked(this.todo).then()
         }
       }
       const textElement = container.createEl("div", {

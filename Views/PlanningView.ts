@@ -29,6 +29,7 @@ export class PlanningView extends ItemView {
     this.contentView = this.containerEl.getElementsByClassName("view-content")[0] as HTMLDivElement
     this.events = {
       openFile: events.openFile,
+      onCheckboxClicked: events.onCheckboxClicked,
       onDrag: (id: string, todo: TodoItemComponent) => this.draggedTodos[id] = todo
     }
   }
@@ -123,9 +124,7 @@ export class PlanningView extends ItemView {
 
   moveToDate(date: DateTime) {
     return (todo: TodoItem<TFile>) => {
-      todo.file.getContentAsync()
-        .then(content => FileOperations.updateAttribute(content, todo.line, "due", date.toISODate()))
-        .then(content => todo.file.setContentAsync(content))
+      FileOperations.updateAttributeAsync(todo, "due", date.toISODate()).then()
     }
   }
 

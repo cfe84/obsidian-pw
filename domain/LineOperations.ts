@@ -2,7 +2,7 @@ import { TodoItem, TodoStatus } from "./TodoItem";
 import { IDictionary } from "./IDictionary";
 import { Completion } from "./Completion";
 
-interface ILineStructure {
+export interface ILineStructure {
   indentation: string;
   listMarker: string;
   checkbox: string;
@@ -17,7 +17,7 @@ export interface ITodoParsingResult<T> {
   indentLevel: number;
 }
 
-interface IAttributesStructure {
+export interface IAttributesStructure {
   textWithoutAttributes: string;
   attributes: IDictionary<string | boolean>;
 }
