@@ -1,4 +1,4 @@
-import { IFile } from "domain/IFile";
+import { IFile } from "src/domain/IFile";
 import { App, TFile } from "obsidian";
 
 export class ObsidianFile implements IFile<TFile> {

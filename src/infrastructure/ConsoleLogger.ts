@@ -1,4 +1,4 @@
-import { ILogger } from "ILogger";
+import { ILogger } from "src/domain/ILogger";
 
 export class ConsoleLogger implements ILogger {
   private getTime(): string {

@@ -1,4 +1,4 @@
-import { ILogger } from "ILogger";
+import { ILogger } from "src/domain/ILogger";
 import { FileTodoParser } from "./FileTodoParser";
 import { FolderTodoParser } from "./FolderTodoParser";
 import { IFile } from "./IFile";

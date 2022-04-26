@@ -2,7 +2,7 @@ import { TodoItem, TodoStatus } from "../domain/TodoItem";
 import { ItemView, TFile, WorkspaceLeaf } from "obsidian";
 import { IDictionary } from "../domain/IDictionary";
 import { DateTime } from "luxon";
-import { ILogger } from "ILogger";
+import { ILogger } from "src/domain/ILogger";
 import { TodoListComponent } from "./TodoListComponent";
 import { TodoItemComponent } from "./TodoItemComponent";
 

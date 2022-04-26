@@ -1,5 +1,5 @@
 import { TodoItem, TodoStatus } from "../domain/TodoItem";
-import { ILogger } from "../ILogger";
+import { ILogger } from "../domain/ILogger";
 import { ItemView, TFile, View, WorkspaceLeaf } from "obsidian";
 import { DateTime } from "luxon";
 import { TodoItemComponent } from "./TodoItemComponent";

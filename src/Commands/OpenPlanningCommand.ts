@@ -1,5 +1,5 @@
 import { Command, Editor, Hotkey, MarkdownView, Workspace } from "obsidian";
-import { PlanningView } from "Views/PlanningView";
+import { PlanningView } from "src/Views/PlanningView";
 
 export class OpenPlanningCommand implements Command {
   constructor(private workspace: Workspace) { }

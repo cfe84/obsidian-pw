@@ -1,6 +1,6 @@
 import { IFile } from "./IFile";
 import { FileTodoParser } from "./FileTodoParser";
-import { ILogger } from "ILogger";
+import { ILogger } from "src/domain/ILogger";
 import { ITodosInFiles } from "./ITodosInFiles";
 
 export interface IFolderTodoParserDeps<TFile> {
