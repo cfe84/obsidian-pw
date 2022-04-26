@@ -1,13 +1,10 @@
 export interface ProletarianWizardSettings {
-  dailyNotes: {
-    folder: string,
-    template: string
-  };
+  version: number,
+  buttonInLeftBar: boolean,
+
 }
 
 export const DEFAULT_SETTINGS: ProletarianWizardSettings = {
-  dailyNotes: {
-    folder: "21 - Recurrence/daily-notes",
-    template: "# Notes\n\n"
-  }
+  version: 2,
+  buttonInLeftBar: true
 }

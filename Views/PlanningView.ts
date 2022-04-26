@@ -22,6 +22,9 @@ export class PlanningView extends ItemView {
   private todos: TodoItem<TFile>[] = []
   private events: TodoListEvents
   private draggedTodos: { [key: string]: TodoItemComponent } = {}
+  getIcon(): string {
+    return "calendar-glyph"
+  }
 
   constructor(private deps: PlanningViewDeps, events: TodoListEvents, leaf: WorkspaceLeaf) {
     super(leaf)

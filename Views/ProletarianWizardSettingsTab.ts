@@ -15,27 +15,15 @@ export class ProletarianWizardSettingsTab extends PluginSettingTab {
     containerEl.empty();
 
     containerEl.createEl('h2', { text: 'Proletarian Wizard' });
-    containerEl.createEl('h3', { text: 'Daily notes' });
+    containerEl.createEl('h3', { text: 'UI' });
 
     new Setting(containerEl)
-      .setName('Folder')
-      .setDesc('Folder where daily notes are stored')
-      .addText(text => text
-        .setPlaceholder('Enter folder relative path')
-        .setValue(this.plugin.settings.dailyNotes.folder)
+      .setName('Planning ribbon icon')
+      .setDesc('Show planning ribbon icon in left bar')
+      .addToggle(toggle => toggle
+        .setValue(this.plugin.settings.buttonInLeftBar)
         .onChange(async (value) => {
-          this.plugin.settings.dailyNotes.folder = value;
-          await this.plugin.saveSettings();
-        }));
-
-    new Setting(containerEl)
-      .setName('Template')
-      .setDesc('Template for new notes')
-      .addText(text => text
-        .setPlaceholder('Some markdown is fine')
-        .setValue(this.plugin.settings.dailyNotes.template)
-        .onChange(async (value) => {
-          this.plugin.settings.dailyNotes.template = value;
+          this.plugin.settings.buttonInLeftBar = value;
           await this.plugin.saveSettings();
         }));
   }
