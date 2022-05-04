@@ -21,8 +21,8 @@ export default class ProletarianWizard extends Plugin {
 	logger: ILogger = new ConsoleLogger();
 	settings: ProletarianWizardSettings;
 	fileTodoParser: FileTodoParser<TFile> = new FileTodoParser();
-	folderTodoParser: FolderTodoParser<TFile> = new FolderTodoParser({ fileTodoParser: this.fileTodoParser, logger: this.logger });
-	todoIndex = new TodoIndex({ fileTodoParser: this.fileTodoParser, folderTodoParser: this.folderTodoParser, logger: this.logger });
+	folderTodoParser: FolderTodoParser<TFile>;
+	todoIndex: TodoIndex<TFile>;
 
 	constructor(app: App, manifest: PluginManifest) {
 		super(app, manifest);
@@ -34,6 +34,8 @@ export default class ProletarianWizard extends Plugin {
 		this.logger.info(`Loading PW`)
 		await this.loadSettings();
 
+		this.folderTodoParser = new FolderTodoParser({ fileTodoParser: this.fileTodoParser, logger: this.logger })
+		this.todoIndex = new TodoIndex({ fileTodoParser: this.fileTodoParser, folderTodoParser: this.folderTodoParser, logger: this.logger }, this.settings)
 		let todosUpdatedHandlers: TodosUpdatedHandler<TFile>[] = []
 
 		const openPlanningCommand = new OpenPlanningCommand(this.app.workspace)

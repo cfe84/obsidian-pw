@@ -56,3 +56,7 @@
     overflow: auto;
     border-radius: 10px;
 }
+
+.pw-error {
+    color: red
+}

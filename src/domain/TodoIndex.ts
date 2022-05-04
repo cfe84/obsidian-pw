@@ -11,6 +11,11 @@ export interface TodoIndexDeps<T> {
   logger: ILogger;
 }
 
+export interface TodoIndexSettings {
+  ignoreArchivedTodos: boolean,
+  archiveFolder: string
+}
+
 export type TodosUpdatedHandler<T> = (items: TodoItem<T>[]) => Promise<void>;
 
 export class TodoIndex<T> {
@@ -19,9 +24,18 @@ export class TodoIndex<T> {
     return this.files.reduce((res, ts) => res.concat(ts.todos), [])
   }
 
-  constructor(private deps: TodoIndexDeps<T>) { }
+  constructor(private deps: TodoIndexDeps<T>, private settings: TodoIndexSettings) { }
+
+  private ignoreFile(file: IFile<T>): boolean {
+    if (this.settings.ignoreArchivedTodos && file.isInFolder(this.settings.archiveFolder)) {
+      this.deps.logger.debug(`TodoIndex: File ignored because archived: ${file.id}`)
+      return true
+    }
+    return false
+  }
 
   filesLoaded(files: IFile<T>[]) {
+    files = files.filter(file => !this.ignoreFile(file))
     this.deps.folderTodoParser.ParseFilesAsync(files).then(todos => {
       this.files = todos;
       this.triggerUpdate();
@@ -29,6 +43,9 @@ export class TodoIndex<T> {
   }
 
   fileUpdated(file: IFile<T>) {
+    if (this.ignoreFile(file)) {
+      return
+    }
     this.deps.logger.debug(`TodoIndex: File updated: ${file.id}`)
     const index = this.findTodo(file);
     this.deps.fileTodoParser.parseMdFileAsync(file).then(todos => {
@@ -45,6 +62,9 @@ export class TodoIndex<T> {
   }
 
   fileDeleted(file: IFile<T>) {
+    if (this.ignoreFile(file)) {
+      return
+    }
     this.deps.logger.debug(`TodoIndex: File deleted: ${file.id}`)
     const index = this.findTodo(file);
     this.files.splice(index, 1);
@@ -52,6 +72,9 @@ export class TodoIndex<T> {
   }
 
   fileCreated(file: IFile<T>) {
+    if (this.ignoreFile(file)) {
+      return
+    }
     this.deps.logger.debug(`TodoIndex: File created: ${file.id}`)
     this.deps.fileTodoParser.parseMdFileAsync(file).then(todos => {
       this.files.push({

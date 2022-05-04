@@ -3,5 +3,6 @@ export interface IFile<T> {
   name: string,
   id: string,
   getContentAsync(): Promise<string>,
-  setContentAsync(val: string): Promise<void>
+  setContentAsync(val: string): Promise<void>,
+  isInFolder(folder: string): boolean
 }

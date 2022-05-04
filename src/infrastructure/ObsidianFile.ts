@@ -7,6 +7,9 @@ export class ObsidianFile implements IFile<TFile> {
   constructor(private app: App, public file: TFile) {
     this.name = file.basename;
   }
+  isInFolder(folder: string): boolean {
+    return this.file.path.toLowerCase().startsWith(folder.toLowerCase())
+  }
   async getContentAsync(): Promise<string> {
     return await this.app.vault.cachedRead(this.file);
   }
