@@ -21,6 +21,15 @@ export class FileOperations {
     await this.updateContentInFileAsync(todo, updateLine)
   }
 
+  static async removeAttributeAsync<T>(todo: TodoItem<T>, attributeName: string) {
+    const updateLine = (line: ILineStructure) => {
+      const attributes = lineOperations.parseAttributes(line.line)
+      delete attributes.attributes[attributeName]
+      line.line = lineOperations.attributesToString(attributes)
+    }
+    await this.updateContentInFileAsync(todo, updateLine)
+  }
+
   static async updateCheckboxAsync<T>(todo: TodoItem<T>, newCheckbox: string) {
     const updateLine = (line: ILineStructure) => {
       line.checkbox = newCheckbox

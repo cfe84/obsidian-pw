@@ -131,6 +131,11 @@ export class PlanningView extends ItemView {
     }
   }
 
+  removeDate() {
+    return (todo: TodoItem<TFile>) => {
+      FileOperations.removeAttributeAsync(todo, "due").then()
+    }
+  }
   renderColumns(container: Element) {
     const today = DateTime.now().startOf("day")
     this.renderColumn(container, "🕸️ Past", this.getTodosByDueDate(null, today).filter(
@@ -174,7 +179,7 @@ export class PlanningView extends ItemView {
       this.renderColumn(container, label, this.getTodosByDueDate(bracketStart, bracketEnd), this.moveToDate(bracketStart), this.hideEmpty)
     }
     this.renderColumn(container, "📅 Later", this.getTodosByDueDate(bracketEnd, null), this.moveToDate(bracketStart), this.hideEmpty)
-    this.renderColumn(container, "📃 Backlog", this.getTodosWithNoDate(), null, this.hideEmpty)
+    this.renderColumn(container, "📃 Backlog", this.getTodosWithNoDate(), this.removeDate(), this.hideEmpty)
   }
 
   private renderHideEmptyToggle(el: HTMLElement) {

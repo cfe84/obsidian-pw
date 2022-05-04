@@ -1,4 +1,4 @@
-import ProletarianWizard from "main";
+import ProletarianWizard from "../main";
 import { App, PluginSettingTab, Setting } from "obsidian";
 
 export class ProletarianWizardSettingsTab extends PluginSettingTab {
