@@ -1,7 +1,9 @@
 import { TodoItem } from "./TodoItem";
 
 export class TodoMatcher<T> {
-  constructor(private matchTerm: string) {
+  private matchTerm: string
+  constructor(matchTerm: string) {
+    this.matchTerm = matchTerm.toLowerCase()
     this.matches = this.matches.bind(this)
   }
 
