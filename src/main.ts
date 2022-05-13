@@ -125,9 +125,15 @@ export default class ProletarianWizard extends Plugin {
 	}
 
 	private async openFileAsync(fileAndLine: OpenFileEvent<TFile>) {
-		const { file, line } = fileAndLine
-		await this.app.workspace.activeLeaf.openFile(file)
-		const view = this.app.workspace.getActiveViewOfType(MarkdownView)
+		const { file, line, inOtherLeaf } = fileAndLine
+		let leaf = this.app.workspace.activeLeaf
+		if (inOtherLeaf) {
+			leaf = this.app.workspace.splitActiveLeaf("vertical")
+		} else if (leaf.getViewState().pinned) {
+			leaf = this.app.workspace.getUnpinnedLeaf()
+		}
+		await leaf.openFile(file)
+		let view = this.app.workspace.getActiveViewOfType(MarkdownView)
 		const lineContent = await view.editor.getLine(line)
 		view.editor.setSelection({ ch: 0, line }, { ch: lineContent.length, line })
 	}

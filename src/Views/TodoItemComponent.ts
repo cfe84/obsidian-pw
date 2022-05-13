@@ -100,10 +100,11 @@ export class TodoItemComponent {
       })
       const subElementsContainer = container.createDiv("pw-todo-sub-container")
       if (this.events.openFile) {
-        textElement.onclick = () =>
+        textElement.onclick = (ev) =>
           this.events.openFile.fireAsync({
             file: this.todo.file.file,
-            line: this.todo.line || 0
+            line: this.todo.line || 0,
+            inOtherLeaf: ev.ctrlKey
           }).then();
       }
 
