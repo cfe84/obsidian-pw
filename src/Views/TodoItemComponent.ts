@@ -2,7 +2,7 @@ import { TodoItem, TodoStatus } from "../domain/TodoItem"
 import { TFile } from "obsidian"
 import { IDictionary } from "../domain/IDictionary"
 import { TodoListComponent } from "./TodoListComponent"
-import { TodoListEvents } from "./TodoListView"
+import { TodoFilter, TodoListEvents } from "./TodoListView"
 import { Consts } from "../domain/Consts"
 
 export class TodoItemComponent {
@@ -12,8 +12,17 @@ export class TodoItemComponent {
   foldedText = ` ▶`
   unfoldedText = " ▼"
 
-  constructor(private events: TodoListEvents, public todo: TodoItem<TFile>) { }
-
+  constructor(private events: TodoListEvents, public todo: TodoItem<TFile>) {
+    this.onFilter = this.onFilter.bind(this)
+    events.onFilter.listen(this.onFilter)
+  }
+  private async onFilter(filter: TodoFilter<TFile>) {
+    if (filter(this.todo)) {
+      this.element.style.display = "block"
+    } else {
+      this.element.style.display = "none"
+    }
+  }
   private statusToIcon = (status: TodoStatus): string => {
     switch (status) {
       case TodoStatus.Complete:

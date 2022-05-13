@@ -2,12 +2,14 @@ import { IDictionary } from "../domain/IDictionary";
 import { TodoItem } from "../domain/TodoItem";
 import { TFile } from "obsidian";
 import { TodoItemComponent } from "./TodoItemComponent";
-import { TodoListEvents } from "./TodoListView";
+import { TodoFilter, TodoListEvents } from "./TodoListView";
 
 export class TodoListComponent {
+  private todoComponents: TodoItemComponent[] = []
   constructor(private events: TodoListEvents, private todos: TodoItem<TFile>[]) {
 
   }
+
 
   private getPriorityValue(todo: TodoItem<TFile>): number {
     if (!todo.attributes || !todo.attributes["priority"]) {
@@ -26,7 +28,7 @@ export class TodoListComponent {
 
   private sortTodos(todos: TodoItem<TFile>[]): TodoItem<TFile>[] {
     if (!todos) {
-      return todos
+      return []
     }
     return todos.sort((a, b) => {
       const priorityDiff = this.getPriorityValue(b) - this.getPriorityValue(a);
@@ -37,13 +39,11 @@ export class TodoListComponent {
     })
   }
 
-
   public render(el: HTMLElement) {
     el.createDiv(undefined, (el) => {
       const todos = this.sortTodos(this.todos)
-      if (todos) {
-        this.todos.forEach(todo => new TodoItemComponent(this.events, todo).render(el))
-      }
+      this.todoComponents = todos.map(todo => new TodoItemComponent(this.events, todo))
+      this.todoComponents.forEach(component => component.render(el))
     })
   }
 }

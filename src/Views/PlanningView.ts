@@ -8,6 +8,7 @@ import { TodoIndex } from "../domain/TodoIndex";
 import { TodoListComponent } from "./TodoListComponent";
 import { Consts } from "../domain/Consts";
 import { FileOperations } from "../domain/FileOperations";
+import { TodoMatcher } from "src/domain/TodoMatcher";
 
 const dueDateAttributes = ["due", "duedate", "when", "expire", "expires"];
 
@@ -32,6 +33,7 @@ export class PlanningView extends ItemView {
     this.contentView = this.containerEl.getElementsByClassName("view-content")[0] as HTMLDivElement
     this.events = {
       openFile: events.openFile,
+      onFilter: events.onFilter,
       onCheckboxClicked: events.onCheckboxClicked,
       onDrag: (id: string, todo: TodoItemComponent) => this.draggedTodos[id] = todo
     }
@@ -89,7 +91,6 @@ export class PlanningView extends ItemView {
       && !todo.attributes["selected"]
       && todo.status !== TodoStatus.Canceled && todo.status !== TodoStatus.Complete)
   }
-
 
   private renderColumn(container: Element, columName: string, todos: TodoItem<TFile>[], ondrop: (todo: TodoItem<TFile>) => void | null = null, hideIfEmpty = false) {
     if (todos.length === 0 && hideIfEmpty) {
@@ -183,7 +184,7 @@ export class PlanningView extends ItemView {
   }
 
   private renderHideEmptyToggle(el: HTMLElement) {
-    const cont = el.createDiv()
+    const cont = el.createDiv("pw-planning--settings--hide-checkbox")
     const checkbox = cont.createEl("input", { type: "checkbox" })
     checkbox.checked = this.hideEmpty
     cont.appendText(" hide empty containers")
@@ -193,10 +194,26 @@ export class PlanningView extends ItemView {
     }
   }
 
+  private renderSearchBox(el: HTMLElement) {
+    const cont = el.createDiv("pw-planning--settings--search")
+    cont.appendText("Filter: ")
+    const searchBox = cont.createEl("input")
+    searchBox.onkeyup = () => {
+      const matcher = new TodoMatcher(searchBox.value)
+      this.events.onFilter.fireAsync(matcher.matches).then()
+    }
+  }
+
+  private renderSettings(el: HTMLElement) {
+    const settingsContainer = el.createDiv("pw-planning--settings")
+    this.renderHideEmptyToggle(settingsContainer)
+    this.renderSearchBox(settingsContainer)
+  }
+
   render() {
     Array.from(this.contentView.children).forEach(child => this.contentView.removeChild(child))
     this.deps.logger.debug(`Rendering planning view`)
-    this.renderHideEmptyToggle(this.contentView)
+    this.renderSettings(this.contentView)
     this.renderColumns(this.contentView)
   }
 }

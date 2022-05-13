@@ -34,6 +34,19 @@
     margin-left: 10px;
 }
 
+.pw-planning--settings {
+    display: block
+}
+
+.pw-planning--settings--search {
+    display: inline-block;
+    margin-left: 20px;
+}
+
+.pw-planning--settings--hide-checkbox {
+    display: inline-block;
+}
+
 .pw-planning-column {
     width: 260px;
     margin: 5px;

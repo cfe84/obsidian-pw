@@ -5,15 +5,19 @@ import { DateTime } from "luxon";
 import { ILogger } from "src/domain/ILogger";
 import { TodoListComponent } from "./TodoListComponent";
 import { TodoItemComponent } from "./TodoItemComponent";
+import { PwEvent } from "src/domain/CustomEvent";
 
 export interface TodoListViewDeps {
   logger: ILogger
 }
 
+export type TodoFilter<T> = (TodoItem: TodoItem<T>) => boolean
+
 export interface TodoListEvents {
   openFile?: (file: TFile, line: number) => Promise<void>
   onCheckboxClicked?: (todo: TodoItem<TFile>) => Promise<void>
   onDrag?: (id: string, todo: TodoItemComponent) => void
+  onFilter: PwEvent<TodoFilter<TFile>>
 }
 
 export class TodoListView extends ItemView {
