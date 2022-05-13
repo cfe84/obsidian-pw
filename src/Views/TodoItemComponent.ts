@@ -2,8 +2,8 @@ import { TodoItem, TodoStatus } from "../domain/TodoItem"
 import { TFile } from "obsidian"
 import { IDictionary } from "../domain/IDictionary"
 import { TodoListComponent } from "./TodoListComponent"
-import { TodoFilter, TodoListEvents } from "./TodoListView"
 import { Consts } from "../domain/Consts"
+import { TodoFilter, TodoListEvents } from "src/events/TodoListEvents"
 
 export class TodoItemComponent {
   private static foldState: IDictionary<boolean> = {}
@@ -73,13 +73,11 @@ export class TodoItemComponent {
 
   public render(el: HTMLElement) {
     this.element = el.createDiv("pw-todo-container", (container) => {
-      if (this.events.onDrag) {
-        container.draggable = true
-        container.ondragstart = (ev) => {
-          const id = this.getTodoId(this.todo)
-          ev.dataTransfer.setData(Consts.TodoItemDragType, id)
-          this.events.onDrag(id, this)
-        }
+      container.draggable = true
+      container.ondragstart = (ev) => {
+        const id = this.getTodoId(this.todo)
+        ev.dataTransfer.setData(Consts.TodoItemDragType, id)
+        this.events.onDrag.fireAsync({ id, todo: this }).then()
       }
       const checkbox = container.createEl("div", {
         text: `${this.statusToIcon(this.todo.status)} `,
@@ -87,7 +85,7 @@ export class TodoItemComponent {
       })
       if (this.events.onCheckboxClicked) {
         checkbox.onclick = () => {
-          this.events.onCheckboxClicked(this.todo).then()
+          this.events.onCheckboxClicked.fireAsync(this.todo).then()
         }
       }
       const textElement = container.createEl("div", {
@@ -102,7 +100,11 @@ export class TodoItemComponent {
       })
       const subElementsContainer = container.createDiv("pw-todo-sub-container")
       if (this.events.openFile) {
-        textElement.onclick = () => this.events.openFile(this.todo.file.file, this.todo.line || 0);
+        textElement.onclick = () =>
+          this.events.openFile.fireAsync({
+            file: this.todo.file.file,
+            line: this.todo.line || 0
+          }).then();
       }
 
       const todoId = this.getTodoId(this.todo)

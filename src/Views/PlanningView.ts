@@ -3,12 +3,13 @@ import { ILogger } from "../domain/ILogger";
 import { ItemView, TFile, View, WorkspaceLeaf } from "obsidian";
 import { DateTime } from "luxon";
 import { TodoItemComponent } from "./TodoItemComponent";
-import { TodoListEvents } from "./TodoListView";
 import { TodoIndex } from "../domain/TodoIndex";
 import { TodoListComponent } from "./TodoListComponent";
 import { Consts } from "../domain/Consts";
 import { FileOperations } from "../domain/FileOperations";
 import { TodoMatcher } from "src/domain/TodoMatcher";
+import { DragEventParameters, TodoListEvents } from "src/events/TodoListEvents";
+import { PwEvent } from "src/events/PwEvent";
 
 const dueDateAttributes = ["due", "duedate", "when", "expire", "expires"];
 
@@ -29,14 +30,20 @@ export class PlanningView extends ItemView {
 
   constructor(private deps: PlanningViewDeps, events: TodoListEvents, leaf: WorkspaceLeaf) {
     super(leaf)
+    this.onDragHandler = this.onDragHandler.bind(this)
     this.todos = deps.todoIndex.todos
     this.contentView = this.containerEl.getElementsByClassName("view-content")[0] as HTMLDivElement
     this.events = {
       openFile: events.openFile,
       onFilter: events.onFilter,
       onCheckboxClicked: events.onCheckboxClicked,
-      onDrag: (id: string, todo: TodoItemComponent) => this.draggedTodos[id] = todo
+      onDrag: new PwEvent(this.onDragHandler)
     }
+  }
+
+  private async onDragHandler(dragParameters: DragEventParameters) {
+    const { id, todo } = dragParameters
+    this.draggedTodos[id] = todo
   }
 
   static viewType: string = "pw.planning";

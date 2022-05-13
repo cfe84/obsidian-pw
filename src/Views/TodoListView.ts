@@ -5,19 +5,11 @@ import { DateTime } from "luxon";
 import { ILogger } from "src/domain/ILogger";
 import { TodoListComponent } from "./TodoListComponent";
 import { TodoItemComponent } from "./TodoItemComponent";
-import { PwEvent } from "src/domain/CustomEvent";
+import { PwEvent } from "src/events/PwEvent";
+import { TodoListEvents } from "src/events/TodoListEvents";
 
 export interface TodoListViewDeps {
   logger: ILogger
-}
-
-export type TodoFilter<T> = (TodoItem: TodoItem<T>) => boolean
-
-export interface TodoListEvents {
-  openFile?: (file: TFile, line: number) => Promise<void>
-  onCheckboxClicked?: (todo: TodoItem<TFile>) => Promise<void>
-  onDrag?: (id: string, todo: TodoItemComponent) => void
-  onFilter: PwEvent<TodoFilter<TFile>>
 }
 
 export class TodoListView extends ItemView {
@@ -47,7 +39,9 @@ export class TodoListView extends ItemView {
 
   onTodosChanged(todos: TodoItem<TFile>[]) {
     this.deps.logger.debug(`Todos updated`);
-    this.todos = todos.filter(todo => todo.status !== TodoStatus.Complete && todo.status !== TodoStatus.Canceled);
+    this.todos = todos.filter(todo =>
+      todo.status !== TodoStatus.Complete
+      && todo.status !== TodoStatus.Canceled);
     this.render()
   }
 

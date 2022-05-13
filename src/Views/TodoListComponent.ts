@@ -2,7 +2,7 @@ import { IDictionary } from "../domain/IDictionary";
 import { TodoItem } from "../domain/TodoItem";
 import { TFile } from "obsidian";
 import { TodoItemComponent } from "./TodoItemComponent";
-import { TodoFilter, TodoListEvents } from "./TodoListView";
+import { TodoFilter, TodoListEvents } from "../events/TodoListEvents";
 
 export class TodoListComponent {
   private todoComponents: TodoItemComponent[] = []

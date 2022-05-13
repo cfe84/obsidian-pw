@@ -4,7 +4,6 @@ import { FileTodoParser } from './domain/FileTodoParser';
 import { ILogger } from './domain/ILogger';
 import { ObsidianFile } from './infrastructure/ObsidianFile';
 import { App, Editor, MarkdownView, Modal, Notice, Plugin, PluginManifest, PluginSettingTab, Setting, TFile, Vault } from 'obsidian';
-import { TodoFilter, TodoListEvents, TodoListView } from './Views/TodoListView';
 import { TodoIndex, TodosUpdatedHandler } from './domain/TodoIndex';
 import { ToggleTodoCommand } from './Commands/ToggleTodoCommand';
 import { LineOperations } from './domain/LineOperations';
@@ -16,7 +15,9 @@ import { PlanningView } from './Views/PlanningView';
 import { OpenPlanningCommand } from './Commands/OpenPlanningCommand';
 import { TodoItem, TodoStatus } from './domain/TodoItem';
 import { FileOperations } from './domain/FileOperations';
-import { PwEvent } from './domain/CustomEvent';
+import { PwEvent } from './events/PwEvent';
+import { TodoListView } from './Views/TodoListView';
+import { CheckboxClickedEvent, DragEventParameters, OpenFileEvent, TodoFilter, TodoListEvents } from './events/TodoListEvents';
 
 export default class ProletarianWizard extends Plugin {
 	logger: ILogger = new ConsoleLogger();
@@ -75,9 +76,10 @@ export default class ProletarianWizard extends Plugin {
 
 	private registerViews() {
 		const events: TodoListEvents = {
-			openFile: this.openFileAsync,
-			onCheckboxClicked: this.toggleCheckmarkAsync,
-			onFilter: new PwEvent<TodoFilter<TFile>>()
+			openFile: new PwEvent<OpenFileEvent<TFile>>(this.openFileAsync),
+			onCheckboxClicked: new PwEvent<CheckboxClickedEvent<TFile>>(this.toggleCheckmarkAsync),
+			onFilter: new PwEvent<TodoFilter<TFile>>(),
+			onDrag: new PwEvent<DragEventParameters>()
 		}
 		this.registerView(TodoListView.viewType, (leaf) => {
 			let view = new TodoListView(leaf, events, { logger: this.logger })
@@ -122,7 +124,8 @@ export default class ProletarianWizard extends Plugin {
 		}));
 	}
 
-	private async openFileAsync(file: TFile, line: number) {
+	private async openFileAsync(fileAndLine: OpenFileEvent<TFile>) {
+		const { file, line } = fileAndLine
 		await this.app.workspace.activeLeaf.openFile(file)
 		const view = this.app.workspace.getActiveViewOfType(MarkdownView)
 		const lineContent = await view.editor.getLine(line)
