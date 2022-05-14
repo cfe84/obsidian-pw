@@ -205,10 +205,15 @@ export class PlanningView extends ItemView {
     const cont = el.createDiv("pw-planning--settings--search")
     cont.appendText("Filter: ")
     const searchBox = cont.createEl("input")
-    searchBox.onkeyup = () => {
-      const matcher = new TodoMatcher(searchBox.value)
+    const fuzzyCheckbox = cont.createEl("input", { type: "checkbox" })
+    cont.appendText(" fuzzy search")
+
+    const refreshSearch = () => {
+      const matcher = new TodoMatcher(searchBox.value, fuzzyCheckbox.checked)
       this.events.onFilter.fireAsync(matcher.matches).then()
     }
+    searchBox.onkeyup = refreshSearch
+    fuzzyCheckbox.onchange = refreshSearch
   }
 
   private renderSettings(el: HTMLElement) {

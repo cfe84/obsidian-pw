@@ -2,15 +2,30 @@ import { TodoItem } from "./TodoItem";
 
 export class TodoMatcher<T> {
   private matchTerm: string
-  constructor(matchTerm: string) {
+  private regex: RegExp
+  constructor(matchTerm: string, private fuzzySearch = false) {
     this.matchTerm = matchTerm.toLowerCase()
     this.matches = this.matches.bind(this)
+    this.regex = RegExp(matchTerm.replace(/ /g, ""), "gi")
   }
 
   public matches(todo: TodoItem<T>): boolean {
+
     if (!this.matchTerm) {
       return true;
     }
+    if (this.fuzzySearch) {
+      return this.fuzzyMatch(todo)
+    } else {
+      return this.exactMatch(todo)
+    }
+  }
+
+  private exactMatch(todo: TodoItem<T>) {
+    return todo.text.search(this.regex) >= 0
+  }
+
+  private fuzzyMatch(todo: TodoItem<T>) {
     let i = 0;
     const todoText = todo.text.toLowerCase()
     for (let char of this.matchTerm) {
