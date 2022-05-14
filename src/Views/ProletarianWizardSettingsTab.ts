@@ -20,7 +20,12 @@ export class ProletarianWizardSettingsTab extends PluginSettingTab {
   }
 
   async validateArchiveFolder(folder: string): Promise<boolean> {
-    return await this.app.vault.adapter.exists(folder, false)
+    return await this.app.vault.adapter.exists(folder, true)
+  }
+
+  async validateArchiveFromFolder(folders: string[]): Promise<boolean> {
+    const exist = await Promise.all(folders.map(folder => this.app.vault.adapter.exists(folder, true)))
+    return exist.indexOf(false) < 0
   }
 
   display(): void {
@@ -59,6 +64,27 @@ export class ProletarianWizardSettingsTab extends PluginSettingTab {
         }));
 
     let spanFolderError = containerEl.createEl('span', { text: '', cls: 'pw-error' });
+    this.validateArchiveFolder(this.plugin.settings.archiveFolder).then(folderIsvalid => {
+      this.toggleError(spanFolderError, !folderIsvalid)
+    })
+
+    new Setting(containerEl)
+      .setName('Archive from')
+      .setDesc('Folders from where you will archive (; separated, leave empty if all)')
+      .addText(toggle => toggle
+        .setValue(this.plugin.settings.archiveFrom.join(";"))
+        .onChange(async (value) => {
+          const folders = value.split(";")
+          if (!await this.validateArchiveFromFolder(folders)) {
+            this.toggleError(spanArchiveFromError, true)
+          } else {
+            this.toggleError(spanArchiveFromError, false)
+            this.plugin.settings.archiveFrom = folders;
+            await this.plugin.saveSettings();
+          }
+        }));
+
+    let spanArchiveFromError = containerEl.createEl('span', { text: '', cls: 'pw-error' });
     this.validateArchiveFolder(this.plugin.settings.archiveFolder).then(folderIsvalid => {
       this.toggleError(spanFolderError, !folderIsvalid)
     })
