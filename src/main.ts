@@ -111,9 +111,11 @@ export default class ProletarianWizard extends Plugin {
 				menu.addItem((item) => {
 					item.setTitle("Archive")
 					item.setIcon("sheets-in-box")
-					item.onClick((evt => Archiver.archiveAsync(archiveFrom,
-						this.settings.archiveFolder,
-						file).then()))
+					item.onClick((evt => {
+						Archiver.archiveAsync(archiveFrom,
+							this.settings.archiveFolder,
+							file).then()
+					}))
 				})
 			this.logger.info(source)
 		}))
@@ -163,8 +165,10 @@ export default class ProletarianWizard extends Plugin {
 	}
 
 	private loadFiles() {
-		const files = this.app.vault.getMarkdownFiles().map(file => new ObsidianFile(this.app, file));
-		this.todoIndex.filesLoaded(files);
+		setTimeout(() => {
+			const files = this.app.vault.getMarkdownFiles().map(file => new ObsidianFile(this.app, file));
+			this.todoIndex.filesLoaded(files);
+		}, 50)
 	}
 
 	onunload() {
