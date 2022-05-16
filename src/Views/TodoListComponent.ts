@@ -1,12 +1,12 @@
 import { IDictionary } from "../domain/IDictionary";
 import { TodoItem } from "../domain/TodoItem";
-import { TFile } from "obsidian";
+import { App, TFile } from "obsidian";
 import { TodoItemComponent } from "./TodoItemComponent";
 import { TodoFilter, TodoListEvents } from "../events/TodoListEvents";
 
 export class TodoListComponent {
   private todoComponents: TodoItemComponent[] = []
-  constructor(private events: TodoListEvents, private todos: TodoItem<TFile>[]) {
+  constructor(private events: TodoListEvents, private todos: TodoItem<TFile>[], private app: App) {
 
   }
 
@@ -42,7 +42,7 @@ export class TodoListComponent {
   public render(el: HTMLElement) {
     el.createDiv(undefined, (el) => {
       const todos = this.sortTodos(this.todos)
-      this.todoComponents = todos.map(todo => new TodoItemComponent(this.events, todo))
+      this.todoComponents = todos.map(todo => new TodoItemComponent(this.events, todo, this.app))
       this.todoComponents.forEach(component => component.render(el))
     })
   }

@@ -80,11 +80,11 @@ export class TodoListView extends ItemView {
     container.empty();
     container.createDiv('pw-todo-panel', (el) => {
       el.createEl("b", { text: "Selected:" })
-      new TodoListComponent(this.events, this.getSelectedTodos()).render(el)
+      new TodoListComponent(this.events, this.getSelectedTodos(), this.app).render(el)
       el.createEl("b", { text: "Due:" })
-      new TodoListComponent(this.events, this.getDueTodos()).render(el)
+      new TodoListComponent(this.events, this.getDueTodos(), this.app).render(el)
       el.createEl("b", { text: "All:" })
-      new TodoListComponent(this.events, this.todos).render(el)
+      new TodoListComponent(this.events, this.todos, this.app).render(el)
     });
   }
 

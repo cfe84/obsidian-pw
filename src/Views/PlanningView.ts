@@ -1,6 +1,6 @@
 import { TodoItem, TodoStatus } from "../domain/TodoItem";
 import { ILogger } from "../domain/ILogger";
-import { ItemView, TFile, View, WorkspaceLeaf } from "obsidian";
+import { App, ItemView, Menu, TFile, View, WorkspaceLeaf } from "obsidian";
 import { DateTime } from "luxon";
 import { TodoItemComponent } from "./TodoItemComponent";
 import { TodoIndex } from "../domain/TodoIndex";
@@ -15,7 +15,7 @@ const dueDateAttributes = ["due", "duedate", "when", "expire", "expires"];
 
 export interface PlanningViewDeps {
   logger: ILogger,
-  todoIndex: TodoIndex<TFile>
+  todoIndex: TodoIndex<TFile>,
 }
 
 export class PlanningView extends ItemView {
@@ -106,7 +106,7 @@ export class PlanningView extends ItemView {
     const columentEl = container.createDiv("pw-planning-column")
     const titleEl = columentEl.createDiv({ cls: "pw-planning-column-title", text: columName })
     const contentEl = columentEl.createDiv("pw-planning-column-content")
-    const todoList = new TodoListComponent(this.events, todos)
+    const todoList = new TodoListComponent(this.events, todos, this.app)
     todoList.render(contentEl)
 
     if (ondrop) {

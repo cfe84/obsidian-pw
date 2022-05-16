@@ -12,10 +12,14 @@ export class FileOperations {
     return "\n"
   }
 
-  static async updateAttributeAsync<T>(todo: TodoItem<T>, attributeName: string, attributeValue: string) {
+  static async updateAttributeAsync<T>(todo: TodoItem<T>, attributeName: string, attributeValue: string | boolean) {
     const updateLine = (line: ILineStructure) => {
       const attributes = lineOperations.parseAttributes(line.line)
-      attributes.attributes[attributeName] = attributeValue
+      if (attributeValue === false) {
+        delete attributes.attributes[attributeName]
+      } else {
+        attributes.attributes[attributeName] = attributeValue
+      }
       line.line = lineOperations.attributesToString(attributes)
     }
     await this.updateContentInFileAsync(todo, updateLine)
