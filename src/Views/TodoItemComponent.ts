@@ -53,19 +53,23 @@ export class TodoItemComponent {
       ? (Object.keys(attributes)
         .filter(attributeIsPriority)
         .map((priority) => attributes[priority])
-        .map((attributeValue) =>
-          attributeValue === "critical"
-            ? "❗❗"
-            : attributeValue === "high"
-              ? "❗"
-              : attributeValue === "medium"
-                ? "🔸"
-                : attributeValue === "low"
-                  ? "🔽"
-                  : attributeValue === "lowest"
-                    ? "⏬"
-                    : ""
-        )[0] as string) || ""
+        .map((attributeValue) => {
+          switch (attributeValue) {
+            case "critical":
+            case "highest":
+              return "⚡"
+            case "high":
+              return "❗"
+            case "medium":
+              return "🔸"
+            case "low":
+              return "🔽"
+            case "lowest":
+              return "⏬"
+            default:
+              return ""
+          }
+        })[0] as string) || ""
       : "";
   }
 
@@ -123,7 +127,13 @@ export class TodoItemComponent {
       // Save state
       TodoItemComponent.foldState[todoId] = subTasksUnfolded
     }
-    subDisplay.onclick = toggleSubElement
+    subDisplay.onclick = (evt) => {
+      if (evt.defaultPrevented) {
+        return
+      }
+      evt.preventDefault()
+      toggleSubElement()
+    }
     // Restore state
     if (TodoItemComponent.foldState[todoId]) {
       toggleSubElement()
@@ -153,9 +163,36 @@ export class TodoItemComponent {
       }
     }
 
-    const addChangePriorityMenuItem = (menu: Menu, name: string, icon: string) => {
+    const addChangeStatusMenuItem = (menu: Menu, status: string, label: string) => {
       menu.addItem((item) => {
-        item.setTitle(`Change priority to ${name}`)
+        item.setTitle(label)
+        item.onClick(() => {
+          FileOperations.updateCheckboxAsync(this.todo, status)
+        })
+      })
+    }
+
+    checkbox.onauxclick = (evt) => {
+      if (evt.defaultPrevented) {
+        return
+      }
+      const menu = new Menu(this.app)
+      addChangeStatusMenuItem(menu, "[ ]", "⬜ Mark as todo")
+      addChangeStatusMenuItem(menu, "[x]", "✔️ Mark as complete")
+      addChangeStatusMenuItem(menu, "[-]", "⏩ Mark as in progress")
+      addChangeStatusMenuItem(menu, "[!]", "❗ Mark as attention required")
+      addChangeStatusMenuItem(menu, "[d]", "👬 Mark as delegated")
+      addChangeStatusMenuItem(menu, "[]", "❌ Mark as cancelled")
+      menu.showAtMouseEvent(evt)
+      evt.preventDefault()
+    }
+
+    const addChangePriorityMenuItem = (menu: Menu, name: string, icon: string, otherIcon: string) => {
+      if (name === this.todo.attributes["priority"]) {
+        return
+      }
+      menu.addItem((item) => {
+        item.setTitle(`${otherIcon} Change priority to ${name}`)
         item.setIcon(icon)
         item.onClick((evt) => {
           FileOperations.updateAttributeAsync(this.todo, "priority", name).then()
@@ -168,19 +205,20 @@ export class TodoItemComponent {
         return
       }
       const menu = new Menu(this.app)
-      addChangePriorityMenuItem(menu, "critical", "double-up-arrow-glyph")
-      addChangePriorityMenuItem(menu, "high", "up-chevron-glyph")
-      addChangePriorityMenuItem(menu, "medium", "right-arrow")
-      addChangePriorityMenuItem(menu, "low", "down-chevron-glyph")
-      addChangePriorityMenuItem(menu, "lowest", "double-down-arrow-glyph")
+      menu.setNoIcon()
+      addChangePriorityMenuItem(menu, "critical", "double-up-arrow-glyph", "⚡")
+      addChangePriorityMenuItem(menu, "high", "up-chevron-glyph", "❗")
+      addChangePriorityMenuItem(menu, "medium", "right-arrow", "🔸")
+      addChangePriorityMenuItem(menu, "low", "down-chevron-glyph", "🔽")
+      addChangePriorityMenuItem(menu, "lowest", "double-down-arrow-glyph", "⏬")
       menu.addItem((item) => {
-        item.setTitle("Reset priority")
+        item.setTitle("🔁 Reset priority")
         item.setIcon("reset")
         item.onClick((evt) => FileOperations.removeAttributeAsync(this.todo, "priority").then())
       })
       menu.addSeparator()
       menu.addItem((item) => {
-        item.setTitle("Toggle selected")
+        item.setTitle("📌 Toggle selected")
         item.setIcon("pin")
         item.onClick((evt) => {
           FileOperations.updateAttributeAsync(this.todo, "selected", !this.todo.attributes["selected"])
