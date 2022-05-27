@@ -19,6 +19,7 @@ import { PwEvent } from './events/PwEvent';
 import { TodoListView } from './Views/TodoListView';
 import { CheckboxClickedEvent, DragEventParameters, OpenFileEvent, TodoFilter, TodoListEvents } from './events/TodoListEvents';
 import { Archiver } from './archive/Archiver';
+import { DateTime } from 'luxon';
 
 export default class ProletarianWizard extends Plugin {
 	logger: ILogger = new ConsoleLogger();
@@ -160,8 +161,9 @@ export default class ProletarianWizard extends Plugin {
 	}
 
 	private async toggleCheckmarkAsync(todo: TodoItem<TFile>) {
-		const newStatus = todo.status === TodoStatus.Todo ? "[x]" : "[ ]"
-		await FileOperations.updateCheckboxAsync(todo, newStatus)
+		const wasCompleted = todo.status === TodoStatus.Complete || todo.status === TodoStatus.Canceled
+		todo.status = wasCompleted ? TodoStatus.Todo : TodoStatus.Complete
+		await FileOperations.updateTodoStatus(todo)
 	}
 
 	private loadFiles() {

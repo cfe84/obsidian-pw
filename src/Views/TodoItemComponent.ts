@@ -163,11 +163,12 @@ export class TodoItemComponent {
       }
     }
 
-    const addChangeStatusMenuItem = (menu: Menu, status: string, label: string) => {
+    const addChangeStatusMenuItem = (menu: Menu, status: TodoStatus, label: string) => {
       menu.addItem((item) => {
         item.setTitle(label)
         item.onClick(() => {
-          FileOperations.updateCheckboxAsync(this.todo, status)
+          this.todo.status = status
+          FileOperations.updateTodoStatus(this.todo)
         })
       })
     }
@@ -177,12 +178,12 @@ export class TodoItemComponent {
         return
       }
       const menu = new Menu(this.app)
-      addChangeStatusMenuItem(menu, "[ ]", "⬜ Mark as todo")
-      addChangeStatusMenuItem(menu, "[x]", "✔️ Mark as complete")
-      addChangeStatusMenuItem(menu, "[-]", "⏩ Mark as in progress")
-      addChangeStatusMenuItem(menu, "[!]", "❗ Mark as attention required")
-      addChangeStatusMenuItem(menu, "[d]", "👬 Mark as delegated")
-      addChangeStatusMenuItem(menu, "[]", "❌ Mark as cancelled")
+      addChangeStatusMenuItem(menu, TodoStatus.Todo, "⬜ Mark as todo")
+      addChangeStatusMenuItem(menu, TodoStatus.Complete, "✔️ Mark as complete")
+      addChangeStatusMenuItem(menu, TodoStatus.InProgress, "⏩ Mark as in progress")
+      addChangeStatusMenuItem(menu, TodoStatus.AttentionRequired, "❗ Mark as attention required")
+      addChangeStatusMenuItem(menu, TodoStatus.Delegated, "👬 Mark as delegated")
+      addChangeStatusMenuItem(menu, TodoStatus.Canceled, "❌ Mark as cancelled")
       menu.showAtMouseEvent(evt)
       evt.preventDefault()
     }

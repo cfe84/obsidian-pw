@@ -1,6 +1,7 @@
+import { DateTime } from "luxon"
 import { IFile } from "./IFile"
 import { ILineStructure, LineOperations } from "./LineOperations"
-import { TodoItem } from "./TodoItem"
+import { TodoItem, TodoStatus } from "./TodoItem"
 
 const lineOperations = new LineOperations()
 
@@ -12,10 +13,10 @@ export class FileOperations {
     return "\n"
   }
 
-  static async updateAttributeAsync<T>(todo: TodoItem<T>, attributeName: string, attributeValue: string | boolean) {
+  static async updateAttributeAsync<T>(todo: TodoItem<T>, attributeName: string, attributeValue: string | boolean | undefined) {
     const updateLine = (line: ILineStructure) => {
       const attributes = lineOperations.parseAttributes(line.line)
-      if (attributeValue === false) {
+      if (attributeValue === false || attributeValue === undefined) {
         delete attributes.attributes[attributeName]
       } else {
         attributes.attributes[attributeName] = attributeValue
@@ -34,11 +35,28 @@ export class FileOperations {
     await this.updateContentInFileAsync(todo, updateLine)
   }
 
-  static async updateCheckboxAsync<T>(todo: TodoItem<T>, newCheckbox: string) {
+  private static async updateCheckboxAsync<T>(todo: TodoItem<T>, newCheckbox: string) {
     const updateLine = (line: ILineStructure) => {
       line.checkbox = newCheckbox
     }
     await this.updateContentInFileAsync(todo, updateLine)
+  }
+
+  static async updateTodoStatus<T>(todo: TodoItem<T>) {
+    const isCompleted = todo.status === TodoStatus.Complete || todo.status === TodoStatus.Canceled
+    let newCheckBox
+    switch (todo.status) {
+      case TodoStatus.Todo: newCheckBox = "[ ]"; break;
+      case TodoStatus.Canceled: newCheckBox = "[]"; break;
+      case TodoStatus.AttentionRequired: newCheckBox = "[!]"; break;
+      case TodoStatus.Complete: newCheckBox = "[x]"; break;
+      case TodoStatus.Delegated: newCheckBox = "[d]"; break;
+      case TodoStatus.InProgress: newCheckBox = "[-]"; break;
+      default: newCheckBox = ""
+    }
+    await FileOperations.updateCheckboxAsync(todo, newCheckBox)
+    const completedAttributeValue = isCompleted ? DateTime.now().toISODate() : undefined
+    await FileOperations.updateAttributeAsync(todo, "completed", completedAttributeValue)
   }
 
   private static async updateContentInFileAsync<T>(todo: TodoItem<T>, updateLine: (line: ILineStructure) => void) {

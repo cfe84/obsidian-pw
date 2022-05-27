@@ -43,6 +43,11 @@
     margin-left: 20px;
 }
 
+.pw-planning--settings--wip {
+    display: inline-block;
+    margin-left: 20px;
+}
+
 .pw-planning--settings--hide-checkbox {
     display: inline-block;
 }
@@ -68,6 +73,10 @@
     height: 100%;
     overflow: auto;
     border-radius: 10px;
+}
+
+.pw-planning-column-wip-exceeded {
+    border: 1px solid #f39;
 }
 
 .pw-error {

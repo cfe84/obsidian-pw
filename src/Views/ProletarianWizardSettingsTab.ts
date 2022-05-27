@@ -46,6 +46,22 @@ export class ProletarianWizardSettingsTab extends PluginSettingTab {
           await this.plugin.saveSettings();
         }));
 
+    containerEl.createEl('h3', { text: 'Planning' });
+
+    new Setting(containerEl)
+      .setName('Daily WIP limit')
+      .setDesc('Default daily limit for work in process')
+      .addText(txt => txt
+        .setValue(this.plugin.settings.defaultDailyWipLimit.toString())
+        .onChange(async (txtValue) => {
+          const value = Number.parseInt(txtValue)
+          if (Number.isNaN(value)) {
+            this.plugin.settings.defaultDailyWipLimit = 0
+          } else
+            this.plugin.settings.defaultDailyWipLimit = value
+        }));
+
+
     containerEl.createEl('h3', { text: 'Archive' });
 
     new Setting(containerEl)

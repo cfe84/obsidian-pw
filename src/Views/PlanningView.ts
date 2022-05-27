@@ -11,7 +11,8 @@ import { TodoMatcher } from "src/domain/TodoMatcher";
 import { DragEventParameters, TodoListEvents } from "src/events/TodoListEvents";
 import { PwEvent } from "src/events/PwEvent";
 
-const dueDateAttributes = ["due", "duedate", "when", "expire", "expires"];
+const dueDateAttribute = "due"
+const completedDateAttribute = "completed"
 
 export interface PlanningViewDeps {
   logger: ILogger,
@@ -23,6 +24,8 @@ export class PlanningView extends ItemView {
   private hideEmpty = true
   private todos: TodoItem<TFile>[] = []
   private events: TodoListEvents
+  private wipLimit: number
+  private wipLimitActive: boolean
   private draggedTodos: { [key: string]: TodoItemComponent } = {}
   getIcon(): string {
     return "calendar-glyph"
@@ -55,46 +58,50 @@ export class PlanningView extends ItemView {
     this.render()
   }
 
-  private findTodoDueDate(todo: TodoItem<TFile>): DateTime | undefined {
+  private findTodoDate(todo: TodoItem<TFile>, attribute: string): DateTime | undefined {
     if (!todo.attributes) {
       return undefined
     }
-    const attr = dueDateAttributes.find(attr => todo.attributes[attr])
+    const attr = todo.attributes[attribute]
     if (attr) {
-      const d = DateTime.fromISO(`${todo.attributes[attr]}`);
+      const d = DateTime.fromISO(`${todo.attributes[attribute]}`);
       return d.isValid ? d : undefined
     }
+    return undefined
   }
 
-  private getTodosByDueDate(from: DateTime | null, to: DateTime | null, includeSelected: boolean = false): TodoItem<TFile>[] {
-    const todosInRange = this.todos.filter(
-      (todo) =>
-        todo.attributes &&
-        dueDateAttributes.find((attribute) => {
-          if (todo.attributes && !!todo.attributes["selected"]) {
-            // Include or exclude selected regardless of date
-            return includeSelected
-          }
-          if (!todo.attributes ||
-            !todo.attributes[attribute]
-          ) {
-            return false;
-          }
-          try {
-            const date = DateTime.fromISO(`${todo.attributes[attribute]}`);
-            return (from === null || date >= from) && (to === null || date < to);
-          } catch (err) {
-            this.deps.logger.error(`Error while parsing date: ${err}`);
-            return false;
-          }
-        })
-    );
+  private getTodosByDate(from: DateTime | null, to: DateTime | null, includeSelected: boolean = false): TodoItem<TFile>[] {
+    const dateIsInRange = (date: DateTime) => date && (from === null || date >= from) && (to === null || date < to)
+    const todoInRange = (todo: TodoItem<TFile>) => {
+      const isDone = todo.status === TodoStatus.Complete || todo.status === TodoStatus.Canceled
+      const isSelected = todo.attributes && !!todo.attributes["selected"]
+      const dueDate = this.findTodoDate(todo, dueDateAttribute)
+      const completedDate = this.findTodoDate(todo, completedDateAttribute)
+      const dueDateIsInRange = dateIsInRange(dueDate)
+      const completedDateIsInRange = dateIsInRange(completedDate)
+      const isInRangeOrSelected = dueDateIsInRange || (includeSelected && isSelected && (isDone && completedDateIsInRange || !isDone))
+      if (todo.text.contains("lol")) {
+        this.deps.logger.info(`Todo:  ${completedDateIsInRange} ${includeSelected} ${isSelected} ${isInRangeOrSelected}`)
+      }
+      return isInRangeOrSelected
+      // if (!todo.attributes || !todo.attributes[dueDateAttribute]) {
+      //   return false;
+      // }
+      // try {
+      //   const dueDate = DateTime.fromISO(`${todo.attributes[dueDateAttribute]}`);
+      //   return (from === null || dueDate >= from) && (to === null || dueDate < to);
+      // } catch (err) {
+      //   this.deps.logger.error(`Error while parsing date: ${err}`);
+      //   return false;
+      // }
+    }
+    const todosInRange = this.todos.filter((todo) => todo.attributes && todoInRange(todo));
     return todosInRange
   }
 
   private getTodosWithNoDate(): TodoItem<TFile>[] {
     return this.todos.filter(todo =>
-      !this.findTodoDueDate(todo)
+      !this.findTodoDate(todo, "due")
       && !todo.attributes["selected"]
       && todo.status !== TodoStatus.Canceled && todo.status !== TodoStatus.Complete)
   }
@@ -146,21 +153,18 @@ export class PlanningView extends ItemView {
   }
   renderColumns(container: Element) {
     const today = DateTime.now().startOf("day")
-    this.renderColumn(container, "🕸️ Past", this.getTodosByDueDate(null, today).filter(
-      todo => todo.status !== TodoStatus.Canceled
-        && todo.status !== TodoStatus.Complete),
+    this.renderColumn(container, "🕸️ Past", this.getTodosByDate(null, today).filter(
+      todo => todo.status !== TodoStatus.Canceled && todo.status !== TodoStatus.Complete),
       null,
       true)
     let bracketStart = today
     let bracketEnd = today.plus({ day: 1 })
-    this.renderColumn(container, "☀️ Today", this.getTodosByDueDate(bracketStart, bracketEnd, true)
-      .filter(todo => {
-        if (!todo.attributes["selected"] || (todo.status !== TodoStatus.Complete && todo.status !== TodoStatus.Canceled)) {
-          return true
-        }
-        const dueDate = this.findTodoDueDate(todo)
-        return dueDate !== undefined && dueDate > today.minus({ days: 1 })
-      }), this.moveToDate(bracketStart))
+    this.renderColumn(container, "☀️ Today", this.getTodosByDate(bracketStart, bracketEnd, true)
+      // .filter(todo => {
+      //   const dueDate = this.findTodoDate(todo, "due")
+      //   return dueDate !== undefined && dueDate > today.minus({ days: 1 })
+      // })
+      , this.moveToDate(bracketStart))
 
 
     for (let i = 0; i < 6; i++) {
@@ -170,23 +174,23 @@ export class PlanningView extends ItemView {
         continue
       }
       const label = i === 0 ? "📅 Tomorrow" : bracketStart.toFormat("📅 cccc dd/MM")
-      this.renderColumn(container, label, this.getTodosByDueDate(bracketStart, bracketEnd), this.moveToDate(bracketStart))
+      this.renderColumn(container, label, this.getTodosByDate(bracketStart, bracketEnd), this.moveToDate(bracketStart))
     }
 
     for (let i = 1; i < 5; i++) {
       bracketStart = bracketEnd
       bracketEnd = bracketStart.plus({ weeks: 1 })
       const label = `📅 Week +${i} (${bracketStart.toFormat("dd/MM")} - ${bracketEnd.minus({ days: 1 }).toFormat("dd/MM")})`
-      this.renderColumn(container, label, this.getTodosByDueDate(bracketStart, bracketEnd), this.moveToDate(bracketStart), this.hideEmpty)
+      this.renderColumn(container, label, this.getTodosByDate(bracketStart, bracketEnd), this.moveToDate(bracketStart), this.hideEmpty)
     }
 
     for (let i = 1; i < 4; i++) {
       bracketStart = bracketEnd
       bracketEnd = bracketStart.plus({ months: 1 })
       const label = `📅 Month +${i} (${bracketStart.toFormat("dd/MM")} - ${bracketEnd.minus({ days: 1 }).toFormat("dd/MM")})`
-      this.renderColumn(container, label, this.getTodosByDueDate(bracketStart, bracketEnd), this.moveToDate(bracketStart), this.hideEmpty)
+      this.renderColumn(container, label, this.getTodosByDate(bracketStart, bracketEnd), this.moveToDate(bracketStart), this.hideEmpty)
     }
-    this.renderColumn(container, "📅 Later", this.getTodosByDueDate(bracketEnd, null), this.moveToDate(bracketStart), this.hideEmpty)
+    this.renderColumn(container, "📅 Later", this.getTodosByDate(bracketEnd, null), this.moveToDate(bracketStart), this.hideEmpty)
     this.renderColumn(container, "📃 Backlog", this.getTodosWithNoDate(), this.removeDate(), this.hideEmpty)
   }
 
@@ -214,6 +218,15 @@ export class PlanningView extends ItemView {
     }
     searchBox.onkeyup = refreshSearch
     fuzzyCheckbox.onchange = refreshSearch
+  }
+
+  private renderWipLimit(el: HTMLElement) {
+    const cont = el.createDiv("pw-planning--settings--wip")
+    cont.appendText("WIP limit: ")
+    const wipLimit = cont.createEl("input")
+    const wipLimitActivated = cont.createEl("input", { type: "checkbox" })
+    cont.appendText(" show WIP limit")
+
   }
 
   private renderSettings(el: HTMLElement) {
