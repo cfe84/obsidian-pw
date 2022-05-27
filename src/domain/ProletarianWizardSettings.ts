@@ -4,7 +4,10 @@ export interface ProletarianWizardSettings {
   archiveFolder: string,
   archiveFrom: string[],
   ignoreArchivedTodos: boolean,
-  defaultDailyWipLimit: number
+  defaultDailyWipLimit: number,
+  dueDateAttribute: string,
+  completedDateAttribute: string,
+  selectedAttribute: string
 }
 
 export const DEFAULT_SETTINGS: ProletarianWizardSettings = {
@@ -13,5 +16,8 @@ export const DEFAULT_SETTINGS: ProletarianWizardSettings = {
   archiveFolder: "archive",
   archiveFrom: [],
   ignoreArchivedTodos: true,
-  defaultDailyWipLimit: 5
+  defaultDailyWipLimit: 5,
+  dueDateAttribute: "due",
+  completedDateAttribute: "completed",
+  selectedAttribute: "selected"
 }

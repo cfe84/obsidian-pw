@@ -42,7 +42,7 @@ export class FileOperations {
     await this.updateContentInFileAsync(todo, updateLine)
   }
 
-  static async updateTodoStatus<T>(todo: TodoItem<T>) {
+  static async updateTodoStatus<T>(todo: TodoItem<T>, completedAttribute: string) {
     const isCompleted = todo.status === TodoStatus.Complete || todo.status === TodoStatus.Canceled
     let newCheckBox
     switch (todo.status) {
@@ -56,7 +56,7 @@ export class FileOperations {
     }
     await FileOperations.updateCheckboxAsync(todo, newCheckBox)
     const completedAttributeValue = isCompleted ? DateTime.now().toISODate() : undefined
-    await FileOperations.updateAttributeAsync(todo, "completed", completedAttributeValue)
+    await FileOperations.updateAttributeAsync(todo, completedAttribute, completedAttributeValue)
   }
 
   private static async updateContentInFileAsync<T>(todo: TodoItem<T>, updateLine: (line: ILineStructure) => void) {

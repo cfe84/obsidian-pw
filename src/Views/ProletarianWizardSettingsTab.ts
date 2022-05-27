@@ -1,5 +1,3 @@
-import * as fs from "fs"
-import * as path from "path"
 import ProletarianWizard from "../main";
 import { App, PluginSettingTab, Setting } from "obsidian";
 
@@ -113,6 +111,51 @@ export class ProletarianWizardSettingsTab extends PluginSettingTab {
         .onChange(async (value) => {
           this.plugin.settings.ignoreArchivedTodos = value;
           await this.plugin.saveSettings();
+        }));
+
+
+
+    containerEl.createEl('h3', { text: 'Attributes' });
+
+    new Setting(containerEl)
+      .setName('Due date attribute')
+      .setDesc('Attribute to set a todo due date')
+      .addText(toggle => toggle
+        .setValue(this.plugin.settings.dueDateAttribute)
+        .onChange(async (value) => {
+          if (!value || value.contains(" ")) {
+            return
+          } else {
+            this.plugin.settings.dueDateAttribute = value;
+            await this.plugin.saveSettings();
+          }
+        }));
+
+    new Setting(containerEl)
+      .setName('Completed date attribute')
+      .setDesc('Attribute to set a todo completed date')
+      .addText(toggle => toggle
+        .setValue(this.plugin.settings.completedDateAttribute)
+        .onChange(async (value) => {
+          if (!value || value.contains(" ")) {
+            return
+          } else {
+            this.plugin.settings.completedDateAttribute = value;
+            await this.plugin.saveSettings();
+          }
+        }));
+    new Setting(containerEl)
+      .setName('Selected attribute')
+      .setDesc('Attribute to selected a todo')
+      .addText(toggle => toggle
+        .setValue(this.plugin.settings.selectedAttribute)
+        .onChange(async (value) => {
+          if (!value || value.contains(" ")) {
+            return
+          } else {
+            this.plugin.settings.selectedAttribute = value;
+            await this.plugin.saveSettings();
+          }
         }));
   }
 }

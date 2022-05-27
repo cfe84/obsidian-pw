@@ -10,9 +10,7 @@ import { FileOperations } from "../domain/FileOperations";
 import { TodoMatcher } from "src/domain/TodoMatcher";
 import { DragEventParameters, TodoListEvents } from "src/events/TodoListEvents";
 import { PwEvent } from "src/events/PwEvent";
-
-const dueDateAttribute = "due"
-const completedDateAttribute = "completed"
+import { ProletarianWizardSettings } from "src/domain/ProletarianWizardSettings";
 
 export interface PlanningViewDeps {
   logger: ILogger,
@@ -31,7 +29,7 @@ export class PlanningView extends ItemView {
     return "calendar-glyph"
   }
 
-  constructor(private deps: PlanningViewDeps, events: TodoListEvents, leaf: WorkspaceLeaf) {
+  constructor(private deps: PlanningViewDeps, private settings: ProletarianWizardSettings, events: TodoListEvents, leaf: WorkspaceLeaf) {
     super(leaf)
     this.onDragHandler = this.onDragHandler.bind(this)
     this.todos = deps.todoIndex.todos
@@ -74,9 +72,9 @@ export class PlanningView extends ItemView {
     const dateIsInRange = (date: DateTime) => date && (from === null || date >= from) && (to === null || date < to)
     const todoInRange = (todo: TodoItem<TFile>) => {
       const isDone = todo.status === TodoStatus.Complete || todo.status === TodoStatus.Canceled
-      const isSelected = todo.attributes && !!todo.attributes["selected"]
-      const dueDate = this.findTodoDate(todo, dueDateAttribute)
-      const completedDate = this.findTodoDate(todo, completedDateAttribute)
+      const isSelected = todo.attributes && !!todo.attributes[this.settings.selectedAttribute]
+      const dueDate = this.findTodoDate(todo, this.settings.dueDateAttribute)
+      const completedDate = this.findTodoDate(todo, this.settings.completedDateAttribute)
       const dueDateIsInRange = dateIsInRange(dueDate)
       const completedDateIsInRange = dateIsInRange(completedDate)
       const isInRangeOrSelected = dueDateIsInRange || (includeSelected && isSelected && (isDone && completedDateIsInRange || !isDone))
@@ -84,16 +82,6 @@ export class PlanningView extends ItemView {
         this.deps.logger.info(`Todo:  ${completedDateIsInRange} ${includeSelected} ${isSelected} ${isInRangeOrSelected}`)
       }
       return isInRangeOrSelected
-      // if (!todo.attributes || !todo.attributes[dueDateAttribute]) {
-      //   return false;
-      // }
-      // try {
-      //   const dueDate = DateTime.fromISO(`${todo.attributes[dueDateAttribute]}`);
-      //   return (from === null || dueDate >= from) && (to === null || dueDate < to);
-      // } catch (err) {
-      //   this.deps.logger.error(`Error while parsing date: ${err}`);
-      //   return false;
-      // }
     }
     const todosInRange = this.todos.filter((todo) => todo.attributes && todoInRange(todo));
     return todosInRange
@@ -101,8 +89,8 @@ export class PlanningView extends ItemView {
 
   private getTodosWithNoDate(): TodoItem<TFile>[] {
     return this.todos.filter(todo =>
-      !this.findTodoDate(todo, "due")
-      && !todo.attributes["selected"]
+      !this.findTodoDate(todo, this.settings.dueDateAttribute)
+      && !todo.attributes[this.settings.selectedAttribute]
       && todo.status !== TodoStatus.Canceled && todo.status !== TodoStatus.Complete)
   }
 
@@ -113,7 +101,7 @@ export class PlanningView extends ItemView {
     const columentEl = container.createDiv("pw-planning-column")
     const titleEl = columentEl.createDiv({ cls: "pw-planning-column-title", text: columName })
     const contentEl = columentEl.createDiv("pw-planning-column-content")
-    const todoList = new TodoListComponent(this.events, todos, this.app)
+    const todoList = new TodoListComponent(this.events, todos, this.app, this.settings)
     todoList.render(contentEl)
 
     if (ondrop) {
@@ -142,13 +130,13 @@ export class PlanningView extends ItemView {
 
   moveToDate(date: DateTime) {
     return (todo: TodoItem<TFile>) => {
-      FileOperations.updateAttributeAsync(todo, "due", date.toISODate()).then()
+      FileOperations.updateAttributeAsync(todo, this.settings.dueDateAttribute, date.toISODate()).then()
     }
   }
 
   removeDate() {
     return (todo: TodoItem<TFile>) => {
-      FileOperations.removeAttributeAsync(todo, "due").then()
+      FileOperations.removeAttributeAsync(todo, this.settings.dueDateAttribute).then()
     }
   }
   renderColumns(container: Element) {
@@ -161,7 +149,7 @@ export class PlanningView extends ItemView {
     let bracketEnd = today.plus({ day: 1 })
     this.renderColumn(container, "☀️ Today", this.getTodosByDate(bracketStart, bracketEnd, true)
       // .filter(todo => {
-      //   const dueDate = this.findTodoDate(todo, "due")
+      //   const dueDate = this.findTodoDate(todo, dueDateAttribute)
       //   return dueDate !== undefined && dueDate > today.minus({ days: 1 })
       // })
       , this.moveToDate(bracketStart))

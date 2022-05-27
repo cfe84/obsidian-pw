@@ -5,6 +5,7 @@ import { TodoListComponent } from "./TodoListComponent"
 import { Consts } from "../domain/Consts"
 import { TodoFilter, TodoListEvents } from "src/events/TodoListEvents"
 import { FileOperations } from "src/domain/FileOperations"
+import { ProletarianWizardSettings } from "src/domain/ProletarianWizardSettings"
 
 export class TodoItemComponent {
   private static foldState: IDictionary<boolean> = {}
@@ -13,7 +14,7 @@ export class TodoItemComponent {
   foldedText = ` ▶`
   unfoldedText = " ▼"
 
-  constructor(private events: TodoListEvents, public todo: TodoItem<TFile>, private app: App) {
+  constructor(private events: TodoListEvents, public todo: TodoItem<TFile>, private app: App, private settings: ProletarianWizardSettings) {
     this.onFilter = this.onFilter.bind(this)
     this.handleRightClick = this.handleRightClick.bind(this)
     events.onFilter.listen(this.onFilter)
@@ -93,7 +94,7 @@ export class TodoItemComponent {
         text: `${this.statusToIcon(this.todo.status)} `,
         cls: "pw-todo-checkbox"
       })
-      const isSelectedText = !!this.todo.attributes["selected"] ? " 📌" : ""
+      const isSelectedText = !!this.todo.attributes[this.settings.selectedAttribute] ? " 📌" : ""
       const textElement = container.createEl("div", {
         text: `${this.priorityToIcon(this.todo.attributes)} ${this.todo.text}${isSelectedText}`,
         cls: `pw-todo-text ${this.todo.status === TodoStatus.Complete || this.todo.status === TodoStatus.Canceled
@@ -121,7 +122,7 @@ export class TodoItemComponent {
         }
       } else {
         subDisplay.innerText = this.unfoldedText
-        new TodoListComponent(this.events, this.todo.subtasks, this.app).render(subElementsContainer)
+        new TodoListComponent(this.events, this.todo.subtasks, this.app, this.settings).render(subElementsContainer)
       }
       subTasksUnfolded = !subTasksUnfolded
       // Save state
@@ -168,7 +169,7 @@ export class TodoItemComponent {
         item.setTitle(label)
         item.onClick(() => {
           this.todo.status = status
-          FileOperations.updateTodoStatus(this.todo)
+          FileOperations.updateTodoStatus(this.todo, this.settings.completedDateAttribute)
         })
       })
     }
@@ -222,7 +223,7 @@ export class TodoItemComponent {
         item.setTitle("📌 Toggle selected")
         item.setIcon("pin")
         item.onClick((evt) => {
-          FileOperations.updateAttributeAsync(this.todo, "selected", !this.todo.attributes["selected"])
+          FileOperations.updateAttributeAsync(this.todo, this.settings.selectedAttribute, !this.todo.attributes[this.settings.selectedAttribute])
         })
       })
       menu.showAtMouseEvent(evt)

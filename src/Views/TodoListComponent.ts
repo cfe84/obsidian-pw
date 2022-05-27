@@ -3,10 +3,11 @@ import { TodoItem } from "../domain/TodoItem";
 import { App, TFile } from "obsidian";
 import { TodoItemComponent } from "./TodoItemComponent";
 import { TodoFilter, TodoListEvents } from "../events/TodoListEvents";
+import { ProletarianWizardSettings } from "src/domain/ProletarianWizardSettings";
 
 export class TodoListComponent {
   private todoComponents: TodoItemComponent[] = []
-  constructor(private events: TodoListEvents, private todos: TodoItem<TFile>[], private app: App) {
+  constructor(private events: TodoListEvents, private todos: TodoItem<TFile>[], private app: App, private settings: ProletarianWizardSettings) {
 
   }
 
@@ -42,7 +43,7 @@ export class TodoListComponent {
   public render(el: HTMLElement) {
     el.createDiv(undefined, (el) => {
       const todos = this.sortTodos(this.todos)
-      this.todoComponents = todos.map(todo => new TodoItemComponent(this.events, todo, this.app))
+      this.todoComponents = todos.map(todo => new TodoItemComponent(this.events, todo, this.app, this.settings))
       this.todoComponents.forEach(component => component.render(el))
     })
   }

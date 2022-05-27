@@ -9,7 +9,7 @@ import { ToggleTodoCommand } from './Commands/ToggleTodoCommand';
 import { LineOperations } from './domain/LineOperations';
 import { ToggleOngoingTodoCommand } from './Commands/ToggleOngoingTodoCommand';
 import { ProletarianWizardSettingsTab } from './Views/ProletarianWizardSettingsTab';
-import { DEFAULT_SETTINGS, ProletarianWizardSettings } from './ProletarianWizardSettings';
+import { DEFAULT_SETTINGS, ProletarianWizardSettings } from './domain/ProletarianWizardSettings';
 import { CompleteLineCommand } from './Commands/CompleteLineCommand';
 import { PlanningView } from './Views/PlanningView';
 import { OpenPlanningCommand } from './Commands/OpenPlanningCommand';
@@ -84,7 +84,7 @@ export default class ProletarianWizard extends Plugin {
 			onDrag: new PwEvent<DragEventParameters>()
 		}
 		this.registerView(TodoListView.viewType, (leaf) => {
-			let view = new TodoListView(leaf, events, { logger: this.logger })
+			let view = new TodoListView(leaf, events, { logger: this.logger }, this.settings)
 			this.todosUpdatedHandlers.push(async (items: TodoItem<TFile>[]) => {
 				view.onTodosChanged(items)
 			})
@@ -93,7 +93,7 @@ export default class ProletarianWizard extends Plugin {
 		});
 
 		this.registerView(PlanningView.viewType, (leaf) => {
-			const view = new PlanningView({ logger: this.logger, todoIndex: this.todoIndex }, events, leaf)
+			const view = new PlanningView({ logger: this.logger, todoIndex: this.todoIndex }, this.settings, events, leaf)
 			this.todosUpdatedHandlers.push((items) => view.onTodosChanged(items))
 			view.render()
 			return view
@@ -163,7 +163,7 @@ export default class ProletarianWizard extends Plugin {
 	private async toggleCheckmarkAsync(todo: TodoItem<TFile>) {
 		const wasCompleted = todo.status === TodoStatus.Complete || todo.status === TodoStatus.Canceled
 		todo.status = wasCompleted ? TodoStatus.Todo : TodoStatus.Complete
-		await FileOperations.updateTodoStatus(todo)
+		await FileOperations.updateTodoStatus(todo, this.settings.completedDateAttribute)
 	}
 
 	private loadFiles() {

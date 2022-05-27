@@ -1,12 +1,10 @@
 import { TodoItem, TodoStatus } from "../domain/TodoItem";
 import { ItemView, TFile, WorkspaceLeaf } from "obsidian";
-import { IDictionary } from "../domain/IDictionary";
 import { DateTime } from "luxon";
 import { ILogger } from "src/domain/ILogger";
 import { TodoListComponent } from "./TodoListComponent";
-import { TodoItemComponent } from "./TodoItemComponent";
-import { PwEvent } from "src/events/PwEvent";
 import { TodoListEvents } from "src/events/TodoListEvents";
+import { ProletarianWizardSettings } from "src/domain/ProletarianWizardSettings";
 
 export interface TodoListViewDeps {
   logger: ILogger
@@ -17,7 +15,7 @@ export class TodoListView extends ItemView {
 
   private todos: TodoItem<TFile>[] = []
 
-  constructor(leaf: WorkspaceLeaf, private events: TodoListEvents, private deps: TodoListViewDeps) {
+  constructor(leaf: WorkspaceLeaf, private events: TodoListEvents, private deps: TodoListViewDeps, private settings: ProletarianWizardSettings) {
     super(leaf);
   }
 
@@ -46,31 +44,29 @@ export class TodoListView extends ItemView {
   }
 
   private getSelectedTodos(): TodoItem<TFile>[] {
-    return this.todos.filter(todo => !!todo.attributes["selected"])
+    return this.todos.filter(todo => !!todo.attributes[this.settings.selectedAttribute])
   }
 
   private getDueTodos(): TodoItem<TFile>[] {
-    const dueDateAttributes = ["due", "duedate", "when", "expire", "expires"];
+    const todoIsDue = (todo: TodoItem<TFile>) => {
+      if (
+        todo.status === TodoStatus.Complete ||
+        todo.status === TodoStatus.Canceled ||
+        !todo.attributes ||
+        !todo.attributes[this.settings.dueDateAttribute]
+      )
+        return false;
+      try {
+        const date = DateTime.fromISO(`${todo.attributes[this.settings.dueDateAttribute]}`);
+        return date < now;
+      } catch (err) {
+        this.deps.logger.error(`Error while parsing date: ${err}`);
+        return false;
+      }
+    }
     const now = DateTime.now();
     const todosWithOverdueDate = this.todos.filter(
-      (todo) =>
-        todo.attributes &&
-        dueDateAttributes.find((attribute) => {
-          if (
-            todo.status === TodoStatus.Complete ||
-            todo.status === TodoStatus.Canceled ||
-            !todo.attributes ||
-            !todo.attributes[attribute]
-          )
-            return false;
-          try {
-            const date = DateTime.fromISO(`${todo.attributes[attribute]}`);
-            return date < now;
-          } catch (err) {
-            this.deps.logger.error(`Error while parsing date: ${err}`);
-            return false;
-          }
-        })
+      (todo) => todo.attributes && todoIsDue(todo)
     );
     return todosWithOverdueDate
   }
@@ -80,11 +76,11 @@ export class TodoListView extends ItemView {
     container.empty();
     container.createDiv('pw-todo-panel', (el) => {
       el.createEl("b", { text: "Selected:" })
-      new TodoListComponent(this.events, this.getSelectedTodos(), this.app).render(el)
+      new TodoListComponent(this.events, this.getSelectedTodos(), this.app, this.settings).render(el)
       el.createEl("b", { text: "Due:" })
-      new TodoListComponent(this.events, this.getDueTodos(), this.app).render(el)
+      new TodoListComponent(this.events, this.getDueTodos(), this.app, this.settings).render(el)
       el.createEl("b", { text: "All:" })
-      new TodoListComponent(this.events, this.todos, this.app).render(el)
+      new TodoListComponent(this.events, this.todos, this.app, this.settings).render(el)
     });
   }
 
