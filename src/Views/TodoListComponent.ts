@@ -1,5 +1,5 @@
 import { IDictionary } from "../domain/IDictionary";
-import { TodoItem } from "../domain/TodoItem";
+import { TodoItem, TodoStatus } from "../domain/TodoItem";
 import { App, TFile } from "obsidian";
 import { TodoItemComponent } from "./TodoItemComponent";
 import { TodoFilter, TodoListEvents } from "../events/TodoListEvents";
@@ -27,11 +27,26 @@ export class TodoListComponent {
     return priorities[priority] || 0
   };
 
+  private getStatusValue(todo: TodoItem<TFile>): number {
+    switch (todo.status) {
+      case TodoStatus.Canceled:
+        return 0
+      case TodoStatus.Complete:
+        return 1
+      default:
+        return 10
+    }
+  }
+
   private sortTodos(todos: TodoItem<TFile>[]): TodoItem<TFile>[] {
     if (!todos) {
       return []
     }
     return todos.sort((a, b) => {
+      const statusDiff = this.getStatusValue(b) - this.getStatusValue(a);
+      if (statusDiff) {
+        return statusDiff
+      }
       const priorityDiff = this.getPriorityValue(b) - this.getPriorityValue(a);
       if (!priorityDiff) {
         return a.text.toLocaleLowerCase().localeCompare(b.text.toLocaleLowerCase())
