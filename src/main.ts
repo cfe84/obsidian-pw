@@ -18,8 +18,6 @@ import { FileOperations } from './domain/FileOperations';
 import { PwEvent } from './events/PwEvent';
 import { TodoListView } from './Views/TodoListView';
 import { CheckboxClickedEvent, DragEventParameters, OpenFileEvent, TodoFilter, TodoListEvents } from './events/TodoListEvents';
-import { Archiver } from './archive/Archiver';
-import { DateTime } from 'luxon';
 
 export default class ProletarianWizard extends Plugin {
 	logger: ILogger = new ConsoleLogger();
@@ -101,26 +99,6 @@ export default class ProletarianWizard extends Plugin {
 	}
 
 	private registerEvents() {
-		this.registerEvent(this.app.workspace.on("file-menu", (menu, f, source, leaf) => {
-			const file = new ObsidianFile(this.app, f as TFile)
-			const archiveFrom = this.settings.archiveFrom.length === 0
-				? "/"
-				: Archiver.getArchiveFrom(
-					this.settings.archiveFrom,
-					file)
-			if (archiveFrom)
-				menu.addItem((item) => {
-					item.setTitle("Archive")
-					item.setIcon("sheets-in-box")
-					item.onClick((evt => {
-						Archiver.archiveAsync(archiveFrom,
-							this.settings.archiveFolder,
-							file).then()
-					}))
-				})
-			this.logger.info(source)
-		}))
-
 		this.registerEvent(this.app.vault.on("modify", (file) => {
 			if (file.path.endsWith(".md")) {
 				this.todoIndex.fileUpdated(new ObsidianFile(this.app, file as TFile))

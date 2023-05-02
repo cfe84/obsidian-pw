@@ -1,8 +1,7 @@
 export interface ProletarianWizardSettings {
   version: number,
   buttonInLeftBar: boolean,
-  archiveFolder: string,
-  archiveFrom: string[],
+  ignoredFolders: string[],
   ignoreArchivedTodos: boolean,
   defaultDailyWipLimit: number,
   dueDateAttribute: string,
@@ -11,10 +10,9 @@ export interface ProletarianWizardSettings {
 }
 
 export const DEFAULT_SETTINGS: ProletarianWizardSettings = {
-  version: 2,
+  version: 3,
   buttonInLeftBar: true,
-  archiveFolder: "archive",
-  archiveFrom: [],
+  ignoredFolders: [],
   ignoreArchivedTodos: true,
   defaultDailyWipLimit: 5,
   dueDateAttribute: "due",

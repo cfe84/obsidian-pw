@@ -60,48 +60,25 @@ export class ProletarianWizardSettingsTab extends PluginSettingTab {
         }));
 
 
-    containerEl.createEl('h3', { text: 'Archive' });
+    containerEl.createEl('h3', { text: 'Ignore' });
 
     new Setting(containerEl)
-      .setName('Archive folder')
-      .setDesc('Folder where your archives are going')
+      .setName('Ignored folders')
+      .setDesc('Folders from which you don\'t want todos (; separated, leave empty if all)')
       .addText(toggle => toggle
-        .setValue(this.plugin.settings.archiveFolder)
-        .onChange(async (value) => {
-          if (!await this.validateArchiveFolder(value)) {
-            this.toggleError(spanFolderError, true)
-          } else {
-            this.toggleError(spanFolderError, false)
-            this.plugin.settings.archiveFolder = value;
-            await this.plugin.saveSettings();
-          }
-        }));
-
-    let spanFolderError = containerEl.createEl('span', { text: '', cls: 'pw-error' });
-    this.validateArchiveFolder(this.plugin.settings.archiveFolder).then(folderIsvalid => {
-      this.toggleError(spanFolderError, !folderIsvalid)
-    })
-
-    new Setting(containerEl)
-      .setName('Archive from')
-      .setDesc('Folders from where you will archive (; separated, leave empty if all)')
-      .addText(toggle => toggle
-        .setValue(this.plugin.settings.archiveFrom.join(";"))
+        .setValue(this.plugin.settings.ignoredFolders.join(";"))
         .onChange(async (value) => {
           const folders = value.split(";")
           if (!await this.validateArchiveFromFolder(folders)) {
             this.toggleError(spanArchiveFromError, true)
           } else {
             this.toggleError(spanArchiveFromError, false)
-            this.plugin.settings.archiveFrom = folders;
+            this.plugin.settings.ignoredFolders = folders;
             await this.plugin.saveSettings();
           }
         }));
 
     let spanArchiveFromError = containerEl.createEl('span', { text: '', cls: 'pw-error' });
-    this.validateArchiveFolder(this.plugin.settings.archiveFolder).then(folderIsvalid => {
-      this.toggleError(spanFolderError, !folderIsvalid)
-    })
 
     new Setting(containerEl)
       .setName('Ignore archived todo')

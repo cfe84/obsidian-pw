@@ -13,7 +13,7 @@ export interface TodoIndexDeps<T> {
 
 export interface TodoIndexSettings {
   ignoreArchivedTodos: boolean,
-  archiveFolder: string
+  ignoredFolders: string[]
 }
 
 export type TodosUpdatedHandler<T> = (items: TodoItem<T>[]) => Promise<void>;
@@ -27,7 +27,7 @@ export class TodoIndex<T> {
   constructor(private deps: TodoIndexDeps<T>, private settings: TodoIndexSettings) { }
 
   private ignoreFile(file: IFile<T>): boolean {
-    if (this.settings.ignoreArchivedTodos && file.isInFolder(this.settings.archiveFolder)) {
+    if (this.settings.ignoreArchivedTodos && !!this.settings.ignoredFolders.find((folder) => file.isInFolder(folder))) {
       this.deps.logger.debug(`TodoIndex: File ignored because archived: ${file.id}`)
       return true
     }

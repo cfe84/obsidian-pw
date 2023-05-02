@@ -87,13 +87,6 @@ export class LineOperations {
     return this.lineToString(parsedLine);
   }
 
-  // addDate(line: string): string {
-  //   const todaysDate = this.deps.date.todayAsYMDString();
-  //   const parsedLine = this.parseLine(line);
-  //   parsedLine.date = todaysDate;
-  //   return this.lineToString(parsedLine);
-  // }
-
   toggleTodo(line: string): string {
     const parsedLine = this.parseLine(line);
     if (parsedLine.checkbox) {

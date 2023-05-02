@@ -1,7 +1,7 @@
 {
 	"id": "obsidian-proletarian-wizard",
 	"name": "Proletarian Wizard",
-	"version": "1.0.0",
+	"version": "1.0.2",
 	"minAppVersion": "0.12.0",
 	"description": "Todo management in Obsidian using proletarian Wizard mechanisms.",
 	"author": "cfe84",
