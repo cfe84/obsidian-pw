@@ -10,7 +10,6 @@ export type DragEventParameters = { id: string, todo: TodoItemComponent }
 
 export interface TodoListEvents {
   openFile: PwEvent<OpenFileEvent<TFile>>
-  onCheckboxClicked: PwEvent<CheckboxClickedEvent<TFile>>,
   onDrag: PwEvent<DragEventParameters>
   onFilter: PwEvent<TodoFilter<TFile>>
 }

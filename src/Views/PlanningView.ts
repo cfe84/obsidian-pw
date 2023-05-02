@@ -98,6 +98,8 @@ export class PlanningView extends ItemView {
     if (todos.length === 0 && hideIfEmpty) {
       return
     }
+    const test = container.createDiv("pw");
+    MountTestComponent(test);
     const columentEl = container.createDiv("pw-planning-column")
     const titleEl = columentEl.createDiv({ cls: "pw-planning-column-title", text: columName })
     const contentEl = columentEl.createDiv("pw-planning-column-content")

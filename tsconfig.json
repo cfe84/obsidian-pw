@@ -1,6 +1,7 @@
 {
   "compilerOptions": {
     "baseUrl": ".",
+    "jsx": "react",
     "inlineSourceMap": true,
     "inlineSources": true,
     "module": "ESNext",
@@ -19,7 +20,7 @@
   },
   "include": [
     "**/*.ts"
-  ],
+, "src/Views/TodoListComponent.tsx", "src/Views/TodoItemComponent.tsx"  ],
   "exclude": [
     "dist/"
   ]
