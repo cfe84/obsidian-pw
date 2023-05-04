@@ -19,8 +19,7 @@
     ]
   },
   "include": [
-    "**/*.ts"
-, "src/Views/TodoListComponent.tsx", "src/Views/TodoItemComponent.tsx"  ],
+    "**/*.ts", "**/*.tsx" ],
   "exclude": [
     "dist/"
   ]

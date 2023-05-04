@@ -1,4 +1,5 @@
-import { ILogger } from "src/domain/ILogger";
+import { PwEvent } from "src/events/PwEvent";
+import { ILogger } from "../domain/ILogger";
 import { FileTodoParser } from "./FileTodoParser";
 import { FolderTodoParser } from "./FolderTodoParser";
 import { IFile } from "./IFile";
@@ -95,11 +96,8 @@ export class TodoIndex<T> {
   }
 
   private triggerUpdate() {
-    if (this.onUpdateAsync) {
-      const todos = this.todos
-      this.onUpdateAsync(todos).then(() => { })
-    }
+    this.onUpdateEvent.fireAsync(this.todos).then(() => {});
   }
 
-  onUpdateAsync: TodosUpdatedHandler<T>;
+  onUpdateEvent = new PwEvent<TodoItem<T>[]>();
 }

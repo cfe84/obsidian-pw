@@ -16,16 +16,16 @@ const foldedText = ` ▶`
 const unfoldedText = " ▼"
 
 export function TodoSubtasksContainer({subtasks, events, app, settings}: TodoSubtasksContainerProps) {
-  const [foldState, setFoldState] = React.useState(false);
+  const [isFolded, setIsFolded] = React.useState(false);
 
   function foldText() {
-    return subtasks && this.todo.subtasks.length 
-      ? foldState ? foldedText : unfoldedText
+    return subtasks && subtasks.length 
+      ? isFolded ? foldedText : unfoldedText
       : "  "
   }
 
   function toggleSubElement() {
-    setFoldState(!foldState);
+    setIsFolded(!isFolded);
   }
 
   function onClickFoldButton(evt: any) {
@@ -39,12 +39,12 @@ export function TodoSubtasksContainer({subtasks, events, app, settings}: TodoSub
   return <>
     <span className="todo-sub" onClick={onClickFoldButton}>{foldText()}</span>
     {
-      foldState ? 
-      <div className="pw-todo-sub-container">
+      isFolded
+      ? "" 
+      : <div className="pw-todo-sub-container">
         {subtasks?.map(task => <TodoItemComponent 
           key={task.text} todo={task}  events={events} app={app} settings={settings}/>)}
       </div>
-      : ""
     }
   </>;
 }

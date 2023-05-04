@@ -20,3 +20,7 @@ export interface TodoItem<TFile> {
   line?: number
   subtasks?: TodoItem<TFile>[]
 }
+
+export function getTodoId<T>(todo: TodoItem<T>) {
+  return todo.file.id + "-" + todo.text
+}

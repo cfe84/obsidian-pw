@@ -4,7 +4,7 @@ import { TodoItem, TodoStatus } from "../domain/TodoItem";
 import { App, TFile } from "obsidian";
 import { TodoItemComponent } from "./TodoItemComponent";
 import { TodoListEvents } from "../events/TodoListEvents";
-import { ProletarianWizardSettings } from "src/domain/ProletarianWizardSettings";
+import { ProletarianWizardSettings } from "../domain/ProletarianWizardSettings";
 
 function getPriorityValue(todo: TodoItem<TFile>): number {
   if (!todo.attributes || !todo.attributes["priority"]) {

@@ -24,7 +24,6 @@ export default class ProletarianWizard extends Plugin {
 	fileTodoParser: FileTodoParser<TFile> = new FileTodoParser();
 	folderTodoParser: FolderTodoParser<TFile>;
 	todoIndex: TodoIndex<TFile>;
-	todosUpdatedHandlers: TodosUpdatedHandler<TFile>[] = []
 
 	constructor(app: App, manifest: PluginManifest) {
 		super(app, manifest);
@@ -52,10 +51,6 @@ export default class ProletarianWizard extends Plugin {
 			})
 		}
 
-		this.todoIndex.onUpdateAsync = async (items) => {
-			Promise.all(this.todosUpdatedHandlers.map(handler => handler(items)))
-		}
-
 		this.registerViews()
 		this.registerEvents()
 
@@ -75,21 +70,16 @@ export default class ProletarianWizard extends Plugin {
 	private registerViews() {
 		const events: TodoListEvents = {
 			openFile: new PwEvent<OpenFileEvent<TFile>>(this.openFileAsync),
-			onFilter: new PwEvent<TodoFilter<TFile>>(),
 			onDrag: new PwEvent<DragEventParameters>()
 		}
 		this.registerView(TodoListView.viewType, (leaf) => {
 			let view = new TodoListView(leaf, events, { logger: this.logger }, this.settings)
-			this.todosUpdatedHandlers.push(async (items: TodoItem<TFile>[]) => {
-				view.onTodosChanged(items)
-			})
 			view.render()
 			return view
 		});
 
 		this.registerView(PlanningView.viewType, (leaf) => {
 			const view = new PlanningView({ logger: this.logger, todoIndex: this.todoIndex }, this.settings, events, leaf)
-			this.todosUpdatedHandlers.push((items) => view.onTodosChanged(items))
 			view.render()
 			return view
 		})
