@@ -4,7 +4,7 @@ import { App, ItemView, Menu, TFile, View, WorkspaceLeaf } from "obsidian";
 import { DateTime } from "luxon";
 import { TodoIndex } from "../domain/TodoIndex";
 import { FileOperations } from "../domain/FileOperations";
-import { DragEventParameters, TodoListEvents } from "../events/TodoListEvents";
+import { TodoListEvents } from "../events/TodoListEvents";
 import { PwEvent } from "../events/PwEvent";
 import { ProletarianWizardSettings } from "../domain/ProletarianWizardSettings";
 import { MountPlanningComponent } from "./PlanningComponent";
@@ -23,16 +23,7 @@ export class PlanningView extends ItemView {
 
   constructor(private deps: PlanningViewDeps, private settings: ProletarianWizardSettings, events: TodoListEvents, leaf: WorkspaceLeaf) {
     super(leaf)
-    this.onDragHandler = this.onDragHandler.bind(this)
     this.contentView = this.containerEl.getElementsByClassName("view-content")[0] as HTMLDivElement
-    this.events = {
-      openFile: events.openFile,
-      onDrag: new PwEvent(this.onDragHandler)
-    }
-  }
-
-  private async onDragHandler(dragParameters: DragEventParameters) {
-    const { id, todo } = dragParameters
   }
 
   static viewType: string = "pw.planning";

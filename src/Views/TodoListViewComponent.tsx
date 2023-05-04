@@ -34,7 +34,7 @@ export function TodoListViewComponent({events, app, settings, deps}: TodoListVie
   }, [deps.todoIndex])
 
   function getSelectedTodos(todos: TodoItem<TFile>[]): TodoItem<TFile>[] {
-    return todos.filter(todo => !!todo.attributes[settings.selectedAttribute])
+    return todos.filter(todo => todo.status !== TodoStatus.Complete && todo.status !== TodoStatus.Canceled && !!todo.attributes[settings.selectedAttribute])
   }
   
   function getDueTodos(todos: TodoItem<TFile>[]): TodoItem<TFile>[] {

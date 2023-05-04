@@ -120,7 +120,6 @@ export function TodoItemComponent({todo, app, settings, events, filter}: TodoIte
   function onDragStart(ev: any) {
     const id = getTodoId(todo)
     ev.dataTransfer.setData(Consts.TodoItemDragType, id)
-    events.onDrag.fireAsync({ id, todo: this }).then()
   }
 
   const isSelectedText = !!todo.attributes[settings.selectedAttribute] ? " 📌" : "";

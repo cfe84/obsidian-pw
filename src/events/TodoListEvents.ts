@@ -4,10 +4,6 @@ import { TFile } from "obsidian";
 
 export type TodoFilter<T> = (TodoItem: TodoItem<T>) => boolean
 export type OpenFileEvent<T> = ({ file: T, line: number, inOtherLeaf: boolean })
-export type CheckboxClickedEvent<T> = TodoItem<T>
-export type DragEventParameters = { id: string, todo: TodoItemComponent }
 
 export interface TodoListEvents {
-  openFile: PwEvent<OpenFileEvent<TFile>>
-  onDrag: PwEvent<DragEventParameters>
 }

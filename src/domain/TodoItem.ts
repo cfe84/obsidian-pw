@@ -22,5 +22,5 @@ export interface TodoItem<TFile> {
 }
 
 export function getTodoId<T>(todo: TodoItem<T>) {
-  return todo.file.id + "-" + todo.text
+  return todo.file.id + "-" + (todo.line || 0) + "-" + todo.text
 }

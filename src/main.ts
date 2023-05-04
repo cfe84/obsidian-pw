@@ -16,7 +16,7 @@ import { OpenPlanningCommand } from './Commands/OpenPlanningCommand';
 import { TodoItem, TodoStatus } from './domain/TodoItem';
 import { PwEvent } from './events/PwEvent';
 import { TodoListView } from './Views/TodoListView';
-import { CheckboxClickedEvent, DragEventParameters, OpenFileEvent, TodoFilter, TodoListEvents } from './events/TodoListEvents';
+import { OpenFileEvent, TodoFilter, TodoListEvents } from './events/TodoListEvents';
 
 export default class ProletarianWizard extends Plugin {
 	logger: ILogger = new ConsoleLogger();
@@ -69,8 +69,7 @@ export default class ProletarianWizard extends Plugin {
 
 	private registerViews() {
 		const events: TodoListEvents = {
-			openFile: new PwEvent<OpenFileEvent<TFile>>(this.openFileAsync),
-			onDrag: new PwEvent<DragEventParameters>()
+			openFile: new PwEvent<OpenFileEvent<TFile>>(this.openFileAsync)
 		}
 		this.registerView(TodoListView.viewType, (leaf) => {
 			let view = new TodoListView(leaf, events, { logger: this.logger }, this.todoIndex, this.settings)

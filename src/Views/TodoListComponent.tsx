@@ -1,6 +1,6 @@
 import * as React from "react";
 import { IDictionary } from "../domain/IDictionary";
-import { TodoItem, TodoStatus } from "../domain/TodoItem";
+import { TodoItem, TodoStatus, getTodoId } from "../domain/TodoItem";
 import { App, TFile } from "obsidian";
 import { TodoItemComponent } from "./TodoItemComponent";
 import { TodoListEvents } from "../events/TodoListEvents";
@@ -59,6 +59,6 @@ export interface TodoListComponentProps {
 export function TodoListComponent({events, todos, app, settings}: TodoListComponentProps) {
   const sortedTodos = sortTodos(todos);
   return <div>
-    {sortedTodos.map(todo => <TodoItemComponent app={app} settings={settings} events={events} todo={todo} key={todo.text} />)}
+    {sortedTodos.map(todo => <TodoItemComponent app={app} settings={settings} events={events} todo={todo} key={getTodoId(todo)} />)}
   </div>;
 }

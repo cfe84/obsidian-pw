@@ -135,7 +135,7 @@ export function PlanningComponent({events, deps, settings, app}: PlanningCompone
   
     yield todoColumn(
       "☀️ Today",
-      getTodosByDate(bracketStart, bracketEnd),
+      getTodosByDate(bracketStart, bracketEnd, true),
       false,
       moveToDate(bracketStart));
 
