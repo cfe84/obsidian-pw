@@ -14,10 +14,9 @@ import { CompleteLineCommand } from './Commands/CompleteLineCommand';
 import { PlanningView } from './Views/PlanningView';
 import { OpenPlanningCommand } from './Commands/OpenPlanningCommand';
 import { TodoItem, TodoStatus } from './domain/TodoItem';
-import { FileOperations } from './domain/FileOperations';
 import { PwEvent } from './events/PwEvent';
 import { TodoListView } from './Views/TodoListView';
-import { CheckboxClickedEvent, DragEventParameters, OpenFileEvent, TodoFilter, TodoListEvents } from './events/TodoListEvents';
+import { OpenFileEvent, TodoFilter, TodoListEvents } from './events/TodoListEvents';
 
 export default class ProletarianWizard extends Plugin {
 	logger: ILogger = new ConsoleLogger();
@@ -25,12 +24,10 @@ export default class ProletarianWizard extends Plugin {
 	fileTodoParser: FileTodoParser<TFile> = new FileTodoParser();
 	folderTodoParser: FolderTodoParser<TFile>;
 	todoIndex: TodoIndex<TFile>;
-	todosUpdatedHandlers: TodosUpdatedHandler<TFile>[] = []
 
 	constructor(app: App, manifest: PluginManifest) {
 		super(app, manifest);
 		this.openFileAsync = this.openFileAsync.bind(this);
-		this.toggleCheckmarkAsync = this.toggleCheckmarkAsync.bind(this);
 	}
 
 	async onload() {
@@ -54,10 +51,6 @@ export default class ProletarianWizard extends Plugin {
 			})
 		}
 
-		this.todoIndex.onUpdateAsync = async (items) => {
-			Promise.all(this.todosUpdatedHandlers.map(handler => handler(items)))
-		}
-
 		this.registerViews()
 		this.registerEvents()
 
@@ -76,23 +69,16 @@ export default class ProletarianWizard extends Plugin {
 
 	private registerViews() {
 		const events: TodoListEvents = {
-			openFile: new PwEvent<OpenFileEvent<TFile>>(this.openFileAsync),
-			onCheckboxClicked: new PwEvent<CheckboxClickedEvent<TFile>>(this.toggleCheckmarkAsync),
-			onFilter: new PwEvent<TodoFilter<TFile>>(),
-			onDrag: new PwEvent<DragEventParameters>()
+			openFile: new PwEvent<OpenFileEvent<TFile>>(this.openFileAsync)
 		}
 		this.registerView(TodoListView.viewType, (leaf) => {
-			let view = new TodoListView(leaf, events, { logger: this.logger }, this.settings)
-			this.todosUpdatedHandlers.push(async (items: TodoItem<TFile>[]) => {
-				view.onTodosChanged(items)
-			})
+			let view = new TodoListView(leaf, events, { logger: this.logger }, this.todoIndex, this.settings)
 			view.render()
 			return view
 		});
 
 		this.registerView(PlanningView.viewType, (leaf) => {
 			const view = new PlanningView({ logger: this.logger, todoIndex: this.todoIndex }, this.settings, events, leaf)
-			this.todosUpdatedHandlers.push((items) => view.onTodosChanged(items))
 			view.render()
 			return view
 		})
@@ -136,12 +122,6 @@ export default class ProletarianWizard extends Plugin {
 		let view = this.app.workspace.getActiveViewOfType(MarkdownView)
 		const lineContent = await view.editor.getLine(line)
 		view.editor.setSelection({ ch: 0, line }, { ch: lineContent.length, line })
-	}
-
-	private async toggleCheckmarkAsync(todo: TodoItem<TFile>) {
-		const wasCompleted = todo.status === TodoStatus.Complete || todo.status === TodoStatus.Canceled
-		todo.status = wasCompleted ? TodoStatus.Todo : TodoStatus.Complete
-		await FileOperations.updateTodoStatus(todo, this.settings.completedDateAttribute)
 	}
 
 	private loadFiles() {

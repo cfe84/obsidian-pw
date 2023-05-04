@@ -9,8 +9,8 @@ export class PwEvent<T> {
     }
   }
 
-  listen(handlers: eventHandler<T>) {
-    this.handlers.push(handlers);
+  listen(handler: eventHandler<T>) {
+    this.handlers.push(handler);
   }
 
   async fireAsync(evtDetails: T) {
