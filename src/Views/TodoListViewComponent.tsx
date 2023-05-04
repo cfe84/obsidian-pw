@@ -1,58 +1,73 @@
 import * as React from "react";
 import { createRoot } from "react-dom/client";
-
 import { TodoListEvents } from "../events/TodoListEvents";
 import { App, TFile } from "obsidian";
 import { TodoItem, TodoStatus } from "../domain/TodoItem";
 import { ProletarianWizardSettings } from "../domain/ProletarianWizardSettings";
 import { DateTime } from "luxon";
+import { TodoIndex } from "src/domain/TodoIndex";
+import { ILogger } from "src/domain/ILogger";
+import { TodoListComponent } from "./TodoListComponent";
+
+export interface TodoListViewComponentDeps {
+  todoIndex: TodoIndex<TFile>,
+  logger: ILogger,
+}
 
 export interface TodoListViewComponentProps {
-  events: TodoListEvents, 
-  todos: TodoItem<TFile>[], 
+  events: TodoListEvents,
   app: App, 
   settings: ProletarianWizardSettings
+  deps: TodoListViewComponentDeps,
 }
 
 
-function getSelectedTodos(todos: TodoItem<TFile>[]): TodoItem<TFile>[] {
-  return todos.filter(todo => !!todo.attributes[this.settings.selectedAttribute])
-}
+export function TodoListViewComponent({events, app, settings, deps}: TodoListViewComponentProps) {
+  const [todos, setTodos] = React.useState<TodoItem<TFile>[]>(deps.todoIndex.todos);
 
-function getDueTodos(todos: TodoItem<TFile>[]): TodoItem<TFile>[] {
-  const todoIsDue = (todo: TodoItem<TFile>) => {
-    if (
-      todo.status === TodoStatus.Complete ||
-      todo.status === TodoStatus.Canceled ||
-      !todo.attributes ||
-      !todo.attributes[this.settings.dueDateAttribute]
-    )
-      return false;
-    try {
-      const date = DateTime.fromISO(`${todo.attributes[this.settings.dueDateAttribute]}`);
-      return date < now;
-    } catch (err) {
-      // this.deps.logger.error(`Error while parsing date: ${err}`);
-      return false;
-    }
+  React.useEffect(() => {
+    deps.todoIndex.onUpdateEvent.listen(async (todos: TodoItem<TFile>[]) => {
+      setTodos(todos.filter(todo =>
+        todo.status !== TodoStatus.Complete
+        && todo.status !== TodoStatus.Canceled));
+    })
+  }, [deps.todoIndex])
+
+  function getSelectedTodos(todos: TodoItem<TFile>[]): TodoItem<TFile>[] {
+    return todos.filter(todo => !!todo.attributes[settings.selectedAttribute])
   }
-  const now = DateTime.now();
-  const todosWithOverdueDate = todos.filter(
-    (todo) => todo.attributes && todoIsDue(todo)
-  );
-  return todosWithOverdueDate
-}
-
-export function TodoListViewComponent({events, todos: initialTodos, app, settings}: TodoListViewComponentProps) {
-  const [todos, setTodos] = React.useState<TodoItem<TFile>[]>(initialTodos);
+  
+  function getDueTodos(todos: TodoItem<TFile>[]): TodoItem<TFile>[] {
+    const todoIsDue = (todo: TodoItem<TFile>) => {
+      if (
+        todo.status === TodoStatus.Complete ||
+        todo.status === TodoStatus.Canceled ||
+        !todo.attributes ||
+        !todo.attributes[settings.dueDateAttribute]
+      )
+        return false;
+      try {
+        const date = DateTime.fromISO(`${todo.attributes[settings.dueDateAttribute]}`);
+        return date < now;
+      } catch (err) {
+        deps.logger.error(`Error while parsing date: ${err}`);
+        return false;
+      }
+    }
+    const now = DateTime.now();
+    const todosWithOverdueDate = todos.filter(
+      (todo) => todo.attributes && todoIsDue(todo)
+    );
+    return todosWithOverdueDate
+  }
 
   return <div className="pw-todo-panel">
     <b>Selected:</b>
-    <TodoListViewComponent todos={getSelectedTodos(todos)} app={app} events={events} settings={settings}/>
+    <TodoListComponent todos={getSelectedTodos(todos)} app={app} events={events} settings={settings}/>
     <b>Due:</b>
-    <TodoListViewComponent todos={getDueTodos(todos)} app={app} events={events} settings={settings}/>
+    <TodoListComponent todos={getDueTodos(todos)} app={app} events={events} settings={settings}/>
     <b>All:</b>
-    <TodoListViewComponent todos={todos} app={app} events={events} settings={settings}/>
+    <TodoListComponent todos={todos} app={app} events={events} settings={settings}/>
   </div>
 }
 

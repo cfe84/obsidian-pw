@@ -1,8 +1,9 @@
-import { TodoItem, TodoStatus } from "../domain/TodoItem";
 import { ItemView, TFile, WorkspaceLeaf } from "obsidian";
 import { ILogger } from "../domain/ILogger";
 import { TodoListEvents } from "../events/TodoListEvents";
 import { ProletarianWizardSettings } from "../domain/ProletarianWizardSettings";
+import { MountListComponent } from "./TodoListViewComponent";
+import { TodoIndex } from "src/domain/TodoIndex";
 
 export interface TodoListViewDeps {
   logger: ILogger
@@ -11,9 +12,7 @@ export interface TodoListViewDeps {
 export class TodoListView extends ItemView {
   static viewType: string = "pw.todo-list";
 
-  private todos: TodoItem<TFile>[] = []
-
-  constructor(leaf: WorkspaceLeaf, private events: TodoListEvents, private deps: TodoListViewDeps, private settings: ProletarianWizardSettings) {
+  constructor(leaf: WorkspaceLeaf, private events: TodoListEvents, private deps: TodoListViewDeps, private todoIndex: TodoIndex<TFile>, private settings: ProletarianWizardSettings) {
     super(leaf);
   }
 
@@ -33,22 +32,16 @@ export class TodoListView extends ItemView {
     return Promise.resolve();
   }
 
-  onTodosChanged(todos: TodoItem<TFile>[]) {
-    this.deps.logger.debug(`Todos updated`);
-    this.todos = todos.filter(todo =>
-      todo.status !== TodoStatus.Complete
-      && todo.status !== TodoStatus.Canceled);
-    this.render()
-  }
-
   public render(): void {
-    const container = this.containerEl.children[1];
-    // MountListComponent(container as HTMLElement, {
-    //   app: this.app,
-    //   events: this.events,
-    //   settings: this.settings,
-    //   todos: this.todos,
-    // })
+    MountListComponent(this.containerEl as HTMLElement, {
+      app: this.app,
+      events: this.events,
+      settings: this.settings,
+      deps: {
+         logger: this.deps.logger,
+         todoIndex: this.todoIndex,
+      },
+    })
   }
 
 }

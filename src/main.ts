@@ -73,7 +73,7 @@ export default class ProletarianWizard extends Plugin {
 			onDrag: new PwEvent<DragEventParameters>()
 		}
 		this.registerView(TodoListView.viewType, (leaf) => {
-			let view = new TodoListView(leaf, events, { logger: this.logger }, this.settings)
+			let view = new TodoListView(leaf, events, { logger: this.logger }, this.todoIndex, this.settings)
 			view.render()
 			return view
 		});
