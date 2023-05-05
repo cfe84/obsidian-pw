@@ -4,18 +4,24 @@ import { TodoItem } from "../domain/TodoItem";
 import { App, TFile } from "obsidian";
 import { TodoListEvents } from "../events/TodoListEvents";
 import { ProletarianWizardSettings } from "../domain/ProletarianWizardSettings";
+import { ILogger } from "src/domain/ILogger";
+
+export interface TodoSubtasksContainerDeps {
+  logger: ILogger,
+  app: App,
+}
 
 export interface TodoSubtasksContainerProps {
   subtasks?: TodoItem<TFile>[],
   events: TodoListEvents,
-  app: App,
   settings: ProletarianWizardSettings,
+  deps: TodoSubtasksContainerDeps,
 }
 
 const foldedText = ` ▶`
 const unfoldedText = " ▼"
 
-export function TodoSubtasksContainer({subtasks, events, app, settings}: TodoSubtasksContainerProps) {
+export function TodoSubtasksContainer({subtasks, events, deps, settings}: TodoSubtasksContainerProps) {
   const [isFolded, setIsFolded] = React.useState(false);
 
   function foldText() {
@@ -43,7 +49,7 @@ export function TodoSubtasksContainer({subtasks, events, app, settings}: TodoSub
       ? "" 
       : <div className="pw-todo-sub-container">
         {subtasks?.map(task => <TodoItemComponent 
-          key={task.text} todo={task}  events={events} app={app} settings={settings}/>)}
+          key={task.text} todo={task}  events={events} settings={settings} deps={deps}/>)}
       </div>
     }
   </>;

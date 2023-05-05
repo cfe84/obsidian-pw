@@ -9,6 +9,7 @@ import { Consts } from "../domain/Consts"
 import { TodoFilter, TodoListEvents } from "../events/TodoListEvents"
 import { FileOperations } from "../domain/FileOperations"
 import { ProletarianWizardSettings } from "../domain/ProletarianWizardSettings"
+import { ILogger } from "src/domain/ILogger";
 
 
 function priorityToIcon(
@@ -40,18 +41,24 @@ function priorityToIcon(
     : "";
 }
 
+export interface TodoItemComponentDeps {
+  logger: ILogger,
+  app: App,
+}
+
 export interface TodoItemComponentProps {
   todo: TodoItem<TFile>,
-  app: App,
   settings: ProletarianWizardSettings,
   events: TodoListEvents,
   filter?: TodoFilter<TFile>,
+  deps: TodoItemComponentDeps,
 }
 
-export function TodoItemComponent({todo, app, settings, events, filter}: TodoItemComponentProps) {
+export function TodoItemComponent({todo, settings, events, filter, deps}: TodoItemComponentProps) {
   if (filter && !filter(todo)) {
     return <></>
   }
+  const app = deps.app;
 
   async function openFileAsync(file: TFile, line: number, inOtherLeaf: boolean) {
     let leaf = app.workspace.activeLeaf
@@ -127,11 +134,11 @@ export function TodoItemComponent({todo, app, settings, events, filter}: TodoIte
   const completionClassName = todo.status === TodoStatus.Complete || todo.status === TodoStatus.Canceled  ? "pw-todo-text-complete" : "";
   return <>
     <div className="pw-todo-container" draggable="true" onDragStart={onDragStart} onClick={onClickContainer} onAuxClick={onAuxClickContainer}>
-      <TodoStatusComponent todo={todo} />
+      <TodoStatusComponent todo={todo} deps={ { logger: deps.logger, app: app }} settings={settings}  />
       <div className={`pw-todo-text ${completionClassName}`}>
         {`${priorityIcon} ${todo.text}${isSelectedText}`}
       </div>
-      <TodoSubtasksContainer subtasks={todo.subtasks} app={app} events={events} settings={settings} key={"Subtasks-" + todo.text}></TodoSubtasksContainer>
+      <TodoSubtasksContainer subtasks={todo.subtasks} deps={deps} events={events} settings={settings} key={"Subtasks-" + todo.text}></TodoSubtasksContainer>
     </div>
   </>;
     

@@ -34,12 +34,12 @@ export class TodoListView extends ItemView {
 
   public render(): void {
     MountListComponent(this.containerEl as HTMLElement, {
-      app: this.app,
       events: this.events,
       settings: this.settings,
       deps: {
-         logger: this.deps.logger,
-         todoIndex: this.todoIndex,
+        app: this.app,
+        logger: this.deps.logger,
+        todoIndex: this.todoIndex,
       },
     })
   }

@@ -37,7 +37,7 @@ export function PlanningSettingsComponent({setSearchParameters, setHideEmpty, hi
         onChange={onHideEmptyClicked}
         checked={hideEmpty}
         ></input>
-       hide empty containers
+      <label>hide empty containers</label>
     </div>
 
     <div className="pw-planning--settings--search">
@@ -45,7 +45,7 @@ export function PlanningSettingsComponent({setSearchParameters, setHideEmpty, hi
       <input 
         onChange={onSearchChange}
         value={searchParameters.searchPhrase}
-        ></input>
+        ></input> &nbsp;
       <input type="checkbox"
         onChange={onFuzzyClicked}
         checked={searchParameters.fuzzySearch}></input>

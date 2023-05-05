@@ -108,7 +108,8 @@ export function PlanningComponent({events, deps, settings, app}: PlanningCompone
       title: string,
       todos: TodoItem<TFile>[],
       hideIfEmpty = hideEmpty,
-      onTodoDropped: ((todoId: string) => void) | null = null) {
+      onTodoDropped: ((todoId: string) => void) | null = null,
+      isToday = false) {
     return <PlanningTodoColumn 
       hideIfEmpty={hideIfEmpty}
       title={title}
@@ -119,6 +120,7 @@ export function PlanningComponent({events, deps, settings, app}: PlanningCompone
       deps={{
         app, events, settings, logger: deps.logger,
       }}
+      isToday={isToday}
     />;
   }
 
@@ -137,7 +139,8 @@ export function PlanningComponent({events, deps, settings, app}: PlanningCompone
       "☀️ Today",
       getTodosByDate(bracketStart, bracketEnd, true),
       false,
-      moveToDate(bracketStart));
+      moveToDate(bracketStart),
+      true);
 
     for (let i = 0; i < 6; i++) {
       bracketStart = bracketEnd
@@ -191,15 +194,15 @@ export function PlanningComponent({events, deps, settings, app}: PlanningCompone
   deps.logger.debug(`Rendering planning view`)
 
   return <>
+    <div>
+      {Array.from(getColumns())}
+    </div>
     <PlanningSettingsComponent
       setHideEmpty={setHideEmpty}
       hideEmpty={hideEmpty}
       setSearchParameters={setSearchParameters}
       searchParameters={searchParameters}
       />
-    <div>
-      {Array.from(getColumns())}
-    </div>
   </>;
 }
 

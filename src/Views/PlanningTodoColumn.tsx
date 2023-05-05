@@ -21,12 +21,13 @@ export interface PlanningTodoColumnProps {
   hideIfEmpty: boolean,
   filter: TodoFilter<TFile>,
   deps: PlanningTodoColumnDeps,
+  isToday: boolean,
 }
 
 const BORDERCOLOR_NORMAL = "#ddd";
 const BORDERCOLOR_HOVER = "blue";
 
-export function PlanningTodoColumn({title, hideIfEmpty, onTodoDropped, todos, deps, filter}: PlanningTodoColumnProps) {
+export function PlanningTodoColumn({title, hideIfEmpty, onTodoDropped, todos, deps, filter, isToday}: PlanningTodoColumnProps) {
 
   const [borderColor, setBorderColor] = React.useState(BORDERCOLOR_NORMAL);
 
@@ -53,22 +54,22 @@ export function PlanningTodoColumn({title, hideIfEmpty, onTodoDropped, todos, de
   }
 
   const todoItems = todos.map(todo => <TodoItemComponent 
-    app={deps.app}
     events={deps.events}
     settings={deps.settings}
     todo={todo}
     key={todo.text}
     filter={filter}
+    deps={deps}
   />);
 
   if (hideIfEmpty && todoItems.length === 0) {
     return <></>
   }
 
-  return <div className="pw-planning-column">
+  return <div className={`pw-planning-column ${isToday ? "pw-planning-column--today" : ""}`}>
     <div className="pw-planning-column-title">{title}</div>
     <div 
-      className="pw-planning-column-content"
+      className={`pw-planning-column-content ${isToday ? "pw-planning-column-content--today" : ""}`}
       style={ {"borderColor": borderColor } }
       onDragOver={onDragOver}
       onDragEnter={onDragEnter}

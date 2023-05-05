@@ -12,17 +12,17 @@ import { TodoListComponent } from "./TodoListComponent";
 export interface TodoListViewComponentDeps {
   todoIndex: TodoIndex<TFile>,
   logger: ILogger,
+  app: App, 
 }
 
 export interface TodoListViewComponentProps {
   events: TodoListEvents,
-  app: App, 
   settings: ProletarianWizardSettings
   deps: TodoListViewComponentDeps,
 }
 
 
-export function TodoListViewComponent({events, app, settings, deps}: TodoListViewComponentProps) {
+export function TodoListViewComponent({events, settings, deps}: TodoListViewComponentProps) {
   const [todos, setTodos] = React.useState<TodoItem<TFile>[]>(deps.todoIndex.todos);
 
   React.useEffect(() => {
@@ -63,11 +63,11 @@ export function TodoListViewComponent({events, app, settings, deps}: TodoListVie
 
   return <div className="pw-todo-panel">
     <b>Selected:</b>
-    <TodoListComponent todos={getSelectedTodos(todos)} app={app} events={events} settings={settings}/>
+    <TodoListComponent todos={getSelectedTodos(todos)} events={events} settings={settings} deps={deps}/>
     <b>Due:</b>
-    <TodoListComponent todos={getDueTodos(todos)} app={app} events={events} settings={settings}/>
+    <TodoListComponent todos={getDueTodos(todos)} events={events} settings={settings} deps={deps}/>
     <b>All:</b>
-    <TodoListComponent todos={todos} app={app} events={events} settings={settings}/>
+    <TodoListComponent todos={todos} events={events} settings={settings} deps={deps}/>
   </div>
 }
 

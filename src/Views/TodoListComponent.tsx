@@ -5,6 +5,7 @@ import { App, TFile } from "obsidian";
 import { TodoItemComponent } from "./TodoItemComponent";
 import { TodoListEvents } from "../events/TodoListEvents";
 import { ProletarianWizardSettings } from "../domain/ProletarianWizardSettings";
+import { ILogger } from "../domain/ILogger";
 
 function getPriorityValue(todo: TodoItem<TFile>): number {
   if (!todo.attributes || !todo.attributes["priority"]) {
@@ -49,16 +50,21 @@ function sortTodos(todos: TodoItem<TFile>[]): TodoItem<TFile>[] {
   })
 }
 
+export interface TodoListComponentDeps {
+  logger: ILogger,
+  app: App, 
+}
+
 export interface TodoListComponentProps {
   events: TodoListEvents, 
   todos: TodoItem<TFile>[], 
-  app: App, 
-  settings: ProletarianWizardSettings
+  settings: ProletarianWizardSettings,
+  deps: TodoListComponentDeps,
 }
 
-export function TodoListComponent({events, todos, app, settings}: TodoListComponentProps) {
+export function TodoListComponent({events, todos, settings, deps}: TodoListComponentProps) {
   const sortedTodos = sortTodos(todos);
   return <div>
-    {sortedTodos.map(todo => <TodoItemComponent app={app} settings={settings} events={events} todo={todo} key={getTodoId(todo)} />)}
+    {sortedTodos.map(todo => <TodoItemComponent settings={settings} events={events} todo={todo} key={getTodoId(todo)} deps={deps} />)}
   </div>;
 }
