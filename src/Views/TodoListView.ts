@@ -2,7 +2,7 @@ import { ItemView, TFile, WorkspaceLeaf } from "obsidian";
 import { ILogger } from "../domain/ILogger";
 import { TodoListEvents } from "../events/TodoListEvents";
 import { ProletarianWizardSettings } from "../domain/ProletarianWizardSettings";
-import { MountListComponent } from "./TodoListViewComponent";
+import { MountListComponent } from "../ui/TodoListViewComponent";
 import { TodoIndex } from "src/domain/TodoIndex";
 
 export interface TodoListViewDeps {

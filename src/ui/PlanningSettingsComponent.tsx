@@ -1,34 +1,39 @@
 import * as React from "react";
-
-export interface SearchParameters {
-  searchPhrase: string,
-  fuzzySearch: boolean,
-}
+import { PlanningSettings, SearchParameters } from "./PlanningSettings";
 
 export interface PlanningSettingsComponentProps {
-  setSearchParameters: (searchParameters: SearchParameters) => void;
-  setHideEmpty: (hideEmpty: boolean) => void;
-  hideEmpty: boolean,
-  searchParameters: SearchParameters,
+  setPlanningSettings: (settings: PlanningSettings) => void;
+  planningSettings: PlanningSettings,
 }
 
-export function PlanningSettingsComponent({setSearchParameters, setHideEmpty, hideEmpty, searchParameters}: PlanningSettingsComponentProps) {
+export function PlanningSettingsComponent({setPlanningSettings, planningSettings}: PlanningSettingsComponentProps) {
+
+  let {hideEmpty, searchParameters} = planningSettings;
+  let {searchPhrase, fuzzySearch} = searchParameters;
+
+  function saveSettings() {
+    setPlanningSettings({
+      hideEmpty,
+      searchParameters: {
+        fuzzySearch,
+        searchPhrase,
+      }
+    });
+  }
+
   function onHideEmptyClicked(ev: React.ChangeEvent<HTMLInputElement>) {
-    setHideEmpty(ev.target.checked);
+    hideEmpty = ev.target.checked;
+    saveSettings();
   }
 
   function onFuzzyClicked(ev: React.ChangeEvent<HTMLInputElement>) {
-    setSearchParameters({
-      fuzzySearch: ev.target.checked,
-      searchPhrase: searchParameters.searchPhrase,
-    });
+    fuzzySearch = ev.target.checked;
+    saveSettings();
   }
 
   function onSearchChange(ev: React.ChangeEvent<HTMLInputElement>) {
-    setSearchParameters({
-      fuzzySearch: searchParameters.fuzzySearch,
-      searchPhrase: ev.target.value,
-    });
+    searchPhrase = ev.target.value;
+    saveSettings();
   }
 
   return <div className="pw-planning--settings">
@@ -44,11 +49,11 @@ export function PlanningSettingsComponent({setSearchParameters, setHideEmpty, hi
       Filter: 
       <input 
         onChange={onSearchChange}
-        value={searchParameters.searchPhrase}
+        value={searchPhrase}
         ></input> &nbsp;
       <input type="checkbox"
         onChange={onFuzzyClicked}
-        checked={searchParameters.fuzzySearch}></input>
+        checked={fuzzySearch}></input>
       fuzzy search
     </div>
   </div>;

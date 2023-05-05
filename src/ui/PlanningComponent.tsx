@@ -12,6 +12,7 @@ import { PlanningSettingsComponent } from "./PlanningSettingsComponent";
 import { PlanningTodoColumn } from "./PlanningTodoColumn";
 import { TodoListEvents } from "src/events/TodoListEvents";
 import { TodoMatcher } from "src/domain/TodoMatcher";
+import { PlanningSettingsStore } from "./PlanningSettingsStore";
 
 function findTodoDate<T>(todo: TodoItem<T>, attribute: string): DateTime | null {
   if (!todo.attributes) {
@@ -38,17 +39,19 @@ export interface PlanningComponentProps {
 }
 
 export function PlanningComponent({events, deps, settings, app}: PlanningComponentProps) {
-  const [hideEmpty, setHideEmpty ] = React.useState(true);
-  const [searchParameters, setSearchParameters] = React.useState({searchPhrase: "", fuzzySearch: false});
+  const savedSettings = React.useMemo(() => PlanningSettingsStore.getSettings(), []);
+  const [planningSettings, setPlanningSettingsState] = React.useState(savedSettings);
   const [todos, setTodos] = React.useState<TodoItem<TFile>[]>(deps.todoIndex.todos);
-
+  const setPlanningSettings = PlanningSettingsStore.decorateSetterWithSaveSettings(setPlanningSettingsState);
+  const { searchParameters, hideEmpty } = planningSettings;
+  
   const filter = new TodoMatcher(searchParameters.searchPhrase, searchParameters.fuzzySearch);
 
   React.useEffect(() => {
     deps.todoIndex.onUpdateEvent.listen(async (todos) => {
       setTodos(todos);
     })
-  }, [events])
+  }, [events]);
 
   function getTodosByDate(from: DateTime | null, to: DateTime | null, includeSelected: boolean = false): TodoItem<TFile>[] {
     const dateIsInRange = (date: DateTime | null) => date && (from === null || date >= from) && (to === null || date < to)
@@ -252,10 +255,8 @@ export function PlanningComponent({events, deps, settings, app}: PlanningCompone
       {Array.from(getColumns())}
     </div>
     <PlanningSettingsComponent
-      setHideEmpty={setHideEmpty}
-      hideEmpty={hideEmpty}
-      setSearchParameters={setSearchParameters}
-      searchParameters={searchParameters}
+      planningSettings={planningSettings}
+      setPlanningSettings={setPlanningSettings}
       />
   </>;
 }
