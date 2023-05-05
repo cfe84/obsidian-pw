@@ -45,6 +45,7 @@ export function PlanningTodoColumn({icon, title, hideIfEmpty, onTodoDropped, tod
   }
 
   function onDrop(ev: any) {
+    setHoverClassName(CLASSNAME_NORMAL);
     const todoId = ev.dataTransfer.getData(Consts.TodoItemDragType)
     if (todoId) {
       ev.preventDefault()

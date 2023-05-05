@@ -157,6 +157,7 @@ export function PlanningComponent({events, deps, settings, app}: PlanningCompone
       false,
       moveToDateAndStatus(today, TodoStatus.Todo),
       "today");
+      
     yield todoColumn(
       "⏩",
       "In progress",
