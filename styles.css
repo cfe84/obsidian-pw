@@ -126,7 +126,7 @@
     border-color: var(--column-border-color--hover);
 }
 
-.pw-planning-column-wip-exceeded {
+.pw-planning-column-content--wip-exceeded {
     border: 1px solid #f39;
 }
 

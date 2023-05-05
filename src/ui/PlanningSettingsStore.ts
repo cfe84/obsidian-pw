@@ -1,14 +1,16 @@
-import { PlanningSettings, defaultSettings } from "./PlanningSettings";
+import { PlanningSettings, getDefaultSettings } from "./PlanningSettings";
 
 const storageKey = "PW.PlanningSettings";
 
 export class PlanningSettingsStore {
   static getSettings(): PlanningSettings {
     const serializedValue = localStorage.getItem(storageKey);
+    let value = getDefaultSettings();
     if (serializedValue) {
-      return JSON.parse(serializedValue);
+      const saved = JSON.parse(serializedValue);
+      Object.assign(value, saved);
     }
-    return defaultSettings;
+    return value;
   }
 
   static saveSettings(settings: PlanningSettings) {

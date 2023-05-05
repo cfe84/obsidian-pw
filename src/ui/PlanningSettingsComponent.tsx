@@ -1,5 +1,6 @@
 import * as React from "react";
 import { PlanningSettings, SearchParameters } from "./PlanningSettings";
+import { Checkbox, Group, Label, Pane, SearchInput, Small, Switch, Text, TextInput, majorScale, minorScale } from "evergreen-ui";
 
 export interface PlanningSettingsComponentProps {
   setPlanningSettings: (settings: PlanningSettings) => void;
@@ -8,8 +9,9 @@ export interface PlanningSettingsComponentProps {
 
 export function PlanningSettingsComponent({setPlanningSettings, planningSettings}: PlanningSettingsComponentProps) {
 
-  let {hideEmpty, searchParameters} = planningSettings;
+  let {hideEmpty, searchParameters, wipLimit} = planningSettings;
   let {searchPhrase, fuzzySearch} = searchParameters;
+  let {dailyLimit, isLimited} = wipLimit;
 
   function saveSettings() {
     setPlanningSettings({
@@ -17,6 +19,10 @@ export function PlanningSettingsComponent({setPlanningSettings, planningSettings
       searchParameters: {
         fuzzySearch,
         searchPhrase,
+      },
+      wipLimit: {
+        dailyLimit,
+        isLimited,
       }
     });
   }
@@ -36,25 +42,29 @@ export function PlanningSettingsComponent({setPlanningSettings, planningSettings
     saveSettings();
   }
 
-  return <div className="pw-planning--settings">
-    <div className="pw-planning--settings--hide-checkbox">
-      <input type="checkbox"
-        onChange={onHideEmptyClicked}
-        checked={hideEmpty}
-        ></input>
-      <label>hide empty containers</label>
-    </div>
+  function onWipLimitActivatedChange(ev: React.ChangeEvent<HTMLInputElement>) {
+    isLimited = ev.target.checked;
+    console.log(`Saving settings`)
+    saveSettings();
+  }
 
-    <div className="pw-planning--settings--search">
-      Filter: 
-      <input 
-        onChange={onSearchChange}
-        value={searchPhrase}
-        ></input> &nbsp;
-      <input type="checkbox"
-        onChange={onFuzzyClicked}
-        checked={fuzzySearch}></input>
-      fuzzy search
-    </div>
+  function onDailyWipLimitChanged(ev: React.ChangeEvent<HTMLInputElement>) {
+    dailyLimit = Number.parseInt(ev.target.value);
+    saveSettings();
+  }
+
+  return <div className="pw-planning--settings">
+    <Pane display="flex" alignItems="center" marginX={majorScale(2)}>
+      <TextInput placeholder="Filter" onChange={onSearchChange} value={searchPhrase}/>
+      <Checkbox label="Fuzzy search" checked={fuzzySearch} onChange={onFuzzyClicked} />
+    </Pane>
+    <Pane>
+      <Checkbox label="Hide empty containers" checked={hideEmpty} onChange={onHideEmptyClicked} />
+    </Pane>
+    <Pane display="flex" alignItems="center">
+      <Checkbox label="WIP limit" checked={isLimited} onChange={onWipLimitActivatedChange} marginRight={minorScale(2)} marginBottom={0} marginTop={0}/>
+      <TextInput onChange={onDailyWipLimitChanged} value={dailyLimit} disabled={!isLimited} width="60px" marginRight={minorScale(2)}/>
+      <Text fontSize="12px">tasks / day</Text>
+    </Pane>
   </div>;
 }

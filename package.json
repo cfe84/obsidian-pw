@@ -26,6 +26,7 @@
     "@types/react": "^18.2.0",
     "@types/react-dom": "^18.2.1",
     "chrono-node": "^2.3.8",
+    "evergreen-ui": "^7.1.8",
     "luxon": "^2.3.1",
     "react": "^18.2.0",
     "react-dom": "^18.2.0"

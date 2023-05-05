@@ -43,7 +43,7 @@ export function PlanningComponent({events, deps, settings, app}: PlanningCompone
   const [planningSettings, setPlanningSettingsState] = React.useState(savedSettings);
   const [todos, setTodos] = React.useState<TodoItem<TFile>[]>(deps.todoIndex.todos);
   const setPlanningSettings = PlanningSettingsStore.decorateSetterWithSaveSettings(setPlanningSettingsState);
-  const { searchParameters, hideEmpty } = planningSettings;
+  const { searchParameters, hideEmpty, wipLimit } = planningSettings;
   
   const filter = new TodoMatcher(searchParameters.searchPhrase, searchParameters.fuzzySearch);
 
@@ -149,6 +149,18 @@ export function PlanningComponent({events, deps, settings, app}: PlanningCompone
     />;
   }
 
+  function getTodayWipStyle() {
+    if (!wipLimit.isLimited) {
+      return ""
+    }
+    const today = DateTime.now().startOf("day")
+    let tomorrow = today.plus({ day: 1 });
+    const todos = getTodosByDate(today, tomorrow, true);
+    if (todos.length > wipLimit.dailyLimit) {
+      return "pw-planning-column-content--wip-exceeded"
+    }
+  }
+
   function* getTodayColumns() {
     const today = DateTime.now().startOf("day")
     let tomorrow = today.plus({ day: 1 });
@@ -178,6 +190,15 @@ export function PlanningComponent({events, deps, settings, app}: PlanningCompone
       "today");
   }
 
+  function getWipStyle(todos: TodoItem<TFile>[]) {
+    if (wipLimit.isLimited) {
+      if (todos.length > wipLimit.dailyLimit) {
+        return "wip-exceeded";
+      }
+    }
+    return "";
+  }
+
   function* getColumns() {
     const today = DateTime.now().startOf("day")
     yield todoColumn(
@@ -197,36 +218,45 @@ export function PlanningComponent({events, deps, settings, app}: PlanningCompone
         continue
       }
       const label = i === 0 ? "Tomorrow" : bracketStart.toFormat("cccc dd/MM")
+      const todos = getTodosByDate(bracketStart, bracketEnd);
+      const style = getWipStyle(todos);
       yield todoColumn(
         "📅",
         label,
-        getTodosByDate(bracketStart, bracketEnd),
+        todos,
         hideEmpty,
-        moveToDate(bracketStart));
+        moveToDate(bracketStart),
+        style);
     }
 
     for (let i = 1; i < 5; i++) {
       bracketStart = bracketEnd
       bracketEnd = bracketStart.plus({ weeks: 1 })
       const label = `Week +${i} (${bracketStart.toFormat("dd/MM")} - ${bracketEnd.minus({ days: 1 }).toFormat("dd/MM")})`;
+      const todos = getTodosByDate(bracketStart, bracketEnd)
+      const style = getWipStyle(todos);
       yield todoColumn(
         "📅",
         label,
-        getTodosByDate(bracketStart, bracketEnd),
+        todos,
         hideEmpty,
-        moveToDate(bracketStart));
+        moveToDate(bracketStart),
+        style);
     }
 
     for (let i = 1; i < 4; i++) {
       bracketStart = bracketEnd
       bracketEnd = bracketStart.plus({ months: 1 })
       const label = `Month +${i} (${bracketStart.toFormat("dd/MM")} - ${bracketEnd.minus({ days: 1 }).toFormat("dd/MM")})`
+      const todos = getTodosByDate(bracketStart, bracketEnd);
+      const style = getWipStyle(todos);
       yield todoColumn(
         "📅",
         label,
-        getTodosByDate(bracketStart, bracketEnd),
+        todos,
         hideEmpty,
-        moveToDate(bracketStart));
+        moveToDate(bracketStart),
+        style);
     }
 
     yield todoColumn(
@@ -247,7 +277,7 @@ export function PlanningComponent({events, deps, settings, app}: PlanningCompone
   deps.logger.debug(`Rendering planning view`)
 
   return <>
-    <div className="pw-planning-today">
+    <div className={`pw-planning-today ${getTodayWipStyle()}`}>
       <h1><span className="pw-planning-today-icon">☀️</span> Today</h1>
       {Array.from(getTodayColumns())}
     </div>

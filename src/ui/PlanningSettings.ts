@@ -3,15 +3,27 @@ export interface SearchParameters {
   fuzzySearch: boolean,
 }
 
+export interface WipLimit {
+  dailyLimit: number,
+  isLimited: boolean,
+}
+
 export interface PlanningSettings {
   searchParameters: SearchParameters,
   hideEmpty: boolean,
+  wipLimit: WipLimit,
 }
 
-export const defaultSettings: PlanningSettings = {
-  searchParameters: {
-    fuzzySearch: false,
-    searchPhrase: ""
-  },
-  hideEmpty: true,
+export function getDefaultSettings(): PlanningSettings {
+  return {
+    searchParameters: {
+      fuzzySearch: false,
+      searchPhrase: "",
+    },
+    hideEmpty: true,
+    wipLimit: {
+      dailyLimit: 5,
+      isLimited: false,
+    }
+  };
 }
