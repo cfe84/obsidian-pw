@@ -15,32 +15,33 @@ export interface PlanningTodoColumnDeps {
 }
 
 export interface PlanningTodoColumnProps {
+  icon: string,
   title: string,
   todos: TodoItem<TFile>[],
   onTodoDropped: ((todoId: string) => void) | null,
   hideIfEmpty: boolean,
   filter: TodoFilter<TFile>,
   deps: PlanningTodoColumnDeps,
-  isToday: boolean,
+  substyle?: string,
 }
 
-const BORDERCOLOR_NORMAL = "#ddd";
-const BORDERCOLOR_HOVER = "blue";
+const CLASSNAME_NORMAL = "";
+const CLASSNAME_HOVER = "pw-planning-column-content--hover";
 
-export function PlanningTodoColumn({title, hideIfEmpty, onTodoDropped, todos, deps, filter, isToday}: PlanningTodoColumnProps) {
+export function PlanningTodoColumn({icon, title, hideIfEmpty, onTodoDropped, todos, deps, filter, substyle}: PlanningTodoColumnProps) {
 
-  const [borderColor, setBorderColor] = React.useState(BORDERCOLOR_NORMAL);
+  const [hoverClassName, setHoverClassName] = React.useState(CLASSNAME_NORMAL);
 
   function onDragOver(ev: any) {
     ev.preventDefault()
   }
 
   function onDragEnter(ev: any) {
-    setBorderColor(BORDERCOLOR_HOVER);
+    setHoverClassName(CLASSNAME_HOVER);
   }
 
   function onDragLeave(ev: any) {
-    setBorderColor(BORDERCOLOR_NORMAL);
+    setHoverClassName(CLASSNAME_NORMAL);
   }
 
   function onDrop(ev: any) {
@@ -66,11 +67,13 @@ export function PlanningTodoColumn({title, hideIfEmpty, onTodoDropped, todos, de
     return <></>
   }
 
-  return <div className={`pw-planning-column ${isToday ? "pw-planning-column--today" : ""}`}>
-    <div className="pw-planning-column-title">{title}</div>
+  return <div className={`pw-planning-column ${substyle ? `pw-planning-column--${substyle}` : ""}`}>
+    <div className="pw-planning-column-title"><span className="pw-planning-column-title-icon">{icon}</span><span>{title}</span></div>
     <div 
-      className={`pw-planning-column-content ${isToday ? "pw-planning-column-content--today" : ""}`}
-      style={ {"borderColor": borderColor } }
+      className={`pw-planning-column-content 
+        ${substyle ? `pw-planning-column-content--${substyle}` : ""}
+        ${hoverClassName}
+        `}
       onDragOver={onDragOver}
       onDragEnter={onDragEnter}
       onDragLeave={onDragLeave}

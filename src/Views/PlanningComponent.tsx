@@ -104,14 +104,36 @@ export function PlanningComponent({events, deps, settings, app}: PlanningCompone
     }
   }
 
+  function moveToDateAndStatus(date: DateTime, status: TodoStatus) {
+    return (todoId: string) => {
+      const todo = findTodo(todoId);
+      deps.logger.debug(`Moving ${todoId} to ${date}`);
+      if (!todo) {
+        deps.logger.warn(`Todo ${todoId} not found, couldn't move`);
+        return;
+      }
+      todo.status = status;
+      FileOperations.updateAttributeAsync(todo, settings.dueDateAttribute, date.toISODate()).then(() =>{
+        FileOperations.updateTodoStatus(todo, settings.completedDateAttribute);
+      })
+    }
+  }
+
+  function getTodosByDateAndStatus(from: DateTime, to: DateTime, status: TodoStatus[]) {
+    const todos = getTodosByDate(from, to, true);
+    return todos.filter(todo => status.contains(todo.status));
+  }
+
   function todoColumn(
-      title: string,
-      todos: TodoItem<TFile>[],
-      hideIfEmpty = hideEmpty,
-      onTodoDropped: ((todoId: string) => void) | null = null,
-      isToday = false) {
+    icon: string,
+    title: string,
+    todos: TodoItem<TFile>[],
+    hideIfEmpty = hideEmpty,
+    onTodoDropped: ((todoId: string) => void) | null = null,
+    substyle?: string) {
     return <PlanningTodoColumn 
       hideIfEmpty={hideIfEmpty}
+      icon={icon}
       title={title}
       key={title}
       onTodoDropped={onTodoDropped}
@@ -120,27 +142,49 @@ export function PlanningComponent({events, deps, settings, app}: PlanningCompone
       deps={{
         app, events, settings, logger: deps.logger,
       }}
-      isToday={isToday}
+      substyle={substyle}
     />;
+  }
+
+  function* getTodayColumns() {
+    const today = DateTime.now().startOf("day")
+    let tomorrow = today.plus({ day: 1 });
+
+    yield todoColumn(
+      "◻️",
+      "Todo",
+      getTodosByDateAndStatus(today, tomorrow, [TodoStatus.Todo]),
+      false,
+      moveToDateAndStatus(today, TodoStatus.Todo),
+      "today");
+    yield todoColumn(
+      "⏩",
+      "In progress",
+      getTodosByDateAndStatus(today, tomorrow, [TodoStatus.AttentionRequired, TodoStatus.Delegated, TodoStatus.InProgress]),
+      false,
+      moveToDateAndStatus(today, TodoStatus.InProgress),
+      "today");
+
+    yield todoColumn(
+      "✅",
+      "Done",
+      getTodosByDateAndStatus(today, tomorrow, [TodoStatus.Canceled, TodoStatus.Complete]),
+      false,
+      moveToDateAndStatus(today, TodoStatus.Complete),
+      "today");
   }
 
   function* getColumns() {
     const today = DateTime.now().startOf("day")
     yield todoColumn(
-      "🕸️ Past",
+      "🕸️",
+      "Past",
       getTodosByDate(null, today).filter(
         todo => todo.status !== TodoStatus.Canceled && todo.status !== TodoStatus.Complete),
       true);
       
     let bracketStart = today;
     let bracketEnd = today.plus({ day: 1 });
-  
-    yield todoColumn(
-      "☀️ Today",
-      getTodosByDate(bracketStart, bracketEnd, true),
-      false,
-      moveToDate(bracketStart),
-      true);
 
     for (let i = 0; i < 6; i++) {
       bracketStart = bracketEnd
@@ -148,8 +192,9 @@ export function PlanningComponent({events, deps, settings, app}: PlanningCompone
       if (bracketStart.weekday === 6 || bracketStart.weekday === 7) {
         continue
       }
-      const label = i === 0 ? "📅 Tomorrow" : bracketStart.toFormat("📅 cccc dd/MM")
+      const label = i === 0 ? "Tomorrow" : bracketStart.toFormat("cccc dd/MM")
       yield todoColumn(
+        "📅",
         label,
         getTodosByDate(bracketStart, bracketEnd),
         hideEmpty,
@@ -159,8 +204,9 @@ export function PlanningComponent({events, deps, settings, app}: PlanningCompone
     for (let i = 1; i < 5; i++) {
       bracketStart = bracketEnd
       bracketEnd = bracketStart.plus({ weeks: 1 })
-      const label = `📅 Week +${i} (${bracketStart.toFormat("dd/MM")} - ${bracketEnd.minus({ days: 1 }).toFormat("dd/MM")})`;
+      const label = `Week +${i} (${bracketStart.toFormat("dd/MM")} - ${bracketEnd.minus({ days: 1 }).toFormat("dd/MM")})`;
       yield todoColumn(
+        "📅",
         label,
         getTodosByDate(bracketStart, bracketEnd),
         hideEmpty,
@@ -170,8 +216,9 @@ export function PlanningComponent({events, deps, settings, app}: PlanningCompone
     for (let i = 1; i < 4; i++) {
       bracketStart = bracketEnd
       bracketEnd = bracketStart.plus({ months: 1 })
-      const label = `📅 Month +${i} (${bracketStart.toFormat("dd/MM")} - ${bracketEnd.minus({ days: 1 }).toFormat("dd/MM")})`
+      const label = `Month +${i} (${bracketStart.toFormat("dd/MM")} - ${bracketEnd.minus({ days: 1 }).toFormat("dd/MM")})`
       yield todoColumn(
+        "📅",
         label,
         getTodosByDate(bracketStart, bracketEnd),
         hideEmpty,
@@ -179,13 +226,15 @@ export function PlanningComponent({events, deps, settings, app}: PlanningCompone
     }
 
     yield todoColumn(
-      "📅 Later",
+      "📅",
+      "Later",
       getTodosByDate(bracketStart, null),
       hideEmpty,
       moveToDate(bracketStart));
 
     yield todoColumn(
-      "📃 Backlog",
+      "📃",
+      "Backlog",
       getTodosWithNoDate(todos),
       false,
       removeDate());
@@ -194,6 +243,10 @@ export function PlanningComponent({events, deps, settings, app}: PlanningCompone
   deps.logger.debug(`Rendering planning view`)
 
   return <>
+    <div className="pw-planning-today">
+      <h1><span className="pw-planning-today-icon">☀️</span> Today</h1>
+      {Array.from(getTodayColumns())}
+    </div>
     <div>
       {Array.from(getColumns())}
     </div>
