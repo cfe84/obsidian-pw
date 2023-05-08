@@ -2,7 +2,7 @@ import { ItemView, TFile, WorkspaceLeaf } from "obsidian";
 import { ILogger } from "../domain/ILogger";
 import { TodoListEvents } from "../events/TodoListEvents";
 import { ProletarianWizardSettings } from "../domain/ProletarianWizardSettings";
-import { MountListComponent } from "../ui/TodoListViewComponent";
+import { MountSidePanelComponent } from "../ui/TodoSidePanelComponent";
 import { TodoIndex } from "src/domain/TodoIndex";
 
 export interface TodoListViewDeps {
@@ -33,13 +33,13 @@ export class TodoListView extends ItemView {
   }
 
   public render(): void {
-    MountListComponent(this.containerEl as HTMLElement, {
-      events: this.events,
-      settings: this.settings,
+    MountSidePanelComponent(this.containerEl as HTMLElement, {
       deps: {
         app: this.app,
         logger: this.deps.logger,
         todoIndex: this.todoIndex,
+        events: this.events,
+        settings: this.settings,
       },
     })
   }

@@ -44,21 +44,23 @@ function priorityToIcon(
 export interface TodoItemComponentDeps {
   logger: ILogger,
   app: App,
+  settings: ProletarianWizardSettings,
+  events: TodoListEvents,
 }
 
 export interface TodoItemComponentProps {
   todo: TodoItem<TFile>,
-  settings: ProletarianWizardSettings,
-  events: TodoListEvents,
   filter?: TodoFilter<TFile>,
   deps: TodoItemComponentDeps,
 }
 
-export function TodoItemComponent({todo, settings, events, filter, deps}: TodoItemComponentProps) {
+export function TodoItemComponent({todo, filter, deps}: TodoItemComponentProps) {
   if (filter && !filter(todo)) {
     return <></>
   }
   const app = deps.app;
+  const settings = deps.settings;
+  const events = deps.events;
 
   async function openFileAsync(file: TFile, line: number, inOtherLeaf: boolean) {
     let leaf = app.workspace.activeLeaf
@@ -138,7 +140,7 @@ export function TodoItemComponent({todo, settings, events, filter, deps}: TodoIt
       <div className={`pw-todo-text ${completionClassName}`}>
         {`${priorityIcon} ${todo.text}${isSelectedText}`}
       </div>
-      <TodoSubtasksContainer subtasks={todo.subtasks} deps={deps} events={events} settings={settings} key={"Subtasks-" + todo.text}></TodoSubtasksContainer>
+      <TodoSubtasksContainer subtasks={todo.subtasks} deps={deps} key={"Subtasks-" + todo.text}></TodoSubtasksContainer>
     </div>
   </>;
     

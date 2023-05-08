@@ -53,18 +53,18 @@ function sortTodos(todos: TodoItem<TFile>[]): TodoItem<TFile>[] {
 export interface TodoListComponentDeps {
   logger: ILogger,
   app: App, 
+  events: TodoListEvents, 
+  settings: ProletarianWizardSettings,
 }
 
 export interface TodoListComponentProps {
-  events: TodoListEvents, 
   todos: TodoItem<TFile>[], 
-  settings: ProletarianWizardSettings,
   deps: TodoListComponentDeps,
 }
 
-export function TodoListComponent({events, todos, settings, deps}: TodoListComponentProps) {
+export function TodoListComponent({todos, deps}: TodoListComponentProps) {
   const sortedTodos = sortTodos(todos);
   return <div>
-    {sortedTodos.map(todo => <TodoItemComponent settings={settings} events={events} todo={todo} key={getTodoId(todo)} deps={deps} />)}
+    {sortedTodos.map(todo => <TodoItemComponent todo={todo} key={getTodoId(todo)} deps={deps} />)}
   </div>;
 }

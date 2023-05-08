@@ -64,7 +64,7 @@ export function PlanningSettingsComponent({setPlanningSettings, planningSettings
     <Pane display="flex" alignItems="center">
       <Checkbox label="WIP limit" checked={isLimited} onChange={onWipLimitActivatedChange} marginRight={minorScale(2)} marginBottom={0} marginTop={0}/>
       <TextInput onChange={onDailyWipLimitChanged} value={dailyLimit} disabled={!isLimited} width="60px" marginRight={minorScale(2)}/>
-      <Text fontSize="12px">tasks / day</Text>
+      <Text fontSize="12px" marginRight={minorScale(2)}>tasks / day</Text>
     </Pane>
   </div>;
 }

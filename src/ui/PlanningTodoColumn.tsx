@@ -6,6 +6,7 @@ import { TodoItemComponent } from "./TodoItemComponent";
 import { TodoFilter, TodoListEvents } from "src/events/TodoListEvents";
 import { ProletarianWizardSettings } from "src/domain/ProletarianWizardSettings";
 import { ILogger } from "src/domain/ILogger";
+import { TodoListComponent } from "./TodoListComponent";
 
 export interface PlanningTodoColumnDeps {
   app: App,
@@ -55,16 +56,7 @@ export function PlanningTodoColumn({icon, title, hideIfEmpty, onTodoDropped, tod
     }
   }
 
-  const todoItems = todos.map(todo => <TodoItemComponent 
-    events={deps.events}
-    settings={deps.settings}
-    todo={todo}
-    key={todo.text}
-    filter={filter}
-    deps={deps}
-  />);
-
-  if (hideIfEmpty && todoItems.length === 0) {
+  if (hideIfEmpty && todos.length === 0) {
     return <></>
   }
 
@@ -80,7 +72,10 @@ export function PlanningTodoColumn({icon, title, hideIfEmpty, onTodoDropped, tod
       onDragLeave={onDragLeave}
       onDrop={onDrop}
       >
-      {todoItems}
+        <TodoListComponent 
+          deps={deps}
+          todos={todos}
+        />
     </div>
   </div>
 }

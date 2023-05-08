@@ -9,19 +9,19 @@ import { ILogger } from "src/domain/ILogger";
 export interface TodoSubtasksContainerDeps {
   logger: ILogger,
   app: App,
+  events: TodoListEvents,
+  settings: ProletarianWizardSettings,
 }
 
 export interface TodoSubtasksContainerProps {
   subtasks?: TodoItem<TFile>[],
-  events: TodoListEvents,
-  settings: ProletarianWizardSettings,
   deps: TodoSubtasksContainerDeps,
 }
 
 const foldedText = ` ▶`
 const unfoldedText = " ▼"
 
-export function TodoSubtasksContainer({subtasks, events, deps, settings}: TodoSubtasksContainerProps) {
+export function TodoSubtasksContainer({subtasks, deps}: TodoSubtasksContainerProps) {
   const [isFolded, setIsFolded] = React.useState(false);
 
   function foldText() {
@@ -49,7 +49,7 @@ export function TodoSubtasksContainer({subtasks, events, deps, settings}: TodoSu
       ? "" 
       : <div className="pw-todo-sub-container">
         {subtasks?.map(task => <TodoItemComponent 
-          key={task.text} todo={task}  events={events} settings={settings} deps={deps}/>)}
+          key={task.text} todo={task} deps={deps}/>)}
       </div>
     }
   </>;

@@ -155,7 +155,7 @@ export function PlanningComponent({events, deps, settings, app}: PlanningCompone
     }
     const today = DateTime.now().startOf("day")
     let tomorrow = today.plus({ day: 1 });
-    const todos = getTodosByDate(today, tomorrow, true);
+    const todos = getTodosByDateAndStatus(today, tomorrow, [TodoStatus.AttentionRequired, TodoStatus.Delegated, TodoStatus.InProgress, TodoStatus.Todo]);
     if (todos.length > wipLimit.dailyLimit) {
       return "pw-planning-column-content--wip-exceeded"
     }
