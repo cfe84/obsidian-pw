@@ -1,6 +1,5 @@
 import * as React from "react";
 import { createRoot } from "react-dom/client";
-import { TodoListEvents } from "../events/TodoListEvents";
 import { App, TFile } from "obsidian";
 import { TodoItem, TodoStatus } from "../domain/TodoItem";
 import { ProletarianWizardSettings } from "../domain/ProletarianWizardSettings";
@@ -13,14 +12,12 @@ export interface TodoSidePanelComponentDeps {
   todoIndex: TodoIndex<TFile>,
   logger: ILogger,
   app: App, 
-  events: TodoListEvents,
   settings: ProletarianWizardSettings
 }
 
 export interface TodoSidePanelComponentProps {
   deps: TodoSidePanelComponentDeps,
 }
-
 
 export function TodoSidePanelComponent({deps}: TodoSidePanelComponentProps) {
   const settings = deps.settings;

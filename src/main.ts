@@ -3,8 +3,8 @@ import { FolderTodoParser } from './domain/FolderTodoParser';
 import { FileTodoParser } from './domain/FileTodoParser';
 import { ILogger } from './domain/ILogger';
 import { ObsidianFile } from './infrastructure/ObsidianFile';
-import { App, Editor, MarkdownView, Modal, Notice, Plugin, PluginManifest, PluginSettingTab, Setting, TAbstractFile, TFile, Vault } from 'obsidian';
-import { TodoIndex, TodosUpdatedHandler } from './domain/TodoIndex';
+import { App, MarkdownView, Plugin, PluginManifest, TFile } from 'obsidian';
+import { TodoIndex } from './domain/TodoIndex';
 import { ToggleTodoCommand } from './Commands/ToggleTodoCommand';
 import { LineOperations } from './domain/LineOperations';
 import { ToggleOngoingTodoCommand } from './Commands/ToggleOngoingTodoCommand';
@@ -13,10 +13,9 @@ import { DEFAULT_SETTINGS, ProletarianWizardSettings } from './domain/Proletaria
 import { CompleteLineCommand } from './Commands/CompleteLineCommand';
 import { PlanningView } from './Views/PlanningView';
 import { OpenPlanningCommand } from './Commands/OpenPlanningCommand';
-import { TodoItem, TodoStatus } from './domain/TodoItem';
 import { PwEvent } from './events/PwEvent';
 import { TodoListView } from './Views/TodoListView';
-import { OpenFileEvent, TodoFilter, TodoListEvents } from './events/TodoListEvents';
+import { OpenFileEvent } from './events/TodoListEvents';
 
 export default class ProletarianWizard extends Plugin {
 	logger: ILogger = new ConsoleLogger();
@@ -68,17 +67,14 @@ export default class ProletarianWizard extends Plugin {
 	}
 
 	private registerViews() {
-		const events: TodoListEvents = {
-			openFile: new PwEvent<OpenFileEvent<TFile>>(this.openFileAsync)
-		}
 		this.registerView(TodoListView.viewType, (leaf) => {
-			let view = new TodoListView(leaf, events, { logger: this.logger }, this.todoIndex, this.settings)
+			let view = new TodoListView(leaf, { logger: this.logger }, this.todoIndex, this.settings)
 			view.render()
 			return view
 		});
 
 		this.registerView(PlanningView.viewType, (leaf) => {
-			const view = new PlanningView({ logger: this.logger, todoIndex: this.todoIndex }, this.settings, events, leaf)
+			const view = new PlanningView({ logger: this.logger, todoIndex: this.todoIndex }, this.settings, leaf)
 			view.render()
 			return view
 		})

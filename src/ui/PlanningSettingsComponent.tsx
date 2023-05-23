@@ -1,6 +1,6 @@
 import * as React from "react";
-import { PlanningSettings, SearchParameters } from "./PlanningSettings";
-import { Checkbox, Group, Label, Pane, SearchInput, Small, Switch, Text, TextInput, majorScale, minorScale } from "evergreen-ui";
+import { PlanningSettings } from "./PlanningSettings";
+import { Checkbox, Pane, Text, TextInput, majorScale, minorScale } from "evergreen-ui";
 
 export interface PlanningSettingsComponentProps {
   setPlanningSettings: (settings: PlanningSettings) => void;

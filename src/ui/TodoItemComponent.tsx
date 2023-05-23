@@ -1,15 +1,14 @@
 import * as React from "react";
 
 import { TodoItem, TodoStatus, getTodoId } from "../domain/TodoItem"
-import { App, MarkdownView, Menu, TFile } from "obsidian"
+import { MarkdownView, Menu, TFile } from "obsidian"
 import { IDictionary } from "../domain/IDictionary"
 import { TodoSubtasksContainer } from "./TodoSubtasksContainer";
 import { TodoStatusComponent } from "./TodoStatusComponent"
 import { Consts } from "../domain/Consts"
-import { TodoFilter, TodoListEvents } from "../events/TodoListEvents"
+import { TodoFilter } from "../events/TodoListEvents"
 import { FileOperations } from "../domain/FileOperations"
-import { ProletarianWizardSettings } from "../domain/ProletarianWizardSettings"
-import { ILogger } from "src/domain/ILogger";
+import { StandardDependencies } from "./StandardDependencies";
 
 
 function priorityToIcon(
@@ -41,17 +40,10 @@ function priorityToIcon(
     : "";
 }
 
-export interface TodoItemComponentDeps {
-  logger: ILogger,
-  app: App,
-  settings: ProletarianWizardSettings,
-  events: TodoListEvents,
-}
-
 export interface TodoItemComponentProps {
   todo: TodoItem<TFile>,
   filter?: TodoFilter<TFile>,
-  deps: TodoItemComponentDeps,
+  deps: StandardDependencies,
 }
 
 export function TodoItemComponent({todo, filter, deps}: TodoItemComponentProps) {
@@ -60,7 +52,6 @@ export function TodoItemComponent({todo, filter, deps}: TodoItemComponentProps) 
   }
   const app = deps.app;
   const settings = deps.settings;
-  const events = deps.events;
 
   async function openFileAsync(file: TFile, line: number, inOtherLeaf: boolean) {
     let leaf = app.workspace.activeLeaf

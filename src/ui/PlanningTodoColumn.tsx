@@ -2,15 +2,13 @@ import { App, TFile } from "obsidian";
 import * as React from "react";
 import { Consts } from "src/domain/Consts";
 import { TodoItem } from "src/domain/TodoItem";
-import { TodoItemComponent } from "./TodoItemComponent";
-import { TodoFilter, TodoListEvents } from "src/events/TodoListEvents";
+import { TodoFilter } from "src/events/TodoListEvents";
 import { ProletarianWizardSettings } from "src/domain/ProletarianWizardSettings";
 import { ILogger } from "src/domain/ILogger";
 import { TodoListComponent } from "./TodoListComponent";
 
 export interface PlanningTodoColumnDeps {
   app: App,
-  events: TodoListEvents,
   settings: ProletarianWizardSettings,
   logger: ILogger,
 }

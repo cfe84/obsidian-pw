@@ -2,14 +2,12 @@ import * as React from "react";
 import { TodoItemComponent } from "./TodoItemComponent";
 import { TodoItem } from "../domain/TodoItem";
 import { App, TFile } from "obsidian";
-import { TodoListEvents } from "../events/TodoListEvents";
 import { ProletarianWizardSettings } from "../domain/ProletarianWizardSettings";
 import { ILogger } from "src/domain/ILogger";
 
 export interface TodoSubtasksContainerDeps {
   logger: ILogger,
   app: App,
-  events: TodoListEvents,
   settings: ProletarianWizardSettings,
 }
 

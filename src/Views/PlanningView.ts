@@ -1,7 +1,6 @@
 import { ILogger } from "../domain/ILogger";
 import { ItemView, TFile, WorkspaceLeaf } from "obsidian";
 import { TodoIndex } from "../domain/TodoIndex";
-import { TodoListEvents } from "../events/TodoListEvents";
 import { ProletarianWizardSettings } from "../domain/ProletarianWizardSettings";
 import { MountPlanningComponent } from "../ui/PlanningComponent";
 
@@ -12,12 +11,11 @@ export interface PlanningViewDeps {
 
 export class PlanningView extends ItemView {
   private contentView: HTMLDivElement
-  private events: TodoListEvents
   getIcon(): string {
     return "calendar-glyph"
   }
 
-  constructor(private deps: PlanningViewDeps, private settings: ProletarianWizardSettings, events: TodoListEvents, leaf: WorkspaceLeaf) {
+  constructor(private deps: PlanningViewDeps, private settings: ProletarianWizardSettings, leaf: WorkspaceLeaf) {
     super(leaf)
     this.contentView = this.containerEl.getElementsByClassName("view-content")[0] as HTMLDivElement
   }
@@ -30,7 +28,6 @@ export class PlanningView extends ItemView {
     this.deps.logger.info(`Rendering planning view`)
     MountPlanningComponent(this.contentView, {
       deps: this.deps,
-      events: this.events,
       settings: this.settings,
       app: this.app,
     })

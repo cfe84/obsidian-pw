@@ -10,7 +10,6 @@ import { FileOperations } from "../domain/FileOperations";
 import { ProletarianWizardSettings } from "../domain/ProletarianWizardSettings";
 import { PlanningSettingsComponent } from "./PlanningSettingsComponent";
 import { PlanningTodoColumn } from "./PlanningTodoColumn";
-import { TodoListEvents } from "src/events/TodoListEvents";
 import { TodoMatcher } from "src/domain/TodoMatcher";
 import { PlanningSettingsStore } from "./PlanningSettingsStore";
 
@@ -32,13 +31,12 @@ export interface PlanningComponentDeps {
 }
 
 export interface PlanningComponentProps {
-  events: TodoListEvents,
   deps: PlanningComponentDeps,
   settings: ProletarianWizardSettings,
   app: App,
 }
 
-export function PlanningComponent({events, deps, settings, app}: PlanningComponentProps) {
+export function PlanningComponent({deps, settings, app}: PlanningComponentProps) {
   const savedSettings = React.useMemo(() => PlanningSettingsStore.getSettings(), []);
   const [planningSettings, setPlanningSettingsState] = React.useState(savedSettings);
   const [todos, setTodos] = React.useState<TodoItem<TFile>[]>(deps.todoIndex.todos);
@@ -51,7 +49,7 @@ export function PlanningComponent({events, deps, settings, app}: PlanningCompone
     deps.todoIndex.onUpdateEvent.listen(async (todos) => {
       setTodos(todos);
     })
-  }, [events]);
+  }, [deps.todoIndex]);
 
   function getTodosByDate(from: DateTime | null, to: DateTime | null, includeSelected: boolean = false): TodoItem<TFile>[] {
     const dateIsInRange = (date: DateTime | null) => date && (from === null || date >= from) && (to === null || date < to)
@@ -143,7 +141,7 @@ export function PlanningComponent({events, deps, settings, app}: PlanningCompone
       todos={todos}
       filter={filter.matches}
       deps={{
-        app, events, settings, logger: deps.logger,
+        app, settings, logger: deps.logger,
       }}
       substyle={substyle}
     />;
@@ -200,6 +198,13 @@ export function PlanningComponent({events, deps, settings, app}: PlanningCompone
   }
 
   function* getColumns() {
+    yield todoColumn(
+      "📃",
+      "Backlog",
+      getTodosWithNoDate(todos),
+      false,
+      removeDate());
+
     const today = DateTime.now().startOf("day")
     yield todoColumn(
       "🕸️",
@@ -265,13 +270,6 @@ export function PlanningComponent({events, deps, settings, app}: PlanningCompone
       getTodosByDate(bracketStart, null),
       hideEmpty,
       moveToDate(bracketStart));
-
-    yield todoColumn(
-      "📃",
-      "Backlog",
-      getTodosWithNoDate(todos),
-      false,
-      removeDate());
   }
 
   deps.logger.debug(`Rendering planning view`)

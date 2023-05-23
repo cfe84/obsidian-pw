@@ -1,6 +1,5 @@
 import { ItemView, TFile, WorkspaceLeaf } from "obsidian";
 import { ILogger } from "../domain/ILogger";
-import { TodoListEvents } from "../events/TodoListEvents";
 import { ProletarianWizardSettings } from "../domain/ProletarianWizardSettings";
 import { MountSidePanelComponent } from "../ui/TodoSidePanelComponent";
 import { TodoIndex } from "src/domain/TodoIndex";
@@ -12,7 +11,7 @@ export interface TodoListViewDeps {
 export class TodoListView extends ItemView {
   static viewType: string = "pw.todo-list";
 
-  constructor(leaf: WorkspaceLeaf, private events: TodoListEvents, private deps: TodoListViewDeps, private todoIndex: TodoIndex<TFile>, private settings: ProletarianWizardSettings) {
+  constructor(leaf: WorkspaceLeaf, private deps: TodoListViewDeps, private todoIndex: TodoIndex<TFile>, private settings: ProletarianWizardSettings) {
     super(leaf);
   }
 
@@ -38,7 +37,6 @@ export class TodoListView extends ItemView {
         app: this.app,
         logger: this.deps.logger,
         todoIndex: this.todoIndex,
-        events: this.events,
         settings: this.settings,
       },
     })

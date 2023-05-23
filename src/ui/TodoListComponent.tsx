@@ -3,7 +3,6 @@ import { IDictionary } from "../domain/IDictionary";
 import { TodoItem, TodoStatus, getTodoId } from "../domain/TodoItem";
 import { App, TFile } from "obsidian";
 import { TodoItemComponent } from "./TodoItemComponent";
-import { TodoListEvents } from "../events/TodoListEvents";
 import { ProletarianWizardSettings } from "../domain/ProletarianWizardSettings";
 import { ILogger } from "../domain/ILogger";
 
@@ -53,7 +52,6 @@ function sortTodos(todos: TodoItem<TFile>[]): TodoItem<TFile>[] {
 export interface TodoListComponentDeps {
   logger: ILogger,
   app: App, 
-  events: TodoListEvents, 
   settings: ProletarianWizardSettings,
 }
 
