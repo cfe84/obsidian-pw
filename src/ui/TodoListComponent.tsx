@@ -5,6 +5,8 @@ import { App, TFile } from "obsidian";
 import { TodoItemComponent } from "./TodoItemComponent";
 import { ProletarianWizardSettings } from "../domain/ProletarianWizardSettings";
 import { ILogger } from "../domain/ILogger";
+import { PwEvent } from "src/events/PwEvent";
+import { Sound } from "./SoundPlayer";
 
 function getPriorityValue(todo: TodoItem<TFile>): number {
   if (!todo.attributes || !todo.attributes["priority"]) {
@@ -58,11 +60,12 @@ export interface TodoListComponentDeps {
 export interface TodoListComponentProps {
   todos: TodoItem<TFile>[], 
   deps: TodoListComponentDeps,
+  playSound?: PwEvent<Sound>,
 }
 
-export function TodoListComponent({todos, deps}: TodoListComponentProps) {
+export function TodoListComponent({todos, deps, playSound}: TodoListComponentProps) {
   const sortedTodos = sortTodos(todos);
   return <div>
-    {sortedTodos.map(todo => <TodoItemComponent todo={todo} key={getTodoId(todo)} deps={deps} />)}
+    {sortedTodos.map(todo => <TodoItemComponent todo={todo} key={getTodoId(todo)} deps={deps} playSound={playSound}/>)}
   </div>;
 }

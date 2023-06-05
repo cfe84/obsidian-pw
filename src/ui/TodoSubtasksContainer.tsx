@@ -4,6 +4,8 @@ import { TodoItem } from "../domain/TodoItem";
 import { App, TFile } from "obsidian";
 import { ProletarianWizardSettings } from "../domain/ProletarianWizardSettings";
 import { ILogger } from "src/domain/ILogger";
+import { PwEvent } from "src/events/PwEvent";
+import { Sound } from "./SoundPlayer";
 
 export interface TodoSubtasksContainerDeps {
   logger: ILogger,
@@ -14,12 +16,13 @@ export interface TodoSubtasksContainerDeps {
 export interface TodoSubtasksContainerProps {
   subtasks?: TodoItem<TFile>[],
   deps: TodoSubtasksContainerDeps,
+  playSound?: PwEvent<Sound>,
 }
 
 const foldedText = ` ▶`
 const unfoldedText = " ▼"
 
-export function TodoSubtasksContainer({subtasks, deps}: TodoSubtasksContainerProps) {
+export function TodoSubtasksContainer({subtasks, deps, playSound}: TodoSubtasksContainerProps) {
   const [isFolded, setIsFolded] = React.useState(false);
 
   function foldText() {
@@ -47,7 +50,7 @@ export function TodoSubtasksContainer({subtasks, deps}: TodoSubtasksContainerPro
       ? "" 
       : <div className="pw-todo-sub-container">
         {subtasks?.map(task => <TodoItemComponent 
-          key={task.text} todo={task} deps={deps}/>)}
+          key={task.text} todo={task} deps={deps} playSound={playSound}/>)}
       </div>
     }
   </>;

@@ -9,6 +9,8 @@ import { Consts } from "../domain/Consts"
 import { TodoFilter } from "../events/TodoListEvents"
 import { FileOperations } from "../domain/FileOperations"
 import { StandardDependencies } from "./StandardDependencies";
+import { PwEvent } from "src/events/PwEvent";
+import { Sound } from "./SoundPlayer";
 
 
 function priorityToIcon(
@@ -43,10 +45,11 @@ function priorityToIcon(
 export interface TodoItemComponentProps {
   todo: TodoItem<TFile>,
   filter?: TodoFilter<TFile>,
+  playSound?: PwEvent<Sound>,
   deps: StandardDependencies,
 }
 
-export function TodoItemComponent({todo, filter, deps}: TodoItemComponentProps) {
+export function TodoItemComponent({todo, filter, deps, playSound}: TodoItemComponentProps) {
   if (filter && !filter(todo)) {
     return <></>
   }
@@ -127,7 +130,7 @@ export function TodoItemComponent({todo, filter, deps}: TodoItemComponentProps) 
   const completionClassName = todo.status === TodoStatus.Complete || todo.status === TodoStatus.Canceled  ? "pw-todo-text-complete" : "";
   return <>
     <div className="pw-todo-container" draggable="true" onDragStart={onDragStart} onClick={onClickContainer} onAuxClick={onAuxClickContainer}>
-      <TodoStatusComponent todo={todo} deps={ { logger: deps.logger, app: app }} settings={settings}  />
+      <TodoStatusComponent todo={todo} deps={ { logger: deps.logger, app: app }} settings={settings} playSound={playSound} />
       <div className={`pw-todo-text ${completionClassName}`}>
         {`${priorityIcon} ${todo.text}${isSelectedText}`}
       </div>

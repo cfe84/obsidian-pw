@@ -12,6 +12,8 @@ import { PlanningSettingsComponent } from "./PlanningSettingsComponent";
 import { PlanningTodoColumn } from "./PlanningTodoColumn";
 import { TodoMatcher } from "src/domain/TodoMatcher";
 import { PlanningSettingsStore } from "./PlanningSettingsStore";
+import { Sound, SoundPlayer } from "./SoundPlayer";
+import { PwEvent } from "src/events/PwEvent";
 
 function findTodoDate<T>(todo: TodoItem<T>, attribute: string): DateTime | null {
   if (!todo.attributes) {
@@ -42,6 +44,8 @@ export function PlanningComponent({deps, settings, app}: PlanningComponentProps)
   const [todos, setTodos] = React.useState<TodoItem<TFile>[]>(deps.todoIndex.todos);
   const setPlanningSettings = PlanningSettingsStore.decorateSetterWithSaveSettings(setPlanningSettingsState);
   const { searchParameters, hideEmpty, wipLimit } = planningSettings;
+
+  const playSound = React.useMemo(() => new PwEvent<Sound>(), []);
   
   const filter = new TodoMatcher(searchParameters.searchPhrase, searchParameters.fuzzySearch);
 
@@ -139,7 +143,7 @@ export function PlanningComponent({deps, settings, app}: PlanningComponentProps)
       key={title}
       onTodoDropped={onTodoDropped}
       todos={todos}
-      filter={filter.matches}
+      playSound={playSound}      
       deps={{
         app, settings, logger: deps.logger,
       }}
@@ -286,6 +290,7 @@ export function PlanningComponent({deps, settings, app}: PlanningComponentProps)
       planningSettings={planningSettings}
       setPlanningSettings={setPlanningSettings}
       />
+    <SoundPlayer deps={deps} playSound={playSound}></SoundPlayer>
   </>;
 }
 

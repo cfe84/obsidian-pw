@@ -4,6 +4,8 @@ import { App, Menu, TFile } from "obsidian";
 import { FileOperations } from "src/domain/FileOperations";
 import { ILogger } from "src/domain/ILogger";
 import { ProletarianWizardSettings } from "src/domain/ProletarianWizardSettings";
+import { Sound } from "./SoundPlayer";
+import { PwEvent } from "src/events/PwEvent";
 
 function statusToIcon(status: TodoStatus): string {
   switch (status) {
@@ -33,9 +35,10 @@ export interface TodoSatusComponentProps {
   todo: TodoItem<TFile>,
   deps: TodoSatusComponentDeps,
   settings: ProletarianWizardSettings,
+  playSound?: PwEvent<Sound>,
 }
 
-export function TodoStatusComponent({todo, deps, settings,}: TodoSatusComponentProps) {
+export function TodoStatusComponent({todo, deps, settings, playSound}: TodoSatusComponentProps) {
   
   const addChangeStatusMenuItem = (menu: Menu, status: TodoStatus, label: string) => {
     menu.addItem((item) => {
@@ -69,6 +72,9 @@ export function TodoStatusComponent({todo, deps, settings,}: TodoSatusComponentP
     deps.logger.debug(`Changing status on ${getTodoId(todo)}`);
     evt.preventDefault();
     const wasCompleted = todo.status === TodoStatus.Complete || todo.status === TodoStatus.Canceled
+    if (!wasCompleted && playSound) {
+      playSound.fireAsync("checked").then()
+    }
 		todo.status = wasCompleted ? TodoStatus.Todo : TodoStatus.Complete
 		FileOperations.updateTodoStatus(todo, settings.completedDateAttribute)
   }

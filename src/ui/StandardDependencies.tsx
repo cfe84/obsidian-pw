@@ -5,5 +5,5 @@ import { ProletarianWizardSettings } from "src/domain/ProletarianWizardSettings"
 export interface StandardDependencies {
   logger: ILogger,
   app: App,
-  settings: ProletarianWizardSettings,
+  settings: ProletarianWizardSettings
 }

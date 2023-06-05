@@ -6,6 +6,8 @@ import { TodoFilter } from "src/events/TodoListEvents";
 import { ProletarianWizardSettings } from "src/domain/ProletarianWizardSettings";
 import { ILogger } from "src/domain/ILogger";
 import { TodoListComponent } from "./TodoListComponent";
+import { PwEvent } from "src/events/PwEvent";
+import { Sound } from "./SoundPlayer";
 
 export interface PlanningTodoColumnDeps {
   app: App,
@@ -19,15 +21,15 @@ export interface PlanningTodoColumnProps {
   todos: TodoItem<TFile>[],
   onTodoDropped: ((todoId: string) => void) | null,
   hideIfEmpty: boolean,
-  filter: TodoFilter<TFile>,
   deps: PlanningTodoColumnDeps,
   substyle?: string,
+  playSound?: PwEvent<Sound>,
 }
 
 const CLASSNAME_NORMAL = "";
 const CLASSNAME_HOVER = "pw-planning-column-content--hover";
 
-export function PlanningTodoColumn({icon, title, hideIfEmpty, onTodoDropped, todos, deps, filter, substyle}: PlanningTodoColumnProps) {
+export function PlanningTodoColumn({icon, title, hideIfEmpty, onTodoDropped, todos, deps, substyle, playSound}: PlanningTodoColumnProps) {
 
   const [hoverClassName, setHoverClassName] = React.useState(CLASSNAME_NORMAL);
 
@@ -73,6 +75,7 @@ export function PlanningTodoColumn({icon, title, hideIfEmpty, onTodoDropped, tod
         <TodoListComponent 
           deps={deps}
           todos={todos}
+          playSound={playSound}
         />
     </div>
   </div>

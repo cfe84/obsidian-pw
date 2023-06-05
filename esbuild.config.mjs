@@ -43,6 +43,9 @@ esbuild.build({
 		'@codemirror/view',
 		...builtins],
 	format: 'cjs',
+	loader: {
+		".wav": "dataurl"
+	},
 	watch: !prod,
 	target: 'es2016',
 	logLevel: "info",
