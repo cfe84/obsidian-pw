@@ -68,7 +68,7 @@ function findTodoCompletionDate(todo: TodoItem<TFile>, settings: ProletarianWiza
 
 function formatInterval(from: DateTime, to: DateTime) {
   const format = from.year === DateTime.now().year ? "LLL dd" : "yyyy LLL dd";
-  return `From ${from.toFormat(format)} to ${to.toFormat(format)}`;
+  return `${from.toFormat(format)} to ${to.toFormat(format)}`;
 }
 
 function getOneWeekFrom(startDate: DateTime): DateContainer {
@@ -161,9 +161,13 @@ function assembleTodosByDate(todos: TodoItem<TFile>[],
 }
 
 function mapContainerToComponent(container: Container, deps: TodoReportComponentDeps) {
-  return <div key={container.title}>
-    <h2>{container.title}</h2>
-    <TodoListComponent deps={deps} todos={container.todos} dontCrossCompleted={true} key={container.title}></TodoListComponent>
+  // const [folded, setFolded] = React.useState(false);
+  const folded = false;
+  return <div key={container.title} className="pw-report-container">
+    <h2>{container.title} <span onClick={() => {}}>{folded ? "▶" : "▼"}</span></h2>
+    {!folded
+    ? <TodoListComponent deps={deps} todos={container.todos} dontCrossCompleted={true} key={container.title}></TodoListComponent>
+    : ""}
   </div>;
 }
 

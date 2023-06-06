@@ -132,6 +132,15 @@
 
 .pw-report {
     overflow: auto;
+    padding: 10px;
+}
+
+.pw-report-container {
+    padding: 30px;
+    margin: 10px;
+    border: 1px solid var(--column-border-color);
+    border-radius: 10px;
+    min-height: 80px;
 }
 
 .pw-error {

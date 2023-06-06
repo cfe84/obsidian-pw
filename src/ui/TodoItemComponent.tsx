@@ -57,7 +57,7 @@ export function TodoItemComponent({todo, deps, playSound, dontCrossCompleted}: T
   async function openFileAsync(file: TFile, line: number, inOtherLeaf: boolean) {
     let leaf = app.workspace.activeLeaf
     if (inOtherLeaf) {
-      leaf = app.workspace.splitActiveLeaf("vertical")
+      leaf = app.workspace.splitActiveLeaf("horizontal")
     } else if (leaf.getViewState().pinned) {
       leaf = app.workspace.getUnpinnedLeaf()
     }
@@ -67,14 +67,14 @@ export function TodoItemComponent({todo, deps, playSound, dontCrossCompleted}: T
     view.editor.setSelection({ ch: 0, line }, { ch: lineContent.length, line })
   }
 
-  function onClickContainer(ev: any) {
+  function onClickContainer(ev: React.MouseEvent<HTMLDivElement, MouseEvent>) {
       if (ev.defaultPrevented) {
         return
       }
       openFileAsync(
         todo.file.file,
         todo.line || 0,
-        ev.ctrlKey
+        ev.altKey || ev.ctrlKey || ev.metaKey,
       );
   }
 
