@@ -61,11 +61,17 @@ export interface TodoListComponentProps {
   todos: TodoItem<TFile>[], 
   deps: TodoListComponentDeps,
   playSound?: PwEvent<Sound>,
+  dontCrossCompleted?: boolean,
 }
 
-export function TodoListComponent({todos, deps, playSound}: TodoListComponentProps) {
+export function TodoListComponent({todos, deps, playSound, dontCrossCompleted}: TodoListComponentProps) {
   const sortedTodos = sortTodos(todos);
   return <div>
-    {sortedTodos.map(todo => <TodoItemComponent todo={todo} key={getTodoId(todo)} deps={deps} playSound={playSound}/>)}
+    {sortedTodos.map(todo => <TodoItemComponent 
+      todo={todo} 
+      key={getTodoId(todo)} 
+      deps={deps} 
+      playSound={playSound} 
+      dontCrossCompleted={dontCrossCompleted}/>)}
   </div>;
 }

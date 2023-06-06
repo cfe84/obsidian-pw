@@ -16,6 +16,8 @@ import { OpenPlanningCommand } from './Commands/OpenPlanningCommand';
 import { PwEvent } from './events/PwEvent';
 import { TodoListView } from './Views/TodoListView';
 import { OpenFileEvent } from './events/TodoListEvents';
+import { TodoReportView } from './Views/TodoReportView';
+import { OpenReportCommand } from './Commands/OpenReportCommand';
 
 export default class ProletarianWizard extends Plugin {
 	logger: ILogger = new ConsoleLogger();
@@ -36,11 +38,13 @@ export default class ProletarianWizard extends Plugin {
 		this.folderTodoParser = new FolderTodoParser({ fileTodoParser: this.fileTodoParser, logger: this.logger })
 		this.todoIndex = new TodoIndex({ fileTodoParser: this.fileTodoParser, folderTodoParser: this.folderTodoParser, logger: this.logger }, this.settings)
 
-		const openPlanningCommand = new OpenPlanningCommand(this.app.workspace)
+		const openPlanningCommand = new OpenPlanningCommand(this.app.workspace);
+		const openReportCommand = new OpenReportCommand(this.app.workspace);
 		this.addCommand(new ToggleTodoCommand(new LineOperations()));
 		this.addCommand(new CompleteLineCommand(new LineOperations()));
 		this.addCommand(new ToggleOngoingTodoCommand(new LineOperations()));
-		this.addCommand(openPlanningCommand)
+		this.addCommand(openPlanningCommand);
+		this.addCommand(openReportCommand);
 		this.addSettingTab(new ProletarianWizardSettingsTab(this.app, this));
 
 		if (this.settings.buttonInLeftBar) {
@@ -69,14 +73,20 @@ export default class ProletarianWizard extends Plugin {
 	private registerViews() {
 		this.registerView(TodoListView.viewType, (leaf) => {
 			let view = new TodoListView(leaf, { logger: this.logger }, this.todoIndex, this.settings)
-			view.render()
-			return view
+			view.render();
+			return view;
 		});
 
 		this.registerView(PlanningView.viewType, (leaf) => {
 			const view = new PlanningView({ logger: this.logger, todoIndex: this.todoIndex }, this.settings, leaf)
-			view.render()
-			return view
+			view.render();
+			return view;
+		});
+
+		this.registerView(TodoReportView.viewType, (leaf) => {
+			const view = new TodoReportView(leaf, { logger: this.logger, todoIndex: this.todoIndex }, this.settings);
+			view.render();
+			return view;
 		})
 	}
 

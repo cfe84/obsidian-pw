@@ -44,15 +44,13 @@ function priorityToIcon(
 
 export interface TodoItemComponentProps {
   todo: TodoItem<TFile>,
-  filter?: TodoFilter<TFile>,
+  // filter?: TodoFilter<TFile>,
   playSound?: PwEvent<Sound>,
+  dontCrossCompleted?: boolean,
   deps: StandardDependencies,
 }
 
-export function TodoItemComponent({todo, filter, deps, playSound}: TodoItemComponentProps) {
-  if (filter && !filter(todo)) {
-    return <></>
-  }
+export function TodoItemComponent({todo, deps, playSound, dontCrossCompleted}: TodoItemComponentProps) {
   const app = deps.app;
   const settings = deps.settings;
 
@@ -127,14 +125,14 @@ export function TodoItemComponent({todo, filter, deps, playSound}: TodoItemCompo
 
   const isSelectedText = !!todo.attributes[settings.selectedAttribute] ? " 📌" : "";
   const priorityIcon = priorityToIcon(todo.attributes);
-  const completionClassName = todo.status === TodoStatus.Complete || todo.status === TodoStatus.Canceled  ? "pw-todo-text-complete" : "";
+  const completionClassName = (!dontCrossCompleted && (todo.status === TodoStatus.Complete || todo.status === TodoStatus.Canceled))  ? "pw-todo-text-complete" : "";
   return <>
     <div className="pw-todo-container" draggable="true" onDragStart={onDragStart} onClick={onClickContainer} onAuxClick={onAuxClickContainer}>
       <TodoStatusComponent todo={todo} deps={ { logger: deps.logger, app: app }} settings={settings} playSound={playSound} />
       <div className={`pw-todo-text ${completionClassName}`}>
         {`${priorityIcon} ${todo.text}${isSelectedText}`}
       </div>
-      <TodoSubtasksContainer subtasks={todo.subtasks} deps={deps} key={"Subtasks-" + todo.text}></TodoSubtasksContainer>
+      <TodoSubtasksContainer subtasks={todo.subtasks} deps={deps} key={"Subtasks-" + todo.text} dontCrossCompleted={true}></TodoSubtasksContainer>
     </div>
   </>;
     

@@ -17,12 +17,13 @@ export interface TodoSubtasksContainerProps {
   subtasks?: TodoItem<TFile>[],
   deps: TodoSubtasksContainerDeps,
   playSound?: PwEvent<Sound>,
+  dontCrossCompleted?: boolean,
 }
 
 const foldedText = ` ▶`
 const unfoldedText = " ▼"
 
-export function TodoSubtasksContainer({subtasks, deps, playSound}: TodoSubtasksContainerProps) {
+export function TodoSubtasksContainer({subtasks, deps, playSound, dontCrossCompleted}: TodoSubtasksContainerProps) {
   const [isFolded, setIsFolded] = React.useState(false);
 
   function foldText() {
@@ -50,7 +51,7 @@ export function TodoSubtasksContainer({subtasks, deps, playSound}: TodoSubtasksC
       ? "" 
       : <div className="pw-todo-sub-container">
         {subtasks?.map(task => <TodoItemComponent 
-          key={task.text} todo={task} deps={deps} playSound={playSound}/>)}
+          key={task.text} todo={task} deps={deps} playSound={playSound} dontCrossCompleted={dontCrossCompleted}/>)}
       </div>
     }
   </>;

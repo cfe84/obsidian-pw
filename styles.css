@@ -130,6 +130,10 @@
     border: 1px solid #f39;
 }
 
+.pw-report {
+    overflow: auto;
+}
+
 .pw-error {
     color: red
 }
