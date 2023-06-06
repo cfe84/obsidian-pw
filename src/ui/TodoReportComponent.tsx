@@ -68,7 +68,7 @@ function findTodoCompletionDate(todo: TodoItem<TFile>, settings: ProletarianWiza
 
 function formatInterval(from: DateTime, to: DateTime) {
   const format = from.year === DateTime.now().year ? "LLL dd" : "yyyy LLL dd";
-  return `${from.toFormat(format)} to ${to.toFormat(format)}`;
+  return `${from.toFormat(format)} to ${to.plus({days: -1}).toFormat(format)}`;
 }
 
 function getOneWeekFrom(startDate: DateTime): DateContainer {
@@ -101,7 +101,9 @@ function getOneMonthFrom(startDate: DateTime): DateContainer {
 }
 
 function getDateContainers(minDate: DateTime, numberOfWeeks: number, numberOfMonths: number): DateContainer[] {
-  let dateCursor = DateTime.now();
+  const now = new Date();
+  const tomorrow = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1);
+  let dateCursor = DateTime.fromJSDate(tomorrow);
   let containers = [];
   for (let i = 0; i < numberOfWeeks && dateCursor.diff(minDate).milliseconds > 0; i++) {
     const week = getOneWeekFrom(dateCursor);
