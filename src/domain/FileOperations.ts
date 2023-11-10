@@ -47,11 +47,11 @@ export class FileOperations {
     let newCheckBox
     switch (todo.status) {
       case TodoStatus.Todo: newCheckBox = "[ ]"; break;
-      case TodoStatus.Canceled: newCheckBox = "[]"; break;
+      case TodoStatus.Canceled: newCheckBox = "[-]"; break;
       case TodoStatus.AttentionRequired: newCheckBox = "[!]"; break;
       case TodoStatus.Complete: newCheckBox = "[x]"; break;
       case TodoStatus.Delegated: newCheckBox = "[d]"; break;
-      case TodoStatus.InProgress: newCheckBox = "[-]"; break;
+      case TodoStatus.InProgress: newCheckBox = "[>]"; break;
       default: newCheckBox = ""
     }
     await FileOperations.updateCheckboxAsync(todo, newCheckBox)

@@ -105,11 +105,8 @@ export class LineOperations {
 
   private markToStatus = (mark: string) => {
     mark = mark.toLowerCase();
-    return mark === "]"
-      ? TodoStatus.Canceled
-      : mark === "c"
-        ? TodoStatus.Canceled
-        : mark === "-"
+    return mark === "]" || mark === "-" || mark === "c"? TodoStatus.Canceled
+        : mark === ">"
           ? TodoStatus.InProgress
           : mark === "!"
             ? TodoStatus.AttentionRequired

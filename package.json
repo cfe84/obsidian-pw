@@ -18,7 +18,6 @@
     "@typescript-eslint/parser": "^5.2.0",
     "builtin-modules": "^3.2.0",
     "esbuild": "0.13.12",
-    "obsidian": "^0.13.26",
     "tslib": "2.3.1",
     "typescript": "4.4.4"
   },
@@ -28,6 +27,7 @@
     "chrono-node": "^2.3.8",
     "evergreen-ui": "^7.1.8",
     "luxon": "^2.3.1",
+    "obsidian": "^0.13.30",
     "react": "^18.2.0",
     "react-dom": "^18.2.0"
   },

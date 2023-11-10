@@ -110,7 +110,7 @@ function getDateContainers(minDate: DateTime, numberOfWeeks: number, numberOfMon
     containers.push(week);
     dateCursor = week.from;
   }
-  for (let i = 0; i < numberOfMonths && dateCursor.diff(minDate).milliseconds > 0; i++) {
+  while (dateCursor.diff(minDate).milliseconds > 0) {
     const month = getOneMonthFrom(dateCursor);
     containers.push(month);
     dateCursor = month.from;
@@ -145,7 +145,7 @@ function getMinDate(todos: TodoItem<TFile>[], settings: ProletarianWizardSetting
   return todos.reduce((min, thisTodo) => {
     const completionDate = findTodoCompletionDate(thisTodo, settings);
     if (completionDate) {
-      return min.diff(completionDate).milliseconds ? completionDate : min;
+      return min.diff(completionDate).milliseconds > 0 ? completionDate : min;
     }
     return min;
   }, DateTime.now());

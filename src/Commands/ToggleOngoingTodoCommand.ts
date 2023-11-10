@@ -16,14 +16,14 @@ export class ToggleOngoingTodoCommand implements Command {
     let line = editor.getLine(lineNumber)
     const todo = this.lineOperations.toTodo(line)
     if (todo.isTodo) {
-      line = this.lineOperations.setCheckmark(line, todo.todo.status === TodoStatus.InProgress ? " " : "-")
+      line = this.lineOperations.setCheckmark(line, todo.todo.status === TodoStatus.InProgress ? " " : ">")
       editor.setLine(lineNumber, line)
     }
   };
   editorCheckCallback?: (checking: boolean, editor: Editor, view: MarkdownView) => boolean | void;
   hotkeys?: Hotkey[] = [
     {
-      key: "-",
+      key: ">",
       modifiers: ["Alt"]
     }
   ];
