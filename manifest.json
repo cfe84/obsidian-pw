@@ -1,9 +1,9 @@
 {
-	"id": "obsidian-proletarian-wizard",
+	"id": "proletarian-wizard",
 	"name": "Proletarian Wizard",
 	"version": "1.0.2",
 	"minAppVersion": "0.12.0",
-	"description": "Todo management in Obsidian using proletarian Wizard mechanisms.",
+	"description": "Track your tasks across all the notes in your workspace. Organize your day. Plan your work",
 	"author": "cfe84",
 	"authorUrl": "https://github.com/cfe84/obsidian-pw",
 	"isDesktopOnly": false
