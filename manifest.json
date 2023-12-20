@@ -1,10 +1,10 @@
 {
 	"id": "proletarian-wizard",
-	"name": "Proletarian Wizard",
+	"name": "Proletarian Wizard Todos",
+	"author": "Charles Feval",
+	"description": "Track your tasks across all the notes in your workspace. Organize your day. Plan your work",
+	"authorUrl": "https://github.com/cfe84/obsidian-pw",
 	"version": "1.0.2",
 	"minAppVersion": "0.12.0",
-	"description": "Track your tasks across all the notes in your workspace. Organize your day. Plan your work",
-	"author": "cfe84",
-	"authorUrl": "https://github.com/cfe84/obsidian-pw",
 	"isDesktopOnly": false
 }
