@@ -9,40 +9,35 @@ export class FileTodoParser<TFile> {
   }
 
   private createTodoTreeStructure(lines: string[], parsingResults: ITodoParsingResult<TFile>[]) {
+    // A stack of parents, grandparents, etc. The higher the index, the shallower the parent.
     let parentStack: ITodoParsingResult<TFile>[] = []
-    const getParent = () => parentStack[parentStack.length - 1]
-    let lastVisitedTodo: ITodoParsingResult<TFile> | undefined
+    const parent = () => parentStack[parentStack.length - 1];
+    const pushParent = (parent: ITodoParsingResult<TFile>) => parentStack.push(parent);
+    const popParent = () => parentStack.pop();
     parsingResults.forEach((current, i) => {
-      if (!lastVisitedTodo) {
-        if (current.isTodo) {
-          lastVisitedTodo = current
-        }
-        return
+      // Ignore empty lines
+      if (lines[current.lineNumber].match(/^\s*$/)) {
+        return;
       }
 
-      if (lines[i].match(/^\s*$/)) {
-        return
+      // Come back: decrease to the last parent that is shallower than the current todo.
+      while (parent() && current.indentLevel <= parent().indentLevel) {
+        popParent();
       }
 
-      const isDeeperThanLastTodo = ((current.indentLevel as number) > (lastVisitedTodo.indentLevel as number))
-      if (isDeeperThanLastTodo) {
-        if (current.isTodo) {
-          parentStack.push(lastVisitedTodo);
-          (lastVisitedTodo.todo as TodoItem<TFile>).subtasks = [current.todo as TodoItem<TFile>]
+      // Add as subtask of the last task having a lower indent level.
+      if (parent() && current.isTodo) {
+        if (!parent().todo!.subtasks) {
+          parent().todo!.subtasks = []
         }
-      } else {
-        const isDeeperThanParent = () => ((current.indentLevel as number) > (getParent().indentLevel as number))
-        while (getParent() && !isDeeperThanParent()) {
-          parentStack.pop()
-        }
-        if (getParent() && current.isTodo) {
-          (getParent().todo as TodoItem<TFile>).subtasks?.push(current.todo as TodoItem<TFile>)
-        }
+        parent().todo!.subtasks.push(current.todo!);
       }
+
+      // Add todo as a potential parent.
       if (current.isTodo) {
-        lastVisitedTodo = current
+        pushParent(current);
       }
-    })
+    });
   }
 
   private removeSubtasksFromTree(todos: TodoItem<TFile>[]) {
