@@ -84,7 +84,7 @@ export default class ProletarianWizard extends Plugin {
 		});
 
 		this.registerView(TodoReportView.viewType, (leaf) => {
-			const view = new TodoReportView(leaf, { logger: this.logger, todoIndex: this.todoIndex }, this.settings);
+			const view = new TodoReportView(leaf, { logger: this.logger, todoIndex: this.todoIndex, settings: this.settings, app: this.app }, this.settings);
 			view.render();
 			return view;
 		})

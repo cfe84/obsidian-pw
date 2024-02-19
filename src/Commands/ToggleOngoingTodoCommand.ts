@@ -14,7 +14,7 @@ export class ToggleOngoingTodoCommand implements Command {
   editorCallback(editor: Editor, view: MarkdownView) {
     const lineNumber = editor.getCursor("from").line
     let line = editor.getLine(lineNumber)
-    const todo = this.lineOperations.toTodo(line)
+    const todo = this.lineOperations.toTodo(line, lineNumber)
     if (todo.isTodo) {
       line = this.lineOperations.setCheckmark(line, todo.todo.status === TodoStatus.InProgress ? " " : ">")
       editor.setLine(lineNumber, line)

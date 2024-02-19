@@ -1,7 +1,7 @@
 import * as React from "react";
 import { PwEvent } from "../events/PwEvent";
 import { ILogger } from "../domain/ILogger";
-import checked from "./sounds/checked.wav";
+// import checked from "./sounds/checked.wav";
 
 export type Sound = "checked";
 
@@ -31,7 +31,7 @@ export function SoundPlayer({playSound, deps}: SoundPlayerProps) {
 
   return <>
     <audio id={id}>
-      <source src={checked}></source>
+      {/* <source src={checked}></source> */}
     </audio>
   </>
 }

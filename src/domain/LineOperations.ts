@@ -1,6 +1,7 @@
 import { TodoItem, TodoStatus } from "./TodoItem";
 import { IDictionary } from "./IDictionary";
 import { Completion } from "./Completion";
+import { ProletarianWizardSettings } from "./ProletarianWizardSettings";
 
 export interface ILineStructure {
   indentation: string;
@@ -24,7 +25,7 @@ export interface IAttributesStructure {
 }
 
 export class LineOperations {
-  constructor() { }
+  constructor(private settings?: ProletarianWizardSettings) { }
 
   parseLine(line: string): ILineStructure {
     const regexp =
@@ -78,9 +79,17 @@ export class LineOperations {
     Object.keys(parsedAttributes.attributes).forEach((key) => {
       const val = parsedAttributes.attributes[key];
       if (typeof val === "string") {
+        // Complete date if it's an attribute value
         const completion = Completion.completeDate(val as string);
         if (completion !== null) {
           parsedAttributes.attributes[key] = completion;
+        }
+      } else if (parsedAttributes.attributes[key] === true){
+        // try to convert tags like @today into @due(the_date)
+        const completion = Completion.completeDate(key);
+        if (completion !== null) {
+          delete parsedAttributes.attributes[key];
+          parsedAttributes.attributes[this.settings?.dueDateAttribute || "due"] = completion;
         }
       }
     });

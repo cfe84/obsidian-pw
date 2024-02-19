@@ -14,7 +14,7 @@ export class ToggleTodoCommand implements Command {
   editorCallback(editor: Editor, view: MarkdownView) {
     const lineNumber = editor.getCursor("from").line
     let line = editor.getLine(lineNumber)
-    const todo = this.lineOperations.toTodo(line)
+    const todo = this.lineOperations.toTodo(line, lineNumber)
     if (todo.isTodo) {
       line = this.lineOperations.setCheckmark(line, todo.todo.status === TodoStatus.Complete ? " " : "x")
       editor.setLine(lineNumber, line)
