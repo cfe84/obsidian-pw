@@ -67,7 +67,9 @@ export default class ProletarianWizard extends Plugin {
 			this.app.workspace.getRightLeaf(false).setViewState({
 				type: TodoListView.viewType,
 			});
-		})
+		});
+
+		this.logger.info(`Done loading PW`);
 	}
 
 	private registerViews() {

@@ -4,7 +4,7 @@
 	"author": "Charles Feval",
 	"description": "Track your tasks across all the notes in your workspace. Organize your day. Plan your work",
 	"authorUrl": "https://github.com/cfe84/obsidian-pw",
-	"version": "1.0.2",
+	"version": "1.0.3",
 	"minAppVersion": "0.12.0",
 	"isDesktopOnly": false
 }
