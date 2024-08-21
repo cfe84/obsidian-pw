@@ -11,9 +11,10 @@ export class CompleteLineCommand implements Command {
   callback?: () => any;
   checkCallback?: (checking: boolean) => boolean | void;
   editorCallback(editor: Editor, view: MarkdownView) {
-    const lineNumber = editor.getCursor("from").line
-    let line = editor.getLine(lineNumber)
-    editor.setLine(lineNumber, this.lineOperations.convertDateAttributes(line));
+    const lineNumber = editor.getCursor("from").line;
+    let line = editor.getLine(lineNumber);
+    line = this.lineOperations.convertAttributes(line);
+    editor.setLine(lineNumber, line);
   };
   editorCheckCallback?: (checking: boolean, editor: Editor, view: MarkdownView) => boolean | void;
   hotkeys?: Hotkey[] = [

@@ -73,28 +73,45 @@ export class LineOperations {
     );
   }
 
-  convertDateAttributes(line: string): string {
+  convertAttributes(line: string): string {
     const parsedLine = this.parseLine(line);
-    const parsedAttributes = this.parseAttributes(parsedLine.line);
-    Object.keys(parsedAttributes.attributes).forEach((key) => {
-      const val = parsedAttributes.attributes[key];
+    let parsedAttributes = this.parseAttributes(parsedLine.line);
+    parsedAttributes = this.convertDateAttributes(parsedAttributes);
+    parsedAttributes = this.convertPriorityAttributes(parsedAttributes);
+    parsedLine.line = this.attributesToString(parsedAttributes);
+    return this.lineToString(parsedLine);
+  }
+
+  private convertDateAttributes(attributes: IAttributesStructure): IAttributesStructure {
+    Object.keys(attributes.attributes).forEach((key) => {
+      const val = attributes.attributes[key];
       if (typeof val === "string") {
         // Complete date if it's an attribute value
         const completion = Completion.completeDate(val as string);
         if (completion !== null) {
-          parsedAttributes.attributes[key] = completion;
+          attributes.attributes[key] = completion;
         }
-      } else if (parsedAttributes.attributes[key] === true){
+      } else if (attributes.attributes[key] === true){
         // try to convert tags like @today into @due(the_date)
         const completion = Completion.completeDate(key);
         if (completion !== null) {
-          delete parsedAttributes.attributes[key];
-          parsedAttributes.attributes[this.settings?.dueDateAttribute || "due"] = completion;
+          delete attributes.attributes[key];
+          attributes.attributes[this.settings?.dueDateAttribute || "due"] = completion;
         }
       }
     });
-    parsedLine.line = this.attributesToString(parsedAttributes);
-    return this.lineToString(parsedLine);
+    return attributes;
+  }
+
+  private convertPriorityAttributes(attributes: IAttributesStructure): IAttributesStructure {
+    Object.keys(attributes.attributes).forEach((key) => {
+      if (["critical", "high", "medium", "low", "lowest"].includes(key)) {
+        // complete priority if it's an attribute value, like @high into @priority(high)
+        delete attributes.attributes[key];
+        attributes.attributes["priority"] = key;
+      }
+    });
+    return attributes;
   }
 
   toggleTodo(line: string): string {
