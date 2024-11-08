@@ -2,6 +2,8 @@
 
 _Track your tasks across all the notes in your workspace. Organize your day. Plan your work._
 
+![logo](./doc/img/logo.png)
+
 This is Proletarian Wizard's task board:
 
 ![Task board](./doc/img/board.jpg)
