@@ -46,8 +46,11 @@ export function PlanningComponent({deps, settings, app}: PlanningComponentProps)
   const { searchParameters, hideEmpty, wipLimit } = planningSettings;
 
   const playSound = React.useMemo(() => new PwEvent<Sound>(), []);
-  
-  const filter = new TodoMatcher(searchParameters.searchPhrase, searchParameters.fuzzySearch);
+
+  const filteredTodos = React.useMemo(() => {
+    const filter = new TodoMatcher(searchParameters.searchPhrase, searchParameters.fuzzySearch);
+    return todos.filter(filter.matches);
+  }, [todos, searchParameters]);
 
   React.useEffect(() => {
     deps.todoIndex.onUpdateEvent.listen(async (todos) => {
@@ -65,17 +68,14 @@ export function PlanningComponent({deps, settings, app}: PlanningComponentProps)
       const dueDateIsInRange = dateIsInRange(dueDate)
       const completedDateIsInRange = dateIsInRange(completedDate)
       const isInRangeOrSelected = dueDateIsInRange || (includeSelected && isSelected && (isDone && completedDateIsInRange || !isDone))
-      if (todo.text.contains("lol")) {
-        deps.logger.info(`Todo:  ${completedDateIsInRange} ${includeSelected} ${isSelected} ${isInRangeOrSelected}`)
-      }
       return isInRangeOrSelected
     }
-    const todosInRange = todos.filter((todo) => todo.attributes && todoInRange(todo));
+    const todosInRange = filteredTodos.filter((todo) => todo.attributes && todoInRange(todo));
     return todosInRange
   }
 
-  function getTodosWithNoDate<T>(todos: TodoItem<T>[]): TodoItem<T>[] {
-    return todos.filter(todo =>
+  function getTodosWithNoDate<T>(): TodoItem<TFile>[] {
+    return filteredTodos.filter(todo =>
       !findTodoDate(todo, settings.dueDateAttribute)
       && todo.attributes
       && !todo.attributes[settings.selectedAttribute]
@@ -205,7 +205,7 @@ export function PlanningComponent({deps, settings, app}: PlanningComponentProps)
     yield todoColumn(
       "📃",
       "Backlog",
-      getTodosWithNoDate(todos),
+      getTodosWithNoDate(),
       false,
       removeDate());
 
