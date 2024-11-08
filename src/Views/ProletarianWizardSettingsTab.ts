@@ -11,9 +11,9 @@ export class ProletarianWizardSettingsTab extends PluginSettingTab {
 
 	toggleError(spanFolderError: HTMLSpanElement, on: boolean) {
 		if (on) {
-			spanFolderError.innerHTML = "This folder doesn't exist!";
+			spanFolderError.innerText = "This folder doesn't exist!";
 		} else {
-			spanFolderError.innerHTML = "";
+			spanFolderError.innerText = "";
 		}
 	}
 
