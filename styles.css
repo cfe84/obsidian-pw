@@ -1,11 +1,5 @@
-:root {
-    --column-border-color: #ddd;
-    --column-border-color--today: #ddd;
-    --column-border-color--hover: blue;
-}  
-
 .HyperMD-task-line {
-    color: #f39;
+    color: var(--color-purple);
 }
 
 .pw-todo-text-complete {
@@ -34,17 +28,22 @@
 }
 
 .pw-todo-container:hover {
-    background-color: #ddd;
+    border-color: var(--background-modifier-border-hover);
+    background-color: var(--background-modifier-hover);
 }
 
 .pw-todo-sub-container {
     margin-left: 10px;
     padding-left: 10px;
-    border-left: 1px solid #888;
+    border-left: 1px solid var(--background-modifier-border);
 }
 
 .pw-planning--settings {
-    display: block
+    display: block;
+}
+
+.ub-color_474d66 {
+    color: var(--text-normal) !important
 }
 
 .pw-planning--settings--search {
@@ -82,7 +81,7 @@
 .pw-planning-column-content {
     padding: 8px;
     font-size: .8em;
-    border: 1px solid var(--column-border-color);
+    border: 1px solid var(--background-modifier-border);
     height: 100%;
     overflow: auto;
     border-radius: 10px;
@@ -91,7 +90,7 @@
 /* TODAY */
 
 .pw-planning-today {
-    border: 3px solid var(--column-border-color--today);
+    border: 3px solid var(--background-modifier-border);
     border-radius: 10px;
     padding: 10px;
     margin-bottom: 30px;
@@ -111,11 +110,11 @@
 }
 
 .pw-planning-column--today:nth-of-type(1) {
-    border-right: 1px solid var(--column-border-color);
+    border-right: 1px solid var(--background-modifier-border);
 }
 
 .pw-planning-column--today:nth-of-type(3) {
-    border-left: 1px solid var(--column-border-color);
+    border-left: 1px solid var(--background-modifier-border);
 }
 
 .pw-planning-column-content--today {
@@ -123,11 +122,12 @@
 }
 
 .pw-planning-column-content--hover {
-    border-color: var(--column-border-color--hover);
+    border-color: var(--background-modifier-border-hover);
+    background-color: var(--background-modifier-hover);
 }
 
 .pw-planning-column-content--wip-exceeded {
-    border: 1px solid #f39;
+    border: 1px solid var(--text-error);
 }
 
 .pw-report {
@@ -138,11 +138,11 @@
 .pw-report-container {
     padding: 30px;
     margin: 10px;
-    border: 1px solid var(--column-border-color);
-    border-radius: 10px;
+    border: 1px solid var(--background-modifier-border);
+    border-radius: var(--radius-m);
     min-height: 80px;
 }
 
 .pw-error {
-    color: red
+    color: var(--background-modifier-error)
 }
