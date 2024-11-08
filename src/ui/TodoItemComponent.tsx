@@ -55,11 +55,11 @@ export function TodoItemComponent({todo, deps, playSound, dontCrossCompleted}: T
   const settings = deps.settings;
 
   async function openFileAsync(file: TFile, line: number, inOtherLeaf: boolean) {
-    let leaf = app.workspace.activeLeaf
+    let leaf = app.workspace.getLeaf();
     if (inOtherLeaf) {
-      leaf = app.workspace.splitActiveLeaf("horizontal")
+      leaf = app.workspace.getLeaf(true);
     } else if (leaf.getViewState().pinned) {
-      leaf = app.workspace.getUnpinnedLeaf()
+      leaf = app.workspace.getLeaf(false);
     }
     await leaf.openFile(file)
     let view = app.workspace.getActiveViewOfType(MarkdownView)
@@ -95,7 +95,7 @@ export function TodoItemComponent({todo, deps, playSound, dontCrossCompleted}: T
     if (evt.defaultPrevented) {
       return
     }
-    const menu = new Menu(app)
+    const menu = new Menu();
     menu.setNoIcon()
     addChangePriorityMenuItem(menu, "critical", "double-up-arrow-glyph", "⚡")
     addChangePriorityMenuItem(menu, "high", "up-chevron-glyph", "❗")

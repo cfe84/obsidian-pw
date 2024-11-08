@@ -1,43 +1,43 @@
 {
-  "name": "obsidian-pw",
-  "version": "1.0.2",
-  "description": "This is a sample plugin for Obsidian (https://obsidian.md)",
-  "main": "main.js",
-  "scripts": {
-    "dev": "node esbuild.config.mjs",
-    "build": "tsc -noEmit -skipLibCheck && node esbuild.config.mjs production",
-    "deploy": "cp manifest.json main.js styles.css \"$OBSIDIAN_PATH/.obsidian/plugins/proletarian_wizard\" && echo 'Deployed to $OBSIDIAN_PATH/.obsidian/plugins/proletarian_wizard'",
-    "version": "node version-bump.mjs && git add manifest.json versions.json"
-  },
-  "keywords": [],
-  "author": "cfe84",
-  "license": "MIT",
-  "devDependencies": {
-    "@types/luxon": "^2.3.0",
-    "@types/node": "^16.11.6",
-    "@typescript-eslint/eslint-plugin": "^5.2.0",
-    "@typescript-eslint/parser": "^5.2.0",
-    "builtin-modules": "^3.2.0",
-    "esbuild": "0.13.12",
-    "tslib": "2.3.1",
-    "typescript": "4.4.4"
-  },
-  "dependencies": {
-    "@types/react": "^18.2.0",
-    "@types/react-dom": "^18.2.1",
-    "chrono-node": "^2.3.8",
-    "evergreen-ui": "^7.1.8",
-    "luxon": "^2.3.1",
-    "obsidian": "^0.13.30",
-    "react": "^18.2.0",
-    "react-dom": "^18.2.0"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/cfe84/obsidian-pw.git"
-  },
-  "bugs": {
-    "url": "https://github.com/cfe84/obsidian-pw/issues"
-  },
-  "homepage": "https://github.com/cfe84/obsidian-pw#readme"
+	"name": "obsidian-pw",
+	"version": "1.0.2",
+	"description": "This is a sample plugin for Obsidian (https://obsidian.md)",
+	"main": "main.js",
+	"scripts": {
+		"dev": "node esbuild.config.mjs",
+		"build": "tsc -noEmit -skipLibCheck && node esbuild.config.mjs production",
+		"deploy": "cp manifest.json main.js styles.css \"$OBSIDIAN_PATH/.obsidian/plugins/proletarian_wizard\" && echo 'Deployed to $OBSIDIAN_PATH/.obsidian/plugins/proletarian_wizard'",
+		"version": "node version-bump.mjs && git add manifest.json versions.json"
+	},
+	"keywords": [],
+	"author": "cfe84",
+	"license": "MIT",
+	"devDependencies": {
+		"@types/luxon": "^2.3.0",
+		"@types/node": "^16.11.6",
+		"@typescript-eslint/eslint-plugin": "^5.2.0",
+		"@typescript-eslint/parser": "^5.2.0",
+		"builtin-modules": "^3.2.0",
+		"esbuild": "0.13.12",
+		"tslib": "2.3.1",
+		"typescript": "4.4.4"
+	},
+	"dependencies": {
+		"@types/react": "^18.2.0",
+		"@types/react-dom": "^18.2.1",
+		"chrono-node": "^2.3.8",
+		"evergreen-ui": "^7.1.8",
+		"luxon": "^2.3.1",
+		"obsidian": "^1.0.0",
+		"react": "^18.2.0",
+		"react-dom": "^18.2.0"
+	},
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/cfe84/obsidian-pw.git"
+	},
+	"bugs": {
+		"url": "https://github.com/cfe84/obsidian-pw/issues"
+	},
+	"homepage": "https://github.com/cfe84/obsidian-pw#readme"
 }

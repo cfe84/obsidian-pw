@@ -54,7 +54,7 @@ export function TodoStatusComponent({todo, deps, settings, playSound}: TodoSatus
     if (evt.defaultPrevented) {
       return
     }
-    const menu = new Menu(deps.app)
+    const menu = new Menu()
     addChangeStatusMenuItem(menu, TodoStatus.Todo, "◻️ Mark as todo")
     addChangeStatusMenuItem(menu, TodoStatus.Complete, "✔️ Mark as complete")
     addChangeStatusMenuItem(menu, TodoStatus.InProgress, "⏩ Mark as in progress")
