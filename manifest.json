@@ -3,7 +3,7 @@
 	"name": "Proletarian Wizard Task Manager",
 	"author": "Charles Feval",
 	"description": "Track your tasks across all the notes in your workspace. Organize your day. Plan your work",
-	"authorUrl": "https://github.com/cfe84/obsidian-pw",
+	"authorUrl": "https://fev.al",
 	"version": "1.0.4",
 	"minAppVersion": "1.0.0",
 	"isDesktopOnly": false
