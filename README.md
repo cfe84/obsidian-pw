@@ -24,7 +24,7 @@ The panels below allow you to plan your work. When we get to that date, the task
 
 ![Plan your work](./doc/img/plan_work.gif)
 
-You can also use the auto-expand shortcut (alt+.) to replace natural language to an actual date (e.g. try _tomorrow_, _next monday_, or _next month_). Easier than having to calculate dates.
+You can also use the auto-expand command (I recommend adding a hotkey, for example: alt+.) to replace natural language to an actual date (e.g. try _tomorrow_, _next monday_, or _next month_). Easier than having to calculate dates.
 
 ![Auto-expand due days](./doc/img/expand_due_date.gif)
 

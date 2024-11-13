@@ -128,9 +128,9 @@ export default class ProletarianWizard extends Plugin {
 	private registerEvents() {
 		this.registerEvent(
 			this.app.vault.on("modify", (file) => {
-				if (file.path.endsWith(".md")) {
+				if (file.path.endsWith(".md") && file instanceof TFile) {
 					this.todoIndex.fileUpdated(
-						new ObsidianFile(this.app, file as TFile)
+						new ObsidianFile(this.app, file)
 					);
 				}
 			})
@@ -138,9 +138,9 @@ export default class ProletarianWizard extends Plugin {
 
 		this.registerEvent(
 			this.app.vault.on("create", (file) => {
-				if (file.path.endsWith(".md")) {
+				if (file.path.endsWith(".md") && file instanceof TFile) {
 					this.todoIndex.fileCreated(
-						new ObsidianFile(this.app, file as TFile)
+						new ObsidianFile(this.app, file)
 					);
 				}
 			})
@@ -148,9 +148,9 @@ export default class ProletarianWizard extends Plugin {
 
 		this.registerEvent(
 			this.app.vault.on("delete", (file) => {
-				if (file.path.endsWith(".md")) {
+				if (file.path.endsWith(".md") && file instanceof TFile) {
 					this.todoIndex.fileDeleted(
-						new ObsidianFile(this.app, file as TFile)
+						new ObsidianFile(this.app, file)
 					);
 				}
 			})
@@ -158,10 +158,10 @@ export default class ProletarianWizard extends Plugin {
 
 		this.registerEvent(
 			this.app.vault.on("rename", (file, oldPath) => {
-				if (file.path.endsWith(".md")) {
+				if (file.path.endsWith(".md") && file instanceof TFile) {
 					this.todoIndex.fileRenamed(
 						oldPath,
-						new ObsidianFile(this.app, file as TFile)
+						new ObsidianFile(this.app, file)
 					);
 				}
 			})
