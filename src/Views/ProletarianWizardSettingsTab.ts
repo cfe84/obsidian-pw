@@ -33,18 +33,6 @@ export class ProletarianWizardSettingsTab extends PluginSettingTab {
 
 		containerEl.empty();
 
-		new Setting(containerEl)
-			.setName("Planning ribbon icon")
-			.setDesc("Show planning ribbon icon in left bar")
-			.addToggle((toggle) =>
-				toggle
-					.setValue(this.plugin.settings.buttonInLeftBar)
-					.onChange(async (value) => {
-						this.plugin.settings.buttonInLeftBar = value;
-						await this.plugin.saveSettings();
-					})
-			);
-
 		new Setting(containerEl).setName("Planning").setHeading();
 
 		new Setting(containerEl)

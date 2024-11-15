@@ -60,12 +60,9 @@ export default class ProletarianWizard extends Plugin {
 		this.addCommand(openReportCommand);
 		this.addSettingTab(new ProletarianWizardSettingsTab(this.app, this));
 
-		if (this.settings.buttonInLeftBar) {
-			this.logger.debug(`Adding button to left bar`);
-			this.addRibbonIcon("calendar-glyph", "Open planning", (evt) => {
-				openPlanningCommand.callback();
-			});
-		}
+		this.addRibbonIcon("calendar-glyph", "Open planning", (_) => {
+			openPlanningCommand.callback();
+		});
 
 		this.registerViews();
 		this.registerEvents();
@@ -128,7 +125,7 @@ export default class ProletarianWizard extends Plugin {
 	private registerEvents() {
 		this.registerEvent(
 			this.app.vault.on("modify", (file) => {
-				if (file.path.endsWith(".md") && file instanceof TFile) {
+				if (file instanceof TFile && file.extension === "md") {
 					this.todoIndex.fileUpdated(
 						new ObsidianFile(this.app, file)
 					);
@@ -138,7 +135,7 @@ export default class ProletarianWizard extends Plugin {
 
 		this.registerEvent(
 			this.app.vault.on("create", (file) => {
-				if (file.path.endsWith(".md") && file instanceof TFile) {
+				if (file instanceof TFile && file.extension === "md") {
 					this.todoIndex.fileCreated(
 						new ObsidianFile(this.app, file)
 					);
@@ -148,7 +145,7 @@ export default class ProletarianWizard extends Plugin {
 
 		this.registerEvent(
 			this.app.vault.on("delete", (file) => {
-				if (file.path.endsWith(".md") && file instanceof TFile) {
+				if (file instanceof TFile && file.extension === "md") {
 					this.todoIndex.fileDeleted(
 						new ObsidianFile(this.app, file)
 					);
@@ -158,7 +155,7 @@ export default class ProletarianWizard extends Plugin {
 
 		this.registerEvent(
 			this.app.vault.on("rename", (file, oldPath) => {
-				if (file.path.endsWith(".md") && file instanceof TFile) {
+				if (file instanceof TFile && file.extension === "md") {
 					this.todoIndex.fileRenamed(
 						oldPath,
 						new ObsidianFile(this.app, file)
