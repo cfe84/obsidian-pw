@@ -100,7 +100,7 @@ export class ProletarianWizardSettingsTab extends PluginSettingTab {
 
 		new Setting(containerEl)
 			.setName("Use Dataview Syntax")
-			.setDesc("on will use: [due:: 2025-01-01] of will use default: @due(2025-01-01)")
+			.setDesc("On will use: [due:: 2025-01-01], Off will use default: @due(2025-01-01)")
 			.addToggle((toggle) => toggle
 					.setValue(this.plugin.settings.useDataviewSyntax)
 					.onChange(async (value) => {
