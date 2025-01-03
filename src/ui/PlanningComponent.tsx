@@ -44,6 +44,7 @@ export function PlanningComponent({deps, settings, app}: PlanningComponentProps)
   const [todos, setTodos] = React.useState<TodoItem<TFile>[]>(deps.todoIndex.todos);
   const setPlanningSettings = PlanningSettingsStore.decorateSetterWithSaveSettings(setPlanningSettingsState);
   const { searchParameters, hideEmpty, wipLimit } = planningSettings;
+	const fileOperations = new FileOperations(settings);
 
   const playSound = React.useMemo(() => new PwEvent<Sound>(), []);
 
@@ -83,8 +84,7 @@ export function PlanningComponent({deps, settings, app}: PlanningComponentProps)
   }
 
   function findTodo(todoId: string): TodoItem<TFile> | undefined {
-    const todo = todos.find(todo => getTodoId(todo) === todoId);
-    return todo;
+		return todos.find(todo => getTodoId(todo) === todoId);
   }
 
   function moveToDate(date: DateTime) {
@@ -95,7 +95,7 @@ export function PlanningComponent({deps, settings, app}: PlanningComponentProps)
         deps.logger.warn(`Todo ${todoId} not found, couldn't move`);
         return;
       }
-      FileOperations.updateAttributeAsync(todo, settings.dueDateAttribute, date.toISODate()).then()
+			fileOperations.updateAttributeAsync(todo, settings.dueDateAttribute, date.toISODate()).then()
     }
   }
 
@@ -105,7 +105,7 @@ export function PlanningComponent({deps, settings, app}: PlanningComponentProps)
       if (!todo) {
         return;
       }
-      FileOperations.removeAttributeAsync(todo, settings.dueDateAttribute).then()
+			fileOperations.removeAttributeAsync(todo, settings.dueDateAttribute).then()
     }
   }
 
@@ -118,8 +118,8 @@ export function PlanningComponent({deps, settings, app}: PlanningComponentProps)
         return;
       }
       todo.status = status;
-      FileOperations.updateAttributeAsync(todo, settings.dueDateAttribute, date.toISODate()).then(() =>{
-        FileOperations.updateTodoStatus(todo, settings.completedDateAttribute);
+			fileOperations.updateAttributeAsync(todo, settings.dueDateAttribute, date.toISODate()).then(() =>{
+				fileOperations.updateTodoStatus(todo, settings.completedDateAttribute);
       })
     }
   }
@@ -156,7 +156,7 @@ export function PlanningComponent({deps, settings, app}: PlanningComponentProps)
       return ""
     }
     const today = DateTime.now().startOf("day")
-    let tomorrow = today.plus({ day: 1 });
+    const tomorrow = today.plus({ day: 1 });
     const todos = getTodosByDateAndStatus(today, tomorrow, [TodoStatus.AttentionRequired, TodoStatus.Delegated, TodoStatus.InProgress, TodoStatus.Todo]);
     if (todos.length > wipLimit.dailyLimit) {
       return "pw-planning-column-content--wip-exceeded"
@@ -165,7 +165,7 @@ export function PlanningComponent({deps, settings, app}: PlanningComponentProps)
 
   function* getTodayColumns() {
     const today = DateTime.now().startOf("day")
-    let tomorrow = today.plus({ day: 1 });
+    const tomorrow = today.plus({ day: 1 });
 
     yield todoColumn(
       "◻️",
@@ -210,7 +210,7 @@ export function PlanningComponent({deps, settings, app}: PlanningComponentProps)
       removeDate());
 
     const today = DateTime.now().startOf("day")
-    yield todoColumn(
+		yield todoColumn(
       "🕸️",
       "Past",
       getTodosByDate(null, today).filter(
@@ -223,7 +223,9 @@ export function PlanningComponent({deps, settings, app}: PlanningComponentProps)
     for (let i = 0; i < 6; i++) {
       bracketStart = bracketEnd
       bracketEnd = bracketEnd.plus({ day: 1 })
-      if (bracketStart.weekday === 6 || bracketStart.weekday === 7) {
+			const firstWeekday = settings.firstWeekday ?? 1
+			const localDay = ((bracketStart.weekday - firstWeekday + 7) % 7) + 1
+      if (localDay >= 6) {
         continue
       }
       const label = i === 0 ? "Tomorrow" : bracketStart.toFormat("cccc dd/MM")

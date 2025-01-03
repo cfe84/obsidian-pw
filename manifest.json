@@ -4,7 +4,7 @@
 	"author": "Charles Feval",
 	"description": "Track your tasks across all the notes in your workspace. Organize your day. Plan your work",
 	"authorUrl": "https://fev.al",
-	"version": "1.0.6",
+	"version": "1.1.0",
 	"minAppVersion": "1.0.0",
 	"isDesktopOnly": false
 }

@@ -41,11 +41,12 @@ export interface TodoSatusComponentProps {
 export function TodoStatusComponent({todo, deps, settings, playSound}: TodoSatusComponentProps) {
   
   const addChangeStatusMenuItem = (menu: Menu, status: TodoStatus, label: string) => {
-    menu.addItem((item) => {
+    const fileOperations: FileOperations = new FileOperations(settings)
+		menu.addItem((item) => {
       item.setTitle(label)
       item.onClick(() => {
         todo.status = status
-        FileOperations.updateTodoStatus(todo, settings.completedDateAttribute)
+				fileOperations.updateTodoStatus(todo, settings.completedDateAttribute)
       })
     })
   }
@@ -66,6 +67,7 @@ export function TodoStatusComponent({todo, deps, settings, playSound}: TodoSatus
   }
 
   const onclick = (evt: any) => {
+		const fileOperations: FileOperations = new FileOperations(settings)
     if (evt.defaultPrevented) {
       return
     }
@@ -76,7 +78,7 @@ export function TodoStatusComponent({todo, deps, settings, playSound}: TodoSatus
       playSound.fireAsync("checked").then()
     }
 		todo.status = wasCompleted ? TodoStatus.Todo : TodoStatus.Complete
-		FileOperations.updateTodoStatus(todo, settings.completedDateAttribute)
+		fileOperations.updateTodoStatus(todo, settings.completedDateAttribute)
   }
 
   return <div className="pw-todo-checkbox" onClick={onclick} onAuxClick={onauxclick}>

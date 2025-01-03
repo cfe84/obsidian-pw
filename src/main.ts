@@ -24,7 +24,7 @@ import { OpenReportCommand } from "./Commands/OpenReportCommand";
 export default class ProletarianWizard extends Plugin {
 	logger: ILogger = new ConsoleLogger(LogLevel.ERROR);
 	settings: ProletarianWizardSettings;
-	fileTodoParser: FileTodoParser<TFile> = new FileTodoParser();
+	fileTodoParser: FileTodoParser<TFile>;
 	folderTodoParser: FolderTodoParser<TFile>;
 	todoIndex: TodoIndex<TFile>;
 
@@ -36,6 +36,7 @@ export default class ProletarianWizard extends Plugin {
 	async onload() {
 		this.logger.info(`Loading PW`);
 		await this.loadSettings();
+		this.fileTodoParser = new FileTodoParser(this.settings);
 
 		this.folderTodoParser = new FolderTodoParser({
 			fileTodoParser: this.fileTodoParser,

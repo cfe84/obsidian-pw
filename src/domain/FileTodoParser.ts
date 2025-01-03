@@ -1,11 +1,12 @@
 import { IFile } from "./IFile";
 import { ITodoParsingResult, LineOperations } from "./LineOperations";
+import { ProletarianWizardSettings } from "./ProletarianWizardSettings";
 import { TodoItem } from "./TodoItem";
 
 export class FileTodoParser<TFile> {
 	private lineOperations: LineOperations;
-	constructor() {
-		this.lineOperations = new LineOperations();
+	constructor(settings: ProletarianWizardSettings) {
+		this.lineOperations = new LineOperations(settings);
 	}
 
 	private createTodoTreeStructure(
