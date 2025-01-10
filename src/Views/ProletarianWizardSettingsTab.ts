@@ -92,6 +92,7 @@ export class ProletarianWizardSettingsTab extends PluginSettingTab {
 					"Saturday",
 					"Sunday"
 				].forEach((display, index) => dropDown.addOption((index+1).toString(), display))
+				dropDown.setValue(((this.plugin.settings.firstWeekday ?? 1) - 1).toString());
 				dropDown.onChange(async (value: string) =>	{
 					this.plugin.settings.firstWeekday = parseInt(value);
 					await this.plugin.saveSettings();
