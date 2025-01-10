@@ -53,6 +53,7 @@ export interface TodoItemComponentProps {
 export function TodoItemComponent({todo, deps, playSound, dontCrossCompleted}: TodoItemComponentProps) {
   const app = deps.app;
   const settings = deps.settings;
+	const fileOperations = new FileOperations(settings);
 
   async function openFileAsync(file: TFile, line: number, inOtherLeaf: boolean) {
     let leaf = app.workspace.getLeaf();
@@ -86,7 +87,7 @@ export function TodoItemComponent({todo, deps, playSound, dontCrossCompleted}: T
       item.setTitle(`${otherIcon} Change priority to ${name}`)
       item.setIcon(icon)
       item.onClick((evt) => {
-        FileOperations.updateAttributeAsync(todo, "priority", name).then()
+				fileOperations.updateAttributeAsync(todo, "priority", name).then()
       })
     })
   }
@@ -105,14 +106,14 @@ export function TodoItemComponent({todo, deps, playSound, dontCrossCompleted}: T
     menu.addItem((item) => {
       item.setTitle("🔁 Reset priority")
       item.setIcon("reset")
-      item.onClick((evt) => FileOperations.removeAttributeAsync(todo, "priority").then())
+      item.onClick((evt) => fileOperations.removeAttributeAsync(todo, "priority").then())
     })
     menu.addSeparator()
     menu.addItem((item) => {
       item.setTitle("📌 Toggle selected")
       item.setIcon("pin")
       item.onClick((evt) => {
-        FileOperations.updateAttributeAsync(todo, settings.selectedAttribute, !todo.attributes[settings.selectedAttribute])
+				fileOperations.updateAttributeAsync(todo, settings.selectedAttribute, !todo.attributes[settings.selectedAttribute])
       })
     })
     menu.showAtMouseEvent(evt)

@@ -6,6 +6,8 @@ export interface ProletarianWizardSettings {
 	dueDateAttribute: string;
 	completedDateAttribute: string;
 	selectedAttribute: string;
+	useDataviewSyntax: boolean;
+	firstWeekday: number
 }
 
 export const DEFAULT_SETTINGS: ProletarianWizardSettings = {
@@ -16,4 +18,6 @@ export const DEFAULT_SETTINGS: ProletarianWizardSettings = {
 	dueDateAttribute: "due",
 	completedDateAttribute: "completed",
 	selectedAttribute: "selected",
+	useDataviewSyntax: false,
+	firstWeekday: 1
 };
