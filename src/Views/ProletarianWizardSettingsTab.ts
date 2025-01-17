@@ -79,21 +79,27 @@ export class ProletarianWizardSettingsTab extends PluginSettingTab {
 			cls: "pw-error",
 		});
 
+		const days = [
+			"Monday",
+			"Tuesday",
+			"Wednesday",
+			"Thursday",
+			"Friday",
+			"Saturday",
+			"Sunday",
+		];
+
 		new Setting(containerEl)
 			.setName("First weekday")
 			.setDesc("Specify the first weekday weekend filtering")
-			.addDropdown((dropDown)=>{
-				[
-					"Monday",
-					"Tuesday",
-					"Wednesday",
-					"Thursday",
-					"Friday",
-					"Saturday",
-					"Sunday"
-				].forEach((display, index) => dropDown.addOption((index+1).toString(), display))
-				dropDown.setValue(((this.plugin.settings.firstWeekday ?? 1) - 1).toString());
-				dropDown.onChange(async (value: string) =>	{
+			.addDropdown((dropDown) => {
+				days.forEach((display, index) =>
+					dropDown.addOption((index + 1).toString(), display)
+				);
+				dropDown.setValue(
+					(this.plugin.settings.firstWeekday ?? 1).toString()
+				);
+				dropDown.onChange(async (value: string) => {
 					this.plugin.settings.firstWeekday = parseInt(value);
 					await this.plugin.saveSettings();
 				});
@@ -113,8 +119,11 @@ export class ProletarianWizardSettingsTab extends PluginSettingTab {
 
 		new Setting(containerEl)
 			.setName("Use Dataview Syntax")
-			.setDesc("On will use: [due:: 2025-01-01], Off will use default: @due(2025-01-01)")
-			.addToggle((toggle) => toggle
+			.setDesc(
+				"On will use: [due:: 2025-01-01], Off will use default: @due(2025-01-01)"
+			)
+			.addToggle((toggle) =>
+				toggle
 					.setValue(this.plugin.settings.useDataviewSyntax)
 					.onChange(async (value) => {
 						this.plugin.settings.useDataviewSyntax = value;
