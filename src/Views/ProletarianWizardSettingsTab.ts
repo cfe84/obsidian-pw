@@ -118,20 +118,6 @@ export class ProletarianWizardSettingsTab extends PluginSettingTab {
 			);
 
 		new Setting(containerEl)
-			.setName("Use Dataview Syntax")
-			.setDesc(
-				"On will use: [due:: 2025-01-01], Off will use default: @due(2025-01-01)"
-			)
-			.addToggle((toggle) =>
-				toggle
-					.setValue(this.plugin.settings.useDataviewSyntax)
-					.onChange(async (value) => {
-						this.plugin.settings.useDataviewSyntax = value;
-						await this.plugin.saveSettings();
-					})
-			);
-
-		new Setting(containerEl)
 			.setName("Ignore archived todo")
 			.setDesc("Ignore todos in file under archive folder")
 			.addToggle((toggle) =>
@@ -144,6 +130,20 @@ export class ProletarianWizardSettingsTab extends PluginSettingTab {
 			);
 
 		new Setting(containerEl).setName("Attributes").setHeading();
+
+		new Setting(containerEl)
+			.setName("Use Dataview Syntax")
+			.setDesc(
+				"Default (off) is @due(2025-01-01). When turned on, syntax becomes [due:: 2025-01-01]"
+			)
+			.addToggle((toggle) =>
+				toggle
+					.setValue(this.plugin.settings.useDataviewSyntax)
+					.onChange(async (value) => {
+						this.plugin.settings.useDataviewSyntax = value;
+						await this.plugin.saveSettings();
+					})
+			);
 
 		new Setting(containerEl)
 			.setName("Due date attribute")
