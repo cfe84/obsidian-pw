@@ -21,6 +21,11 @@
     font-size: small;
 }
 
+.pw-todo-duration {
+    font-style: italic;
+    color: var(--text-muted);
+}
+
 .pw-todo-container {
     cursor: pointer;
     /* display: inline; */

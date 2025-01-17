@@ -6,12 +6,10 @@ import { IDictionary } from "../domain/IDictionary"
 import { TodoSubtasksContainer } from "./TodoSubtasksContainer";
 import { TodoStatusComponent } from "./TodoStatusComponent"
 import { Consts } from "../domain/Consts"
-import { TodoFilter } from "../events/TodoListEvents"
 import { FileOperations } from "../domain/FileOperations"
 import { StandardDependencies } from "./StandardDependencies";
 import { PwEvent } from "src/events/PwEvent";
 import { Sound } from "./SoundPlayer";
-
 
 function priorityToIcon(
   attributes: IDictionary<string | boolean> | undefined
@@ -40,6 +38,16 @@ function priorityToIcon(
         }
       })[0] as string) || ""
     : "";
+}
+
+function formatDuration(startTimeAsStr: string) {
+  const startTime = new Date(startTimeAsStr);
+  if (startTime.toString() === "Invalid Date") {
+    return "";
+  }
+  const duration = new Date().getTime() - startTime.getTime();
+  const days = Math.floor(duration / (24 * 60 * 60 * 1000));
+  return days > 0 ? `(started ${days}d ago)` : "";
 }
 
 export interface TodoItemComponentProps {
@@ -132,6 +140,7 @@ export function TodoItemComponent({todo, deps, playSound, dontCrossCompleted}: T
       <TodoStatusComponent todo={todo} deps={ { logger: deps.logger, app: app }} settings={settings} playSound={playSound} />
       <div className={`pw-todo-text ${completionClassName}`}>
         {`${priorityIcon} ${todo.text}${isSelectedText}`}
+        { deps.settings.trackStartTime && deps.settings.startedAttribute in todo.attributes ? <span className="pw-todo-duration">&nbsp;{formatDuration(todo.attributes[deps.settings.startedAttribute] as string)}</span> : null }
       </div>
       <TodoSubtasksContainer subtasks={todo.subtasks} deps={deps} key={"Subtasks-" + todo.text} dontCrossCompleted={true}></TodoSubtasksContainer>
     </div>

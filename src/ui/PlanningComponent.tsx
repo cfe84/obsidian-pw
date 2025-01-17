@@ -118,9 +118,14 @@ export function PlanningComponent({deps, settings, app}: PlanningComponentProps)
         return;
       }
       todo.status = status;
-			fileOperations.updateAttributeAsync(todo, settings.dueDateAttribute, date.toISODate()).then(() =>{
-				fileOperations.updateTodoStatus(todo, settings.completedDateAttribute);
-      })
+
+      fileOperations.updateAttributeAsync(todo, settings.dueDateAttribute, date.toISODate())
+        .then(() => fileOperations.updateTodoStatus(todo, settings.completedDateAttribute))
+        .then(() => {
+          if (settings.trackStartTime && !todo.attributes[settings.startedAttribute] && status === TodoStatus.InProgress) {
+            return fileOperations.updateAttributeAsync(todo, settings.startedAttribute, DateTime.now().toISODate())
+          }
+        });
     }
   }
 

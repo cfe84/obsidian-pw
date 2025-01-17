@@ -176,6 +176,7 @@ export class ProletarianWizardSettingsTab extends PluginSettingTab {
 						}
 					})
 			);
+
 		new Setting(containerEl)
 			.setName("Selected attribute")
 			.setDesc("Attribute to selected a todo")
@@ -191,5 +192,35 @@ export class ProletarianWizardSettingsTab extends PluginSettingTab {
 						}
 					})
 			);
+
+		new Setting(containerEl)
+			.setName("Track start time")
+			.setDesc("Track when todo was moved to 'In progress'")
+			.addToggle((toggle) =>
+				toggle
+					.setValue(this.plugin.settings.trackStartTime)
+					.onChange(async (value) => {
+						this.plugin.settings.trackStartTime = value;
+						await this.plugin.saveSettings();
+						startedAttribute.setDisabled(!value);
+					})
+			);
+
+		const startedAttribute = new Setting(containerEl)
+			.setName("Started attribute")
+			.setDesc("Attribute to track the started date of a todo")
+			.addText((toggle) =>
+				toggle
+					.setValue(this.plugin.settings.startedAttribute)
+					.onChange(async (value) => {
+						if (!value || value.contains(" ")) {
+							return;
+						} else {
+							this.plugin.settings.startedAttribute = value;
+							await this.plugin.saveSettings();
+						}
+					})
+			)
+			.setDisabled(!this.plugin.settings.trackStartTime);
 	}
 }

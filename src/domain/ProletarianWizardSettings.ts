@@ -9,6 +9,8 @@ export interface ProletarianWizardSettings {
 	useDataviewSyntax: boolean;
 	firstWeekday: number;
 	showWeekEnds: boolean;
+	startedAttribute: string;
+	trackStartTime: boolean;
 }
 
 export const DEFAULT_SETTINGS: ProletarianWizardSettings = {
@@ -22,4 +24,6 @@ export const DEFAULT_SETTINGS: ProletarianWizardSettings = {
 	useDataviewSyntax: false,
 	firstWeekday: 1,
 	showWeekEnds: true,
+	startedAttribute: "started",
+	trackStartTime: true,
 };
