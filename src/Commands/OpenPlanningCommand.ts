@@ -14,16 +14,14 @@ export class OpenPlanningCommand implements Command {
 		private workspace: Workspace,
 		public id: string,
 		public name: string,
-		private reuse: boolean,
+		private where: "reuse" | "current" | "new" | "split" = "new",
 		private splitDirection?: SplitDirection
 	) {}
-	// id: string = "pw.open-planning";
-	// name: string = "Open planning";
 
 	icon?: string = "check-small";
 	mobileOnly?: boolean = false;
 	callback() {
-		if (this.reuse) {
+		if (this.where === "reuse") {
 			const existingLeaves = this.workspace.getLeavesOfType(
 				PlanningView.viewType
 			);
@@ -34,9 +32,15 @@ export class OpenPlanningCommand implements Command {
 		}
 		const currentLeaf = this.workspace.getMostRecentLeaf();
 		const parent = currentLeaf.parent;
-		const leaf = this.splitDirection
-			? this.workspace.createLeafBySplit(currentLeaf, this.splitDirection)
-			: this.workspace.createLeafInParent(parent, -1);
+		const leaf =
+			this.splitDirection && this.where === "split" // If split, we split
+				? this.workspace.createLeafBySplit(
+						currentLeaf,
+						this.splitDirection
+				  )
+				: this.where === "current"
+				? currentLeaf // If "current" we use the current leaf
+				: this.workspace.createLeafInParent(parent, -1); // Else we create a new leaf
 		leaf.setViewState({
 			type: PlanningView.viewType,
 		});

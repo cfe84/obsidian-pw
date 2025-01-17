@@ -55,28 +55,42 @@ export default class ProletarianWizard extends Plugin {
 			this.app.workspace,
 			"pw.open-planning",
 			"Open planning",
-			true,
+			"reuse",
+			undefined
+		);
+		const openPlanningCurrentCommand = new OpenPlanningCommand(
+			this.app.workspace,
+			"pw.open-planning-current",
+			"Open planning in current tab",
+			"current",
+			undefined
+		);
+		const openPlanningReuseCommand = new OpenPlanningCommand(
+			this.app.workspace,
+			"pw.open-planning-new",
+			"Open planning in new tab",
+			"new",
 			undefined
 		);
 		const openNewPlanningCommand = new OpenPlanningCommand(
 			this.app.workspace,
 			"pw.open-planning-new",
 			"Open planning in new tab",
-			false,
+			"new",
 			undefined
 		);
 		const openPlanningSplitVCommand = new OpenPlanningCommand(
 			this.app.workspace,
 			"pw.open-planning-split-vertical",
 			"Open planning in a vertical split",
-			false,
+			"split",
 			"vertical"
 		);
 		const openPlanningSplitHCommand = new OpenPlanningCommand(
 			this.app.workspace,
 			"pw.open-planning-split-horizontal",
 			"Open planning in a horizontal split",
-			false,
+			"split",
 			"horizontal"
 		);
 		const openReportCommand = new OpenReportCommand(this.app.workspace);
@@ -86,6 +100,7 @@ export default class ProletarianWizard extends Plugin {
 		this.addCommand(new ToggleOngoingTodoCommand(lineOperations));
 		this.addCommand(openPlanningCommand);
 		this.addCommand(openNewPlanningCommand);
+		this.addCommand(openPlanningCurrentCommand);
 		this.addCommand(openPlanningSplitVCommand);
 		this.addCommand(openPlanningSplitHCommand);
 		this.addCommand(openReportCommand);
