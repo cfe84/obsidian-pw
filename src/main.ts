@@ -51,13 +51,43 @@ export default class ProletarianWizard extends Plugin {
 			this.settings
 		);
 
-		const openPlanningCommand = new OpenPlanningCommand(this.app.workspace);
+		const openPlanningCommand = new OpenPlanningCommand(
+			this.app.workspace,
+			"pw.open-planning",
+			"Open planning",
+			true,
+			undefined
+		);
+		const openNewPlanningCommand = new OpenPlanningCommand(
+			this.app.workspace,
+			"pw.open-planning-new",
+			"Open planning in new tab",
+			false,
+			undefined
+		);
+		const openPlanningSplitVCommand = new OpenPlanningCommand(
+			this.app.workspace,
+			"pw.open-planning-split-vertical",
+			"Open planning in a vertical split",
+			false,
+			"vertical"
+		);
+		const openPlanningSplitHCommand = new OpenPlanningCommand(
+			this.app.workspace,
+			"pw.open-planning-split-horizontal",
+			"Open planning in a horizontal split",
+			false,
+			"horizontal"
+		);
 		const openReportCommand = new OpenReportCommand(this.app.workspace);
 		const lineOperations = new LineOperations(this.settings);
 		this.addCommand(new ToggleTodoCommand(lineOperations));
 		this.addCommand(new CompleteLineCommand(lineOperations));
 		this.addCommand(new ToggleOngoingTodoCommand(lineOperations));
 		this.addCommand(openPlanningCommand);
+		this.addCommand(openNewPlanningCommand);
+		this.addCommand(openPlanningSplitVCommand);
+		this.addCommand(openPlanningSplitHCommand);
 		this.addCommand(openReportCommand);
 		this.addSettingTab(new ProletarianWizardSettingsTab(this.app, this));
 
