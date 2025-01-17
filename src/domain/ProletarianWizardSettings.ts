@@ -7,11 +7,12 @@ export interface ProletarianWizardSettings {
 	completedDateAttribute: string;
 	selectedAttribute: string;
 	useDataviewSyntax: boolean;
-	firstWeekday: number
+	firstWeekday: number;
+	showWeekEnds: boolean;
 }
 
 export const DEFAULT_SETTINGS: ProletarianWizardSettings = {
-	version: 3,
+	version: 4,
 	ignoredFolders: [],
 	ignoreArchivedTodos: true,
 	defaultDailyWipLimit: 5,
@@ -19,5 +20,6 @@ export const DEFAULT_SETTINGS: ProletarianWizardSettings = {
 	completedDateAttribute: "completed",
 	selectedAttribute: "selected",
 	useDataviewSyntax: false,
-	firstWeekday: 1
+	firstWeekday: 1,
+	showWeekEnds: true,
 };

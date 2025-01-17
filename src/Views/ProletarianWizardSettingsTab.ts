@@ -97,7 +97,19 @@ export class ProletarianWizardSettingsTab extends PluginSettingTab {
 					this.plugin.settings.firstWeekday = parseInt(value);
 					await this.plugin.saveSettings();
 				});
-			})
+			});
+
+		new Setting(containerEl)
+			.setName("Show weekend in planning")
+			.setDesc("Should weekend days be displayed in the planning view")
+			.addToggle((toggle) =>
+				toggle
+					.setValue(this.plugin.settings.showWeekEnds)
+					.onChange(async (value) => {
+						this.plugin.settings.showWeekEnds = value;
+						await this.plugin.saveSettings();
+					})
+			);
 
 		new Setting(containerEl)
 			.setName("Use Dataview Syntax")

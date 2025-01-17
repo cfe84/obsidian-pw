@@ -225,7 +225,7 @@ export function PlanningComponent({deps, settings, app}: PlanningComponentProps)
       bracketEnd = bracketEnd.plus({ day: 1 })
 			const firstWeekday = settings.firstWeekday ?? 1
 			const localDay = ((bracketStart.weekday - firstWeekday + 7) % 7) + 1
-      if (localDay >= 6) {
+      if (!settings.showWeekEnds && localDay >= 6) {
         continue
       }
       const label = i === 0 ? "Tomorrow" : bracketStart.toFormat("cccc dd/MM")
