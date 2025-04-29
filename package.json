@@ -6,7 +6,7 @@
 	"scripts": {
 		"dev": "node esbuild.config.mjs",
 		"build": "tsc -noEmit -skipLibCheck && node esbuild.config.mjs production",
-		"deploy": "cp manifest.json main.js styles.css \"$OBSIDIAN_PATH/.obsidian/plugins/proletarian_wizard\" && echo 'Deployed to $OBSIDIAN_PATH/.obsidian/plugins/proletarian_wizard'",
+		"deploy": "cp manifest.json main.js styles.css \"$OBSIDIAN_PATH/.obsidian/plugins/proletarian_wizard\" && echo \"Deployed to $OBSIDIAN_PATH/.obsidian/plugins/proletarian_wizard\"",
 		"version": "node version-bump.mjs && git add manifest.json versions.json"
 	},
 	"keywords": [],

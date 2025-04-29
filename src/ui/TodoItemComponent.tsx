@@ -135,11 +135,28 @@ export function TodoItemComponent({todo, deps, playSound, dontCrossCompleted}: T
   const isSelectedText = !!todo.attributes[settings.selectedAttribute] ? " 📌" : "";
   const priorityIcon = priorityToIcon(todo.attributes);
   const completionClassName = (!dontCrossCompleted && (todo.status === TodoStatus.Complete || todo.status === TodoStatus.Canceled))  ? "pw-todo-text-complete" : "";
+  const renderUrl = (todoText: string):(string|React.ReactElement)[] => {
+    const res = [];
+    const sizeLimit = 24;
+    do {
+      const match = /(.+)((https?:\/\/)([^\s]+)(.*))/.exec(todoText);
+      if (!match) {
+        res.push(todoText);
+        break;
+      }
+      const [_, before, url, protocol, link, rest] = match;
+      res.push(before);
+      res.push(<a onClick={ev => ev.defaultPrevented = true} href={url} target="_blank" key={url}>🔗 {link.length > sizeLimit ? link.substring(0, sizeLimit - 3) + "...": link}</a>);
+      todoText = rest;
+    
+    } while (todoText && todoText.length > 0);
+    return res;
+  };
   return <>
     <div className="pw-todo-container" draggable="true" onDragStart={onDragStart} onClick={onClickContainer} onAuxClick={onAuxClickContainer}>
       <TodoStatusComponent todo={todo} deps={ { logger: deps.logger, app: app }} settings={settings} playSound={playSound} />
       <div className={`pw-todo-text ${completionClassName}`}>
-        {`${priorityIcon} ${todo.text}${isSelectedText}`}
+        {`${priorityIcon} `}{...renderUrl(todo.text)}{`${isSelectedText}`}
         { deps.settings.trackStartTime && deps.settings.startedAttribute in todo.attributes ? <span className="pw-todo-duration">&nbsp;{formatDuration(todo.attributes[deps.settings.startedAttribute] as string)}</span> : null }
       </div>
       <TodoSubtasksContainer subtasks={todo.subtasks} deps={deps} key={"Subtasks-" + todo.text} dontCrossCompleted={true}></TodoSubtasksContainer>
