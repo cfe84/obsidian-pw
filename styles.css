@@ -151,3 +151,11 @@
 .pw-error {
     color: var(--background-modifier-error)
 }
+
+.pw-tag-pill {
+    background-color: var(--background-modifier-hover);
+    color: var(--text-muted);
+    padding: 2px 5px;
+    border-radius: 10px;
+    margin-right: 5px;
+}

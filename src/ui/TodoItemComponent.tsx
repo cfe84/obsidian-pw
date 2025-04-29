@@ -10,6 +10,7 @@ import { FileOperations } from "../domain/FileOperations"
 import { StandardDependencies } from "./StandardDependencies";
 import { PwEvent } from "src/events/PwEvent";
 import { Sound } from "./SoundPlayer";
+import { Random } from "src/Random";
 
 function priorityToIcon(
   attributes: IDictionary<string | boolean> | undefined
@@ -38,6 +39,47 @@ function priorityToIcon(
         }
       })[0] as string) || ""
     : "";
+}
+
+interface Color { backgroundColor: string; color: string; borderColor: string }
+
+const colorsByTag: Record<string, Color> = {}
+
+function getRandomPastelAndAccent(seed: string): Color {
+  const random = new Random(seed);
+  // Helper to clamp values between 0 and 255
+  const clamp = (value: number) => Math.max(0, Math.min(255, value));
+
+  // Generate high R/G/B values for pastel colors
+  const r = random.nextInt(127, 254); // 127–254
+  const g = random.nextInt(127, 254);
+  const b = random.nextInt(127, 254);
+
+  // Convert to hex
+  const backgroundColor = `#${r.toString(16).padStart(2, "0")}${g
+    .toString(16)
+    .padStart(2, "0")}${b.toString(16).padStart(2, "0")}`;
+
+  // Generate accent color by darkening the RGB values
+  const darkenFactor = 0.4; // Lower means darker
+  const accentR = clamp(Math.floor(r * darkenFactor));
+  const accentG = clamp(Math.floor(g * darkenFactor));
+  const accentB = clamp(Math.floor(b * darkenFactor));
+
+  const color = `#${accentR.toString(16).padStart(2, "0")}${accentG
+    .toString(16)
+    .padStart(2, "0")}${accentB.toString(16).padStart(2, "0")}`;
+
+  return { backgroundColor, color, borderColor: color };
+}
+
+function getColorForTag(tag: string): Color {
+  if (colorsByTag[tag]) {
+    return colorsByTag[tag];
+  }
+  const color = getRandomPastelAndAccent(tag);
+  colorsByTag[tag] = color;
+  return color;
 }
 
 function formatDuration(startTimeAsStr: string) {
@@ -135,6 +177,7 @@ export function TodoItemComponent({todo, deps, playSound, dontCrossCompleted}: T
   const isSelectedText = !!todo.attributes[settings.selectedAttribute] ? " 📌" : "";
   const priorityIcon = priorityToIcon(todo.attributes);
   const completionClassName = (!dontCrossCompleted && (todo.status === TodoStatus.Complete || todo.status === TodoStatus.Canceled))  ? "pw-todo-text-complete" : "";
+
   const renderUrl = (todoText: string):(string|React.ReactElement)[] => {
     const res = [];
     const sizeLimit = 24;
@@ -152,11 +195,43 @@ export function TodoItemComponent({todo, deps, playSound, dontCrossCompleted}: T
     } while (todoText && todoText.length > 0);
     return res;
   };
+
+  const openTag = (tag: string) => {
+    const searchView = this.app.workspace.getLeavesOfType("search")[0]
+      ?.view as any;
+
+    if (searchView && searchView.setQuery) {
+      searchView.setQuery(`tag:${tag}`);
+    } else {
+      console.warn("Search view not available or does not support setQuery");
+    }
+  }
+
+  const renderTags = (todoText: string): {todoText: string, tags: React.ReactElement[]} => {
+    const res = [];
+    let remainingText = "";
+    do {
+      const match = /(.+)(#[^\s]+)(.*)/.exec(todoText);
+      if (!match) {
+        remainingText += todoText;
+        break;
+      }
+      const [_, before, tag, rest] = match;
+      remainingText += before;
+      todoText = rest;
+      const color = getColorForTag(tag);
+      res.push(<span className="pw-tag-pill" style={color} onClick={ev => {ev.defaultPrevented = true; openTag(tag); }} key={_}>{tag}</span>);    
+    } while (todoText && todoText.length > 0);
+    return {todoText: remainingText, tags: res};
+  }
+
+  const {todoText, tags} = renderTags(todo.text);
+
   return <>
     <div className="pw-todo-container" draggable="true" onDragStart={onDragStart} onClick={onClickContainer} onAuxClick={onAuxClickContainer}>
       <TodoStatusComponent todo={todo} deps={ { logger: deps.logger, app: app }} settings={settings} playSound={playSound} />
       <div className={`pw-todo-text ${completionClassName}`}>
-        {`${priorityIcon} `}{...renderUrl(todo.text)}{`${isSelectedText}`}
+        {`${priorityIcon} `}{...renderUrl(todoText)}{...tags}{`${isSelectedText}`}
         { deps.settings.trackStartTime && deps.settings.startedAttribute in todo.attributes ? <span className="pw-todo-duration">&nbsp;{formatDuration(todo.attributes[deps.settings.startedAttribute] as string)}</span> : null }
       </div>
       <TodoSubtasksContainer subtasks={todo.subtasks} deps={deps} key={"Subtasks-" + todo.text} dontCrossCompleted={true}></TodoSubtasksContainer>
