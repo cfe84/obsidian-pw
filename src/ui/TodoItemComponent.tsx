@@ -179,19 +179,18 @@ export function TodoItemComponent({todo, deps, playSound, dontCrossCompleted}: T
   const completionClassName = (!dontCrossCompleted && (todo.status === TodoStatus.Complete || todo.status === TodoStatus.Canceled))  ? "pw-todo-text-complete" : "";
 
   const renderUrl = (todoText: string):(string|React.ReactElement)[] => {
-    const res = [];
+    const res: (string|React.ReactElement)[] = [];
     const sizeLimit = 24;
     do {
-      const match = /(.+)((https?:\/\/)([^\s]+)(.*))/.exec(todoText);
+      const match = /(.+)(((https?:\/\/)([^\s]+))(.*))/.exec(todoText);
       if (!match) {
-        res.push(todoText);
+        res.splice(0, 0, todoText);
         break;
       }
-      const [_, before, url, protocol, link, rest] = match;
-      res.push(before);
-      res.push(<a onClick={ev => ev.defaultPrevented = true} href={url} target="_blank" key={url}>🔗 {link.length > sizeLimit ? link.substring(0, sizeLimit - 3) + "...": link}</a>);
-      todoText = rest;
-    
+      const [_, before, urlAndRest, url, protocol, link, rest] = match;
+      res.splice(0, 0, rest);
+      res.splice(0, 0, <a onClick={ev => ev.defaultPrevented = true} href={url} target="_blank" key={url}>🔗 {link.length > sizeLimit ? link.substring(0, sizeLimit - 3) + "...": link}</a>);
+      todoText = before;
     } while (todoText && todoText.length > 0);
     return res;
   };
@@ -213,12 +212,12 @@ export function TodoItemComponent({todo, deps, playSound, dontCrossCompleted}: T
     do {
       const match = /(.+)(#[^\s]+)(.*)/.exec(todoText);
       if (!match) {
-        remainingText += todoText;
+        remainingText = todoText + remainingText;
         break;
       }
       const [_, before, tag, rest] = match;
-      remainingText += before;
-      todoText = rest;
+      remainingText = rest + remainingText;
+      todoText = before;
       const color = getColorForTag(tag);
       res.push(<span className="pw-tag-pill" style={color} onClick={ev => {ev.defaultPrevented = true; openTag(tag); }} key={_}>{tag}</span>);    
     } while (todoText && todoText.length > 0);
