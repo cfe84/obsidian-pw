@@ -7,6 +7,7 @@ import { ILogger } from "src/domain/ILogger";
 import { TodoListComponent } from "./TodoListComponent";
 import { PwEvent } from "src/events/PwEvent";
 import { Sound } from "./SoundPlayer";
+import { PlanningSettings } from "./PlanningSettings";
 
 export interface PlanningTodoColumnDeps {
   app: App,
@@ -19,6 +20,7 @@ export interface PlanningTodoColumnProps {
   title: string,
   todos: TodoItem<TFile>[],
   onTodoDropped: ((todoId: string) => void) | null,
+  planningSettings: PlanningSettings,
   hideIfEmpty: boolean,
   deps: PlanningTodoColumnDeps,
   substyle?: string,
@@ -28,7 +30,7 @@ export interface PlanningTodoColumnProps {
 const CLASSNAME_NORMAL = "";
 const CLASSNAME_HOVER = "pw-planning-column-content--hover";
 
-export function PlanningTodoColumn({icon, title, hideIfEmpty, onTodoDropped, todos, deps, substyle, playSound}: PlanningTodoColumnProps) {
+export function PlanningTodoColumn({icon, title, planningSettings, onTodoDropped, todos, deps, substyle, playSound, hideIfEmpty}: PlanningTodoColumnProps) {
 
   const [hoverClassName, setHoverClassName] = React.useState(CLASSNAME_NORMAL);
 
@@ -75,6 +77,7 @@ export function PlanningTodoColumn({icon, title, hideIfEmpty, onTodoDropped, tod
           deps={deps}
           todos={todos}
           playSound={playSound}
+          displayPreferences={{showStartTime: planningSettings.showStartTime, showTags: planningSettings.showTags}}
         />
     </div>
   </div>

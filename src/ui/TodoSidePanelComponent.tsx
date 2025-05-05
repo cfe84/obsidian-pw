@@ -59,13 +59,18 @@ export function TodoSidePanelComponent({deps}: TodoSidePanelComponentProps) {
     return todosWithOverdueDate
   }
 
+  const displayPreferences = {
+    showTags: true,
+    showStartTime: true,
+  }
+
   return <div className="pw-todo-panel">
     <b>Selected:</b>
-    <TodoListComponent todos={getSelectedTodos(todos)} deps={deps}/>
+    <TodoListComponent displayPreferences={displayPreferences} todos={getSelectedTodos(todos)} deps={deps}/>
     <b>Due:</b>
-    <TodoListComponent todos={getDueTodos(todos)} deps={deps}/>
+    <TodoListComponent displayPreferences={displayPreferences} todos={getDueTodos(todos)} deps={deps}/>
     <b>All:</b>
-    <TodoListComponent todos={todos} deps={deps}/>
+    <TodoListComponent displayPreferences={displayPreferences} todos={todos} deps={deps}/>
   </div>
 }
 

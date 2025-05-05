@@ -9,13 +9,15 @@ export interface PlanningSettingsComponentProps {
 
 export function PlanningSettingsComponent({setPlanningSettings, planningSettings}: PlanningSettingsComponentProps) {
 
-  let {hideEmpty, searchParameters, wipLimit} = planningSettings;
+  let {hideEmpty, showTags, showStartTime, searchParameters, wipLimit} = planningSettings;
   let {searchPhrase, fuzzySearch} = searchParameters;
   let {dailyLimit, isLimited} = wipLimit;
 
   function saveSettings() {
     setPlanningSettings({
       hideEmpty,
+      showTags,
+      showStartTime,
       searchParameters: {
         fuzzySearch,
         searchPhrase,
@@ -29,6 +31,16 @@ export function PlanningSettingsComponent({setPlanningSettings, planningSettings
 
   function onHideEmptyClicked(ev: React.ChangeEvent<HTMLInputElement>) {
     hideEmpty = ev.target.checked;
+    saveSettings();
+  }
+
+  function onShowTags(ev: React.ChangeEvent<HTMLInputElement>) {
+    showTags = ev.target.checked;
+    saveSettings();
+  }
+
+  function onShowStartTime(ev: React.ChangeEvent<HTMLInputElement>) {
+    showStartTime = ev.target.checked;
     saveSettings();
   }
 
@@ -59,6 +71,8 @@ export function PlanningSettingsComponent({setPlanningSettings, planningSettings
       <Checkbox label="Fuzzy search" checked={fuzzySearch} onChange={onFuzzyClicked} />
     </Pane>
     <Pane>
+      <Checkbox label="Show tags" checked={showTags} onChange={onShowTags} />
+      <Checkbox label="Show start time" checked={showStartTime} onChange={onShowStartTime} />
       <Checkbox label="Hide empty containers" checked={hideEmpty} onChange={onHideEmptyClicked} />
     </Pane>
     <Pane display="flex" alignItems="center">

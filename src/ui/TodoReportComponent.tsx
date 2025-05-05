@@ -168,7 +168,7 @@ function mapContainerToComponent(container: Container, deps: TodoReportComponent
   return <div key={container.title} className="pw-report-container">
     <h2>{container.title} <span onClick={() => {}}>{folded ? "▶" : "▼"}</span></h2>
     {!folded
-    ? <TodoListComponent deps={deps} todos={container.todos} dontCrossCompleted={true} key={container.title}></TodoListComponent>
+    ? <TodoListComponent displayPreferences={{showStartTime: true, showTags: true}} deps={deps} todos={container.todos} dontCrossCompleted={true} key={container.title}></TodoListComponent>
     : ""}
   </div>;
 }

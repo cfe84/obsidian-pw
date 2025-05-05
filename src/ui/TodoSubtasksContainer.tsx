@@ -1,5 +1,5 @@
 import * as React from "react";
-import { TodoItemComponent } from "./TodoItemComponent";
+import { TodoItemComponent, TodoItemDisplayPreferences } from "./TodoItemComponent";
 import { TodoItem } from "../domain/TodoItem";
 import { App, TFile } from "obsidian";
 import { ProletarianWizardSettings } from "../domain/ProletarianWizardSettings";
@@ -17,13 +17,14 @@ export interface TodoSubtasksContainerProps {
   subtasks?: TodoItem<TFile>[],
   deps: TodoSubtasksContainerDeps,
   playSound?: PwEvent<Sound>,
+  displayPreferences: TodoItemDisplayPreferences,
   dontCrossCompleted?: boolean,
 }
 
 const foldedText = ` ▶`
 const unfoldedText = " ▼"
 
-export function TodoSubtasksContainer({subtasks, deps, playSound, dontCrossCompleted}: TodoSubtasksContainerProps) {
+export function TodoSubtasksContainer({subtasks, deps, playSound, dontCrossCompleted, displayPreferences}: TodoSubtasksContainerProps) {
   const [isFolded, setIsFolded] = React.useState(false);
 
   function foldText() {
@@ -51,7 +52,7 @@ export function TodoSubtasksContainer({subtasks, deps, playSound, dontCrossCompl
       ? "" 
       : <div className="pw-todo-sub-container">
         {subtasks?.map(task => <TodoItemComponent 
-          key={task.text} todo={task} deps={deps} playSound={playSound} dontCrossCompleted={dontCrossCompleted}/>)}
+          key={task.text} todo={task} deps={deps} playSound={playSound} dontCrossCompleted={dontCrossCompleted} displayPreferences={displayPreferences}/>)}
       </div>
     }
   </>;

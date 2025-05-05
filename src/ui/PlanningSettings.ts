@@ -12,6 +12,8 @@ export interface PlanningSettings {
 	searchParameters: SearchParameters;
 	hideEmpty: boolean;
 	wipLimit: WipLimit;
+	showTags: boolean;
+	showStartTime: boolean;
 }
 
 export function getDefaultSettings(): PlanningSettings {
@@ -21,6 +23,8 @@ export function getDefaultSettings(): PlanningSettings {
 			searchPhrase: "",
 		},
 		hideEmpty: true,
+		showTags: true,
+		showStartTime: true,
 		wipLimit: {
 			dailyLimit: 5,
 			isLimited: false,

@@ -92,18 +92,25 @@ function formatDuration(startTimeAsStr: string) {
   return days > 0 ? `(started ${days}d ago)` : "";
 }
 
+export interface TodoItemDisplayPreferences {
+  showTags: boolean,
+  showStartTime: boolean,
+}
+
 export interface TodoItemComponentProps {
   todo: TodoItem<TFile>,
   // filter?: TodoFilter<TFile>,
   playSound?: PwEvent<Sound>,
   dontCrossCompleted?: boolean,
   deps: StandardDependencies,
+  displayPreferences: TodoItemDisplayPreferences,
 }
 
-export function TodoItemComponent({todo, deps, playSound, dontCrossCompleted}: TodoItemComponentProps) {
+export function TodoItemComponent({todo, deps, playSound, dontCrossCompleted, displayPreferences}: TodoItemComponentProps) {
   const app = deps.app;
   const settings = deps.settings;
 	const fileOperations = new FileOperations(settings);
+  const { showTags, showStartTime } = displayPreferences;
 
   async function openFileAsync(file: TFile, line: number, inOtherLeaf: boolean) {
     let leaf = app.workspace.getLeaf();
@@ -221,7 +228,7 @@ export function TodoItemComponent({todo, deps, playSound, dontCrossCompleted}: T
       const color = getColorForTag(tag);
       res.push(<span className="pw-tag-pill" style={color} onClick={ev => {ev.defaultPrevented = true; openTag(tag); }} key={_}>{tag}</span>);    
     } while (todoText && todoText.length > 0);
-    return {todoText: remainingText, tags: res};
+    return {todoText: remainingText, tags: showTags ? res : []};
   }
 
   const {todoText, tags} = renderTags(todo.text);
@@ -231,9 +238,9 @@ export function TodoItemComponent({todo, deps, playSound, dontCrossCompleted}: T
       <TodoStatusComponent todo={todo} deps={ { logger: deps.logger, app: app }} settings={settings} playSound={playSound} />
       <div className={`pw-todo-text ${completionClassName}`}>
         {`${priorityIcon} `}{...renderUrl(todoText)}{...tags}{`${isSelectedText}`}
-        { deps.settings.trackStartTime && deps.settings.startedAttribute in todo.attributes ? <span className="pw-todo-duration">&nbsp;{formatDuration(todo.attributes[deps.settings.startedAttribute] as string)}</span> : null }
+        { showStartTime && deps.settings.trackStartTime && deps.settings.startedAttribute in todo.attributes ? <span className="pw-todo-duration">&nbsp;{formatDuration(todo.attributes[deps.settings.startedAttribute] as string)}</span> : null }
       </div>
-      <TodoSubtasksContainer subtasks={todo.subtasks} deps={deps} key={"Subtasks-" + todo.text} dontCrossCompleted={true}></TodoSubtasksContainer>
+      <TodoSubtasksContainer subtasks={todo.subtasks} deps={deps} key={"Subtasks-" + todo.text} dontCrossCompleted={true} displayPreferences={displayPreferences}></TodoSubtasksContainer>
     </div>
   </>;
     

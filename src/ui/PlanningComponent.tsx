@@ -143,6 +143,7 @@ export function PlanningComponent({deps, settings, app}: PlanningComponentProps)
     substyle?: string) {
     return <PlanningTodoColumn 
       hideIfEmpty={hideIfEmpty}
+      planningSettings={planningSettings}
       icon={icon}
       title={title}
       key={title}

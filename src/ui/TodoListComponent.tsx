@@ -2,7 +2,7 @@ import * as React from "react";
 import { IDictionary } from "../domain/IDictionary";
 import { TodoItem, TodoStatus, getTodoId } from "../domain/TodoItem";
 import { App, TFile } from "obsidian";
-import { TodoItemComponent } from "./TodoItemComponent";
+import { TodoItemComponent, TodoItemDisplayPreferences } from "./TodoItemComponent";
 import { ProletarianWizardSettings } from "../domain/ProletarianWizardSettings";
 import { ILogger } from "../domain/ILogger";
 import { PwEvent } from "src/events/PwEvent";
@@ -62,9 +62,10 @@ export interface TodoListComponentProps {
   deps: TodoListComponentDeps,
   playSound?: PwEvent<Sound>,
   dontCrossCompleted?: boolean,
+  displayPreferences: TodoItemDisplayPreferences,
 }
 
-export function TodoListComponent({todos, deps, playSound, dontCrossCompleted}: TodoListComponentProps) {
+export function TodoListComponent({todos, deps, playSound, dontCrossCompleted, displayPreferences}: TodoListComponentProps) {
   const sortedTodos = sortTodos(todos);
   return <div>
     {sortedTodos.map(todo => <TodoItemComponent 
@@ -72,6 +73,7 @@ export function TodoListComponent({todos, deps, playSound, dontCrossCompleted}: 
       key={getTodoId(todo)} 
       deps={deps} 
       playSound={playSound} 
+      displayPreferences={displayPreferences}
       dontCrossCompleted={dontCrossCompleted}/>)}
   </div>;
 }
