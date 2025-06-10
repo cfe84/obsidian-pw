@@ -217,7 +217,7 @@ export function TodoItemComponent({todo, deps, playSound, dontCrossCompleted, di
     const res = [];
     let remainingText = "";
     do {
-      const match = /(.+)(#[^\s]+)(.*)/.exec(todoText);
+      const match = /(.*)(#[\w\d_-]+)(.*)/.exec(todoText);
       if (!match) {
         remainingText = todoText + remainingText;
         break;
