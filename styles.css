@@ -173,10 +173,6 @@
     margin-right: 5px;
 }
 
-.pw-current-date-time-icon {
-    margin-right: 8px;
-}
-
 /* Date Time Progress Bar Styles */
 .pw-date-time-header {
   position: relative;
@@ -203,12 +199,31 @@
 }
 
 .pw-current-date-time {
-  color: var(--text-normal);display: inline-block;
+  color: var(--text-normal);
   font-size: 1.2em;
   position: relative;
   z-index: 2;
-  margin: 10px;
-  min-width: 400px;
+  margin: 10px auto;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.pw-current-date-time-icon {
+  margin-right: 8px;
+}
+
+/* Fixed width for time to prevent shifting */
+.pw-time-dynamic {
+  display: inline-block;
+  min-width: 110px;
+  text-align: left;
+}
+
+.pw-time-separator {
+  display: inline-block;
+  width: 15px;
+  text-align: center;
 }
 
 .pw-today-hours-container {

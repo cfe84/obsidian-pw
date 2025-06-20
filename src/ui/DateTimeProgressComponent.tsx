@@ -13,6 +13,10 @@ export function DateTimeProgressComponent({
   endTime
 }: DateTimeProgressComponentProps) {
 
+  // Separate static date from dynamic time
+  const dateStr = currentDateTime.toFormat('EEEE, MMMM d, yyyy');
+  const timeStr = currentDateTime.toFormat('h:mm:ss a');
+
   // Calculate progress percentage based on current time vs start/end time
   const calculateProgress = (): number => {
     const now = currentDateTime;
@@ -44,10 +48,12 @@ export function DateTimeProgressComponent({
   };
 
   return (
-    <div className="pw-date-time-header" style={{ minWidth: '400px' }}>
+    <div className="pw-date-time-header">
       <h2 className="pw-current-date-time">
         <span className="pw-current-date-time-icon">🕒</span>
-        {currentDateTime.toFormat('EEEE, MMMM d, yyyy - h:mm:ss a')}
+        <span className="pw-date-static">{dateStr}</span>
+        <span className="pw-time-separator"> - </span>
+        <span className="pw-time-dynamic">{timeStr}</span>
       </h2>
       <div className="pw-progress-container">
         <div 
