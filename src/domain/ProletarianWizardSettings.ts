@@ -11,6 +11,9 @@ export interface ProletarianWizardSettings {
 	showWeekEnds: boolean;
 	startedAttribute: string;
 	trackStartTime: boolean;
+	defaultStartHour: string;
+	defaultEndHour: string;
+	displayTodayProgressBar: boolean;
 }
 
 export const DEFAULT_SETTINGS: ProletarianWizardSettings = {
@@ -26,4 +29,7 @@ export const DEFAULT_SETTINGS: ProletarianWizardSettings = {
 	showWeekEnds: true,
 	startedAttribute: "started",
 	trackStartTime: true,
+	defaultStartHour: "08:00",
+	defaultEndHour: "17:00",
+	displayTodayProgressBar: true,
 };

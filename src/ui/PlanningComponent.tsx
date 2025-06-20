@@ -14,6 +14,8 @@ import { TodoMatcher } from "src/domain/TodoMatcher";
 import { PlanningSettingsStore } from "./PlanningSettingsStore";
 import { Sound, SoundPlayer } from "./SoundPlayer";
 import { PwEvent } from "src/events/PwEvent";
+import { DateTimeProgressComponent } from "./DateTimeProgressComponent";
+import { TodayHoursComponent } from "./TodayHoursComponent";
 
 function findTodoDate<T>(todo: TodoItem<T>, attribute: string): DateTime | null {
   if (!todo.attributes) {
@@ -45,6 +47,23 @@ export function PlanningComponent({deps, settings, app}: PlanningComponentProps)
   const setPlanningSettings = PlanningSettingsStore.decorateSetterWithSaveSettings(setPlanningSettingsState);
   const { searchParameters, hideEmpty, wipLimit } = planningSettings;
 	const fileOperations = new FileOperations(settings);
+  
+  // Default working hours
+  const defaultStartHour = settings.defaultStartHour || "08:00";
+  const defaultEndHour = settings.defaultEndHour || "17:00";
+  const [startTime, setStartTime] = React.useState<string>(defaultStartHour);
+  const [endTime, setEndTime] = React.useState<string>(defaultEndHour);
+  
+  const [currentDateTime, setCurrentDateTime] = React.useState<DateTime>(DateTime.now());
+
+  // Update the date and time every second
+  React.useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentDateTime(DateTime.now());
+    }, 1000);
+    
+    return () => clearInterval(interval); // Clean up on unmount
+  }, []);
 
   const playSound = React.useMemo(() => new PwEvent<Sound>(), []);
 
@@ -287,6 +306,13 @@ export function PlanningComponent({deps, settings, app}: PlanningComponentProps)
   deps.logger.debug(`Rendering planning view`)
 
   return <>
+    {settings.displayTodayProgressBar !== false && (
+      <DateTimeProgressComponent
+        currentDateTime={currentDateTime}
+        startTime={startTime}
+        endTime={endTime}
+      />
+    )}
     <div className={`pw-planning-today ${getTodayWipStyle()}`}>
       <h1><span className="pw-planning-today-icon">☀️</span> Today</h1>
       {Array.from(getTodayColumns())}
@@ -297,7 +323,17 @@ export function PlanningComponent({deps, settings, app}: PlanningComponentProps)
     <PlanningSettingsComponent
       planningSettings={planningSettings}
       setPlanningSettings={setPlanningSettings}
+    />
+    {settings.displayTodayProgressBar !== false && (
+      <TodayHoursComponent
+        startTime={startTime}
+        endTime={endTime}
+        defaultStartHour={settings.defaultStartHour || "08:00"}
+        defaultEndHour={settings.defaultEndHour || "17:00"}
+        onStartTimeChange={setStartTime}
+        onEndTimeChange={setEndTime}
       />
+    )}
     <SoundPlayer deps={deps} playSound={playSound}></SoundPlayer>
   </>;
 }

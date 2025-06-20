@@ -222,5 +222,39 @@ export class ProletarianWizardSettingsTab extends PluginSettingTab {
 					})
 			)
 			.setDisabled(!this.plugin.settings.trackStartTime);
+			
+		new Setting(containerEl).setName("Progress Tracking").setHeading();
+		
+		new Setting(containerEl)
+			.setName("Default start hour")
+			.setDesc("Default start hour for daily progress tracking")
+			.addText(text => text
+				.setPlaceholder("08:00")
+				.setValue(this.plugin.settings.defaultStartHour || "08:00")
+				.onChange(async (value) => {
+					this.plugin.settings.defaultStartHour = value;
+					await this.plugin.saveSettings();
+				}));
+
+		new Setting(containerEl)
+			.setName("Default end hour")
+			.setDesc("Default end hour for daily progress tracking")
+			.addText(text => text
+				.setPlaceholder("17:00")
+				.setValue(this.plugin.settings.defaultEndHour || "17:00")
+				.onChange(async (value) => {
+					this.plugin.settings.defaultEndHour = value;
+					await this.plugin.saveSettings();
+				}));
+
+		new Setting(containerEl)
+			.setName("Display today's progress bar")
+			.setDesc("Show a progress bar representing today's progress in working hours")
+			.addToggle(toggle => toggle
+				.setValue(this.plugin.settings.displayTodayProgressBar !== false)
+				.onChange(async (value) => {
+					this.plugin.settings.displayTodayProgressBar = value;
+					await this.plugin.saveSettings();
+				}));
 	}
 }

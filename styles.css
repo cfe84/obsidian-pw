@@ -159,3 +159,57 @@
     border-radius: 10px;
     margin-right: 5px;
 }
+
+.pw-current-date-time-icon {
+    margin-right: 8px;
+}
+
+/* Date Time Progress Bar Styles */
+.pw-date-time-header {
+  position: relative;
+  overflow: hidden;
+  border-radius: 4px;
+  margin-bottom: 10px;
+  text-align: center;
+}
+
+.pw-progress-container {
+  margin: auto;
+  width: 400px;
+  height: 10px;
+  background-color: var(--background-secondary);
+  z-index: 0;
+}
+
+.pw-progress-bar {
+  height: 100%;
+  background-color: var(--interactive-accent);
+  opacity: 0.5;
+  transition: width 0.5s ease;
+  z-index: 1;
+}
+
+.pw-current-date-time {
+  color: var(--text-normal);display: inline-block;
+  font-size: 1.2em;
+  position: relative;
+  z-index: 2;
+  margin: 10px;
+  min-width: 400px;
+}
+
+.pw-today-hours-container {
+  margin-top: 20px;
+  padding: 10px;
+  border-top: 1px solid var(--background-modifier-border);
+}
+
+.pw-today-hours-input {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.pw-today-hours-reset {
+  margin-left: auto;
+}
