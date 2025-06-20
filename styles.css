@@ -213,3 +213,86 @@
 .pw-today-hours-reset {
   margin-left: auto;
 }
+
+/* Ignored Folders Settings UI */
+.pw-ignored-folders-section {
+  margin-bottom: 20px;
+}
+
+.pw-ignored-folders-list {
+  margin-top: 10px;
+  margin-left: 40px;
+}
+
+.pw-no-ignored-folders {
+  color: var(--text-muted);
+  font-style: italic;
+  margin-top: 5px;
+}
+
+.pw-ignored-folders-items {
+  list-style-type: none;
+  margin: 0;
+  padding: 0;
+}
+
+.pw-ignored-folder-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 5px 10px;
+  margin-bottom: 5px;
+  background-color: var(--background-secondary);
+  border-radius: 4px;
+}
+
+.pw-ignored-folder-name {
+  flex-grow: 1;
+  margin-right: 10px;
+}
+
+/* Folder Selection Modal */
+.pw-folder-selection-list {
+  max-height: 300px;
+  overflow-y: auto;
+  margin-top: 15px;
+  border: 1px solid var(--background-modifier-border);
+  border-radius: 4px;
+}
+
+.pw-folder-search-container {
+  margin-bottom: 10px;
+}
+
+.pw-folder-search-input {
+  width: 100%;
+  padding: 8px;
+  border-radius: 4px;
+  border: 1px solid var(--background-modifier-border);
+}
+
+.pw-folder-list {
+  list-style-type: none;
+  margin: 0;
+  padding: 0;
+}
+
+.pw-folder-list-item {
+  padding: 2px 0;
+}
+
+.pw-folder-select-button {
+  display: block;
+  width: 100%;
+  text-align: left;
+  padding: 8px 12px;
+  background: transparent;
+  border: none;
+  border-radius: 0;
+  color: var(--text-normal);
+  cursor: pointer;
+}
+
+.pw-folder-select-button:hover {
+  background-color: var(--background-modifier-hover);
+}

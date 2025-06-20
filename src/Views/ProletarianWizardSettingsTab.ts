@@ -1,5 +1,13 @@
 import ProletarianWizard from "../main";
-import { App, PluginSettingTab, Setting } from "obsidian";
+import {
+	App,
+	ButtonComponent,
+	PluginSettingTab,
+	Setting,
+	TFile,
+	TFolder,
+} from "obsidian";
+import { FolderSelectionModal } from "./FolderSelectionModal";
 
 export class ProletarianWizardSettingsTab extends PluginSettingTab {
 	plugin: ProletarianWizard;
@@ -28,6 +36,59 @@ export class ProletarianWizardSettingsTab extends PluginSettingTab {
 		return exist.indexOf(false) < 0;
 	}
 
+	// Show modal for folder selection
+	private showFolderSelectionModal(): void {
+		const modal = new FolderSelectionModal(
+			this.app,
+			this.plugin.settings.ignoredFolders,
+			async (selectedFolder: string) => {
+				if (
+					!this.plugin.settings.ignoredFolders.contains(
+						selectedFolder
+					)
+				) {
+					this.plugin.settings.ignoredFolders.push(selectedFolder);
+					await this.plugin.saveSettings();
+					this.display(); // Refresh the settings view
+				}
+			}
+		);
+		modal.open();
+	}
+
+	// Render the list of ignored folders with delete buttons
+	private renderIgnoredFolders(containerEl: HTMLElement): void {
+		containerEl.empty();
+
+		if (this.plugin.settings.ignoredFolders.length === 0) {
+			containerEl
+				.createEl("div", { text: "No folders are being ignored." })
+				.addClass("pw-no-ignored-folders");
+			return;
+		}
+
+		const list = containerEl.createEl("ul");
+		list.addClass("pw-ignored-folders-items");
+
+		for (const folder of this.plugin.settings.ignoredFolders) {
+			const item = list.createEl("li");
+			item.addClass("pw-ignored-folder-item");
+
+			const folderText = item.createEl("span", { text: folder || "/" });
+			folderText.addClass("pw-ignored-folder-name");
+
+			const removeButton = new ButtonComponent(item);
+			removeButton
+				.setIcon("trash")
+				.setTooltip("Remove")
+				.onClick(async () => {
+					this.plugin.settings.ignoredFolders.remove(folder);
+					await this.plugin.saveSettings();
+					this.renderIgnoredFolders(containerEl); // Re-render only the list
+				});
+		}
+	}
+
 	display(): void {
 		const { containerEl } = this;
 
@@ -54,30 +115,26 @@ export class ProletarianWizardSettingsTab extends PluginSettingTab {
 
 		new Setting(containerEl).setName("Ignore").setHeading();
 
-		new Setting(containerEl)
-			.setName("Ignored folders")
-			.setDesc(
-				"Folders from which you don't want todos (; separated, leave empty if all)"
-			)
-			.addText((toggle) =>
-				toggle
-					.setValue(this.plugin.settings.ignoredFolders.join(";"))
-					.onChange(async (value) => {
-						const folders = value.split(";");
-						if (!(await this.validateArchiveFromFolder(folders))) {
-							this.toggleError(spanArchiveFromError, true);
-						} else {
-							this.toggleError(spanArchiveFromError, false);
-							this.plugin.settings.ignoredFolders = folders;
-							await this.plugin.saveSettings();
-						}
-					})
-			);
+		// Ignored folders section
+		const ignoredFoldersSection = containerEl.createEl("div");
+		ignoredFoldersSection.addClass("pw-ignored-folders-section");
 
-		const spanArchiveFromError = containerEl.createEl("span", {
-			text: "",
-			cls: "pw-error",
-		});
+		new Setting(ignoredFoldersSection)
+			.setName("Ignored folders")
+			.setDesc("Folders from which you don't want todos")
+			.addButton((button) => {
+				button
+					.setButtonText("Add folder")
+					.setCta()
+					.onClick(() => {
+						this.showFolderSelectionModal();
+					});
+			});
+
+		// Display current ignored folders
+		const ignoredFoldersList = ignoredFoldersSection.createEl("div");
+		ignoredFoldersList.addClass("pw-ignored-folders-list");
+		this.renderIgnoredFolders(ignoredFoldersList);
 
 		const days = [
 			"Monday",
@@ -222,39 +279,49 @@ export class ProletarianWizardSettingsTab extends PluginSettingTab {
 					})
 			)
 			.setDisabled(!this.plugin.settings.trackStartTime);
-			
+
 		new Setting(containerEl).setName("Progress Tracking").setHeading();
-		
+
 		new Setting(containerEl)
 			.setName("Default start hour")
 			.setDesc("Default start hour for daily progress tracking")
-			.addText(text => text
-				.setPlaceholder("08:00")
-				.setValue(this.plugin.settings.defaultStartHour || "08:00")
-				.onChange(async (value) => {
-					this.plugin.settings.defaultStartHour = value;
-					await this.plugin.saveSettings();
-				}));
+			.addText((text) =>
+				text
+					.setPlaceholder("08:00")
+					.setValue(this.plugin.settings.defaultStartHour || "08:00")
+					.onChange(async (value) => {
+						this.plugin.settings.defaultStartHour = value;
+						await this.plugin.saveSettings();
+					})
+			);
 
 		new Setting(containerEl)
 			.setName("Default end hour")
 			.setDesc("Default end hour for daily progress tracking")
-			.addText(text => text
-				.setPlaceholder("17:00")
-				.setValue(this.plugin.settings.defaultEndHour || "17:00")
-				.onChange(async (value) => {
-					this.plugin.settings.defaultEndHour = value;
-					await this.plugin.saveSettings();
-				}));
+			.addText((text) =>
+				text
+					.setPlaceholder("17:00")
+					.setValue(this.plugin.settings.defaultEndHour || "17:00")
+					.onChange(async (value) => {
+						this.plugin.settings.defaultEndHour = value;
+						await this.plugin.saveSettings();
+					})
+			);
 
 		new Setting(containerEl)
 			.setName("Display today's progress bar")
-			.setDesc("Show a progress bar representing today's progress in working hours")
-			.addToggle(toggle => toggle
-				.setValue(this.plugin.settings.displayTodayProgressBar !== false)
-				.onChange(async (value) => {
-					this.plugin.settings.displayTodayProgressBar = value;
-					await this.plugin.saveSettings();
-				}));
+			.setDesc(
+				"Show a progress bar representing today's progress in working hours"
+			)
+			.addToggle((toggle) =>
+				toggle
+					.setValue(
+						this.plugin.settings.displayTodayProgressBar !== false
+					)
+					.onChange(async (value) => {
+						this.plugin.settings.displayTodayProgressBar = value;
+						await this.plugin.saveSettings();
+					})
+			);
 	}
 }
