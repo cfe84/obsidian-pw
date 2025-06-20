@@ -55,15 +55,33 @@ export function PlanningComponent({deps, settings, app}: PlanningComponentProps)
   const [endTime, setEndTime] = React.useState<string>(defaultEndHour);
   
   const [currentDateTime, setCurrentDateTime] = React.useState<DateTime>(DateTime.now());
+  const [currentDate, setCurrentDate] = React.useState<string>(DateTime.now().toISODate() || "");
 
-  // Update the date and time every second
+  // Function to reset the view when day changes
+  const resetViewForNewDay = React.useCallback(() => {
+    setStartTime(defaultStartHour);
+    setEndTime(defaultEndHour);
+    
+    // Force a refresh by triggering the onUpdateEvent
+    deps.todoIndex.onUpdateEvent.fireAsync(deps.todoIndex.todos).then(() => {
+      deps.logger.info(`Date changed to ${currentDateTime.toFormat('yyyy-MM-dd')}. Planning view reset.`);
+    });
+  }, [defaultStartHour, defaultEndHour, deps.todoIndex, deps.logger, currentDateTime]);
+
   React.useEffect(() => {
     const interval = setInterval(() => {
-      setCurrentDateTime(DateTime.now());
+      const now = DateTime.now();
+      setCurrentDateTime(now);
+      
+      const today = now.toISODate();
+      if (today && today !== currentDate) {
+        setCurrentDate(today);
+        resetViewForNewDay();
+      }
     }, 1000);
     
     return () => clearInterval(interval); // Clean up on unmount
-  }, []);
+  }, [currentDate, resetViewForNewDay]);
 
   const playSound = React.useMemo(() => new PwEvent<Sound>(), []);
 
