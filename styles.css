@@ -187,6 +187,7 @@
   width: 400px;
   height: 10px;
   background-color: var(--background-secondary);
+  border: 1pt solid var(--interactive-accent);
   z-index: 0;
 }
 
