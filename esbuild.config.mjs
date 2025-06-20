@@ -46,7 +46,6 @@ esbuild.build({
 	loader: {
 		".wav": "dataurl"
 	},
-	watch: !prod,
 	target: 'es2016',
 	logLevel: "info",
 	sourcemap: prod ? false : 'inline',
