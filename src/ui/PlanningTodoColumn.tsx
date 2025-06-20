@@ -1,7 +1,7 @@
 import { App, TFile } from "obsidian";
 import * as React from "react";
 import { Consts } from "src/domain/Consts";
-import { TodoItem } from "src/domain/TodoItem";
+import { TodoItem, TodoStatus } from "src/domain/TodoItem";
 import { ProletarianWizardSettings } from "src/domain/ProletarianWizardSettings";
 import { ILogger } from "src/domain/ILogger";
 import { TodoListComponent } from "./TodoListComponent";
@@ -31,6 +31,19 @@ const CLASSNAME_NORMAL = "";
 const CLASSNAME_HOVER = "pw-planning-column-content--hover";
 
 export function PlanningTodoColumn({icon, title, planningSettings, onTodoDropped, todos, deps, substyle, playSound, hideIfEmpty}: PlanningTodoColumnProps) {
+  const { settings } = deps;
+  
+  // Filter todos into three categories
+  const selectedTodos = todos.filter(todo => todo.attributes && !!todo.attributes[settings.selectedAttribute]);
+  const delegatedTodos = todos.filter(todo => todo.status === TodoStatus.Delegated && 
+                                           (!todo.attributes || !todo.attributes[settings.selectedAttribute]));
+  const regularTodos = todos.filter(todo => 
+                                  (!todo.attributes || !todo.attributes[settings.selectedAttribute]) && 
+                                  todo.status !== TodoStatus.Delegated);
+
+  const hasSelectedTodos = selectedTodos.length > 0;
+  const hasRegularTodos = regularTodos.length > 0;
+  const hasDelegatedTodos = delegatedTodos.length > 0;
 
   const [hoverClassName, setHoverClassName] = React.useState(CLASSNAME_NORMAL);
 
@@ -73,12 +86,43 @@ export function PlanningTodoColumn({icon, title, planningSettings, onTodoDropped
       onDragLeave={onDragLeave}
       onDrop={onDrop}
       >
-        <TodoListComponent 
-          deps={deps}
-          todos={todos}
-          playSound={playSound}
-          displayPreferences={{showStartTime: planningSettings.showStartTime, showTags: planningSettings.showTags}}
-        />
+        {/* Selected todos section - displayed at the top */}
+        {hasSelectedTodos && (
+          <>
+            <div className="pw-planning-subsection-title">📌 Selected</div>
+            <TodoListComponent 
+              deps={deps}
+              todos={selectedTodos}
+              playSound={playSound}
+              displayPreferences={{showStartTime: planningSettings.showStartTime, showTags: planningSettings.showTags}}
+            />
+            {(hasRegularTodos || hasDelegatedTodos) && <div className="pw-planning-subsection-divider"></div>}
+          </>
+        )}
+        
+        {/* Regular todos - displayed in the middle */}
+        {hasRegularTodos && (
+          <TodoListComponent 
+            deps={deps}
+            todos={regularTodos}
+            playSound={playSound}
+            displayPreferences={{showStartTime: planningSettings.showStartTime, showTags: planningSettings.showTags}}
+          />
+        )}
+        
+        {/* Delegated todos section - displayed at the bottom */}
+        {hasDelegatedTodos && (
+          <>
+            {hasRegularTodos && <div className="pw-planning-subsection-divider"></div>}
+            <div className="pw-planning-subsection-title">👬 Delegated</div>
+            <TodoListComponent 
+              deps={deps}
+              todos={delegatedTodos}
+              playSound={playSound}
+              displayPreferences={{showStartTime: planningSettings.showStartTime, showTags: planningSettings.showTags}}
+            />
+          </>
+        )}
     </div>
   </div>
 }
