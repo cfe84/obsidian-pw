@@ -325,3 +325,62 @@
 .pw-folder-select-button:hover {
   background-color: var(--background-modifier-hover);
 }
+
+/* Report Header and Export Button Styles */
+.pw-report-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.pw-report-actions {
+    margin: 15px 0;
+    text-align: right;
+}
+
+.pw-report-export-button {
+    background-color: var(--interactive-accent);
+    color: var(--text-on-accent);
+    padding: 6px 12px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: 500;
+    border: none;
+}
+
+.pw-report-export-button:hover {
+    background-color: var(--interactive-accent-hover);
+}
+
+/* Export Modal Styling */
+.pw-tag-selection {
+    max-height: 200px;
+    overflow-y: auto;
+    margin: 10px 0;
+    padding: 5px;
+    border: 1px solid var(--background-modifier-border);
+    border-radius: 4px;
+}
+
+.pw-tag-selection .setting-item {
+    padding: 6px;
+    border-top: none;
+}
+
+.pw-tag-selection .setting-item:hover {
+    background-color: var(--background-modifier-hover);
+}
+
+.pw-export-modal h2 {
+    margin-bottom: 20px;
+    text-align: center;
+    color: var(--text-accent);
+}
+
+.pw-export-modal h3 {
+    margin: 10px 0;
+    color: var(--text-normal);
+    font-size: 1rem;
+    border-bottom: 1px solid var(--background-modifier-border);
+    padding-bottom: 5px;
+}

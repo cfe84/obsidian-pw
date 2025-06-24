@@ -1,7 +1,7 @@
 import * as React from "react";
 import { createRoot } from "react-dom/client";
 
-import { App, TFile } from "obsidian";
+import { App, Notice, TFile } from "obsidian";
 import { ILogger } from "src/domain/ILogger";
 import { TodoIndex } from "src/domain/TodoIndex";
 import { PlanningComponentDeps } from "./PlanningComponent";
@@ -9,6 +9,8 @@ import { ProletarianWizardSettings } from "src/domain/ProletarianWizardSettings"
 import { TodoItem, TodoStatus } from "src/domain/TodoItem";
 import { DateTime } from "luxon";
 import { TodoListComponent } from "./TodoListComponent";
+import { ReportExportModal, ExportConfig } from "../Views/ReportExportModal";
+import { TodoExporter } from "../domain/TodoExporter";
 
 export interface TodoReportComponentDeps {
   logger: ILogger,
@@ -177,16 +179,65 @@ export function TodoReportComponent({deps}: TodoReportComponentProps) {
   const [todos, setTodos] = React.useState(deps.todoIndex.todos);
   const [numberOfWeeks, setNumberOfWeeks] = React.useState(4);
   const [numberOfMonths, setNumberOfMonths] = React.useState(5);
+  
   React.useEffect(() => {
     deps.todoIndex.onUpdateEvent.listen(async(todos) => setTodos(todos));
   }, [deps.todoIndex]);
+  
   const containers = React.useMemo(() => assembleTodosByDate(todos, numberOfWeeks, numberOfMonths, deps.settings), [
     todos, numberOfWeeks, numberOfMonths
   ]);
 
+  // Handle export functionality
+  const handleExport = () => {
+    const initialConfig: ExportConfig = {
+      startDate: null,
+      endDate: null,
+      includeTasksWithNoDates: true,
+      includeNotes: true
+    };
+    
+    const onSubmit = async (config: ExportConfig) => {
+      try {
+        // Filter todos according to config to get count
+        const filteredTodos = todos.filter(todo => {
+          const todoDate = findTodoCompletionDate(todo, deps.settings);
+          
+          // If task has no dates and we don't want to include them, filter out
+          if (!todoDate && !config.includeTasksWithNoDates) {
+            return false;
+          }
+          
+          return true;
+        });
+        
+        await TodoExporter.exportToClipboard(todos, config, deps.settings);
+        
+        // Show success message
+        const message = `Report with ${filteredTodos.length} tasks exported to clipboard!`;
+        
+        new Notice(message);
+      } catch (error) {
+        console.error("Failed to export report:", error);
+        new Notice("Failed to export report. See console for details.");
+      }
+    };
+    
+    const modal = new ReportExportModal(deps.app, todos, initialConfig, onSubmit);
+    modal.open();
+  };
+
   return <div className="pw-report">
-    <div>
+    <div className="pw-report-header">
       <h1><span className="pw-planning-today-icon">✅</span> Completed todos</h1>
+      <div className="pw-report-actions">
+        <button 
+          className="pw-report-export-button" 
+          onClick={handleExport}
+        >
+          Export Report
+        </button>
+      </div>
     </div>
     <div>
       {containers.map(container => mapContainerToComponent(container, deps))}
