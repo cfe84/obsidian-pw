@@ -127,15 +127,16 @@ export class LineOperations {
     }
   }
 
-  parseWikilinkDate(text: string): { date: string, fullText: string } | null {
-    const wikilinkRegex = /\[\[(\d{4}-\d{2}-\d{2})\]\]/;
-    const match = text.match(wikilinkRegex);
-    if (match) {
-      const date = match[1].trim();
-      const fullText = match[0];
-      return { date, fullText };
+  parseWikilinkDate(text: string): { date: string, fullText: string }[] {
+    const wikilinkRegex = /\[\[(\d{4}-\d{2}-\d{2})\]\]/g;
+    const matches = [...text.matchAll(wikilinkRegex)];
+    if (matches.length > 0) {
+      return matches.map(match => ({
+        date: match[1].trim(),
+        fullText: match[0]
+      }));
     }
-    return null;
+    return [];
   }
 
   /**
@@ -163,10 +164,14 @@ export class LineOperations {
     }
 
     // Parse wikilink date if present
-    const wikilinkDate = this.parseWikilinkDate(textWithoutAttributes);
-    if (wikilinkDate && !res["due"]) {
-      res["due"] = wikilinkDate.date;
-      textWithoutAttributes = textWithoutAttributes.replace(wikilinkDate.fullText, "");
+    const dueDateAttribute = this.settings?.dueDateAttribute || "due";
+    const wikilinkDates = this.parseWikilinkDate(textWithoutAttributes);
+    if (wikilinkDates.length > 0 && !res[dueDateAttribute]) {
+      const latestDate = wikilinkDates.sort((a, b) => b.date.localeCompare(a.date))[0];
+      res[dueDateAttribute] = latestDate.date;
+    }
+    for (const wikilink of wikilinkDates) {
+      textWithoutAttributes = textWithoutAttributes.replace(wikilink.fullText, "");
     }
 
     return { textWithoutAttributes: textWithoutAttributes.trim(), attributes: res };

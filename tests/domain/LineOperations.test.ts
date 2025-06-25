@@ -301,7 +301,22 @@ describe("LineOperations", () => {
 			expect(result.todo!.attributes).toEqual({
 				due: "2023-12-31",
 			});
-			expect(result.todo!.text).toBe("Simple todo [[2023-12-25]]");
+			expect(result.todo!.text).toBe("Simple todo");
+		});
+
+		it("should only use the last of wikilink dates when several are specified", () => {
+			const line = "- [ ] Simple todo [[2023-12-25]] [[2024-01-03]] [[2024-01-01]]";
+			const result: ITodoParsingResult<any> = lineOperations.toTodo(
+				line,
+				0
+			);
+
+			expect(result.isTodo).toBe(true);
+			expect(result.todo).toBeDefined();
+			expect(result.todo!.attributes).toEqual({
+				due: "2024-01-03",
+			});
+			expect(result.todo!.text).toBe("Simple todo");
 		});
 
 		it("should not convert non-todo lines", () => {
