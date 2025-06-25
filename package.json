@@ -1,11 +1,14 @@
 {
 	"name": "obsidian-pw",
-	"version": "1.7.0",
+	"version": "1.8.0",
 	"description": "This is a sample plugin for Obsidian (https://obsidian.md)",
 	"main": "main.js",
 	"scripts": {
 		"dev": "node esbuild.config.mjs",
-		"build": "tsc -noEmit -skipLibCheck && node esbuild.config.mjs production",
+		"build": "tsc -p tsconfig.build.json && node esbuild.config.mjs production",
+		"test": "jest",
+		"test:watch": "jest --watch",
+		"test:coverage": "jest --coverage",
 		"deploy": "cp manifest.json main.js styles.css \"$OBSIDIAN_PATH/.obsidian/plugins/proletarian_wizard\" && echo \"Deployed to $OBSIDIAN_PATH/.obsidian/plugins/proletarian_wizard\"",
 		"version": "node version-bump.mjs && git add manifest.json versions.json"
 	},
@@ -13,14 +16,17 @@
 	"author": "cfe84",
 	"license": "MIT",
 	"devDependencies": {
+		"@types/jest": "^29.5.14",
 		"@types/luxon": "^2.3.0",
 		"@types/node": "^16.11.6",
 		"@typescript-eslint/eslint-plugin": "^5.2.0",
 		"@typescript-eslint/parser": "^5.2.0",
 		"builtin-modules": "^3.2.0",
 		"esbuild": "^0.25.5",
+		"jest": "^29.7.0",
+		"ts-jest": "^29.4.0",
 		"tslib": "2.3.1",
-		"typescript": "4.4.4"
+		"typescript": "4.9.5"
 	},
 	"dependencies": {
 		"@types/react": "^18.2.0",

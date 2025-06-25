@@ -1,0 +1,35 @@
+name: CI
+
+on:
+    push:
+        branches: [main, master]
+    pull_request:
+        branches: [main, master]
+
+jobs:
+    test:
+        runs-on: ubuntu-latest
+
+        steps:
+            - uses: actions/checkout@v4
+
+            - name: Use Node.js
+              uses: actions/setup-node@v4
+              with:
+                  node-version: "18.x"
+                  cache: "yarn"
+
+            - name: Install dependencies
+              run: yarn
+
+            - name: Run tests with coverage
+              run: yarn test:coverage
+
+            - name: Upload coverage to Codecov
+              uses: codecov/codecov-action@v3
+              if: always()
+              with:
+                  fail_ci_if_error: false
+
+            - name: Build
+              run: yarn build

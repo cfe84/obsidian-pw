@@ -127,27 +127,47 @@ export class LineOperations {
     }
   }
 
+  parseWikilinkDate(text: string): { date: string, fullText: string } | null {
+    const wikilinkRegex = /\[\[(\d{4}-\d{2}-\d{2})\]\]/;
+    const match = text.match(wikilinkRegex);
+    if (match) {
+      const date = match[1].trim();
+      const fullText = match[0];
+      return { date, fullText };
+    }
+    return null;
+  }
+
   /**
    * Parse the attributes from a given line, removing those attribute tokens
    * from the text and returning a map of { key -> value } plus the stripped text.
    */
   parseAttributes(text: string): IAttributesStructure {
+    let textWithoutAttributes = text;
+
+    // Parse regular attributes
     const regexp = this.getAttributeRegex();
     const matches = text.match(regexp);
 
     const res: IDictionary<string | boolean> = {};
-    if (!matches) return { textWithoutAttributes: text, attributes: res };
 
-    let textWithoutAttributes = text;
+    if (matches) {
+      matches.forEach((match) => {
+        const [attrKey, attrValue] = this.parseSingleAttribute(match);
+        if (!attrKey) return; // skip if something invalid
 
-    matches.forEach((match) => {
-      const [attrKey, attrValue] = this.parseSingleAttribute(match);
-      if (!attrKey) return; // skip if something invalid
+        res[attrKey] = attrValue;
+        // Remove that chunk from the text
+        textWithoutAttributes = textWithoutAttributes.replace(match, "");
+      });
+    }
 
-      res[attrKey] = attrValue;
-      // Remove that chunk from the text
-      textWithoutAttributes = textWithoutAttributes.replace(match, "");
-    });
+    // Parse wikilink date if present
+    const wikilinkDate = this.parseWikilinkDate(textWithoutAttributes);
+    if (wikilinkDate && !res["due"]) {
+      res["due"] = wikilinkDate.date;
+      textWithoutAttributes = textWithoutAttributes.replace(wikilinkDate.fullText, "");
+    }
 
     return { textWithoutAttributes: textWithoutAttributes.trim(), attributes: res };
   }
