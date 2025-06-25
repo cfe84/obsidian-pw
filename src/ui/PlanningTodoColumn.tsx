@@ -25,12 +25,13 @@ export interface PlanningTodoColumnProps {
   deps: PlanningTodoColumnDeps,
   substyle?: string,
   playSound?: PwEvent<Sound>,
+  onTitleClick?: () => void, // New prop for title click handling
 }
 
 const CLASSNAME_NORMAL = "";
 const CLASSNAME_HOVER = "pw-planning-column-content--hover";
 
-export function PlanningTodoColumn({icon, title, planningSettings, onTodoDropped, todos, deps, substyle, playSound, hideIfEmpty}: PlanningTodoColumnProps) {
+export function PlanningTodoColumn({icon, title, planningSettings, onTodoDropped, todos, deps, substyle, playSound, hideIfEmpty, onTitleClick}: PlanningTodoColumnProps) {
   const { settings } = deps;
   
   // Filter todos into three categories
@@ -75,7 +76,13 @@ export function PlanningTodoColumn({icon, title, planningSettings, onTodoDropped
   }
 
   return <div className={`pw-planning-column ${substyle ? `pw-planning-column--${substyle}` : ""}`}>
-    <div className="pw-planning-column-title"><span className="pw-planning-column-title-icon">{icon}</span><span>{title}</span></div>
+    <div 
+      className={`pw-planning-column-title ${onTitleClick ? 'pw-planning-column-title--clickable' : ''}`}
+      onClick={onTitleClick}
+    >
+      <span className="pw-planning-column-title-icon">{icon}</span>
+      <span>{title}</span>
+    </div>
     <div 
       className={`pw-planning-column-content 
         ${substyle ? `pw-planning-column-content--${substyle}` : ""}

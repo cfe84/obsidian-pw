@@ -16,6 +16,8 @@ import { Sound, SoundPlayer } from "./SoundPlayer";
 import { PwEvent } from "src/events/PwEvent";
 import { DateTimeProgressComponent } from "./DateTimeProgressComponent";
 import { TodayHoursComponent } from "./TodayHoursComponent";
+import { DailyNoteService } from "../domain/DailyNoteService";
+import { DateSelectionModal } from "../Views/DateSelectionModal";
 
 function findTodoDate<T>(todo: TodoItem<T>, attribute: string): DateTime | null {
   if (!todo.attributes) {
@@ -47,6 +49,7 @@ export function PlanningComponent({deps, settings, app}: PlanningComponentProps)
   const setPlanningSettings = PlanningSettingsStore.decorateSetterWithSaveSettings(setPlanningSettingsState);
   const { searchParameters, hideEmpty, wipLimit } = planningSettings;
 	const fileOperations = new FileOperations(settings);
+  const dailyNoteService = React.useMemo(() => new DailyNoteService(app), [app]);
   
   // Default working hours
   const defaultStartHour = settings.defaultStartHour || "08:00";
@@ -177,7 +180,8 @@ export function PlanningComponent({deps, settings, app}: PlanningComponentProps)
     todos: TodoItem<TFile>[],
     hideIfEmpty = hideEmpty,
     onTodoDropped: ((todoId: string) => void) | null = null,
-    substyle?: string) {
+    substyle?: string,
+    onTitleClick?: () => void) {
     return <PlanningTodoColumn 
       hideIfEmpty={hideIfEmpty}
       planningSettings={planningSettings}
@@ -191,8 +195,31 @@ export function PlanningComponent({deps, settings, app}: PlanningComponentProps)
         app, settings, logger: deps.logger,
       }}
       substyle={substyle}
+      onTitleClick={onTitleClick}
     />;
   }
+
+  // Handler for single date columns
+  const handleSingleDateClick = (date: DateTime) => {
+    return () => {
+      dailyNoteService.createOrOpenDailyNote(date);
+    };
+  };
+
+  // Handler for aggregate date columns
+  const handleAggregateDateClick = (startDate: DateTime, endDate: DateTime, label: string) => {
+    return () => {
+      const modal = new DateSelectionModal(
+        app,
+        startDate,
+        endDate,
+        (selectedDate: DateTime) => {
+          dailyNoteService.createOrOpenDailyNote(selectedDate);
+        }
+      );
+      modal.open();
+    };
+  };
 
   function getTodayWipStyle() {
     if (!wipLimit.isLimited) {
@@ -216,7 +243,8 @@ export function PlanningComponent({deps, settings, app}: PlanningComponentProps)
       getTodosByDateAndStatus(today, tomorrow, [TodoStatus.Todo]),
       false,
       moveToDateAndStatus(today, TodoStatus.Todo),
-      "today");
+      "today",
+      handleSingleDateClick(today));
       
     yield todoColumn(
       "⏩",
@@ -224,7 +252,8 @@ export function PlanningComponent({deps, settings, app}: PlanningComponentProps)
       getTodosByDateAndStatus(today, tomorrow, [TodoStatus.AttentionRequired, TodoStatus.Delegated, TodoStatus.InProgress]),
       false,
       moveToDateAndStatus(today, TodoStatus.InProgress),
-      "today");
+      "today",
+      handleSingleDateClick(today));
 
     yield todoColumn(
       "✅",
@@ -232,7 +261,8 @@ export function PlanningComponent({deps, settings, app}: PlanningComponentProps)
       getTodosByDateAndStatus(today, tomorrow, [TodoStatus.Canceled, TodoStatus.Complete]),
       false,
       moveToDateAndStatus(today, TodoStatus.Complete),
-      "today");
+      "today",
+      handleSingleDateClick(today));
   }
 
   function getWipStyle(todos: TodoItem<TFile>[]) {
@@ -280,7 +310,8 @@ export function PlanningComponent({deps, settings, app}: PlanningComponentProps)
         todos,
         hideEmpty,
         moveToDate(bracketStart),
-        style);
+        style,
+        handleSingleDateClick(bracketStart));
     }
 
     for (let i = 1; i < 5; i++) {
@@ -295,7 +326,8 @@ export function PlanningComponent({deps, settings, app}: PlanningComponentProps)
         todos,
         hideEmpty,
         moveToDate(bracketStart),
-        style);
+        style,
+        handleAggregateDateClick(bracketStart, bracketEnd.minus({ days: 1 }), label));
     }
 
     for (let i = 1; i < 4; i++) {
@@ -310,7 +342,8 @@ export function PlanningComponent({deps, settings, app}: PlanningComponentProps)
         todos,
         hideEmpty,
         moveToDate(bracketStart),
-        style);
+        style,
+        handleAggregateDateClick(bracketStart, bracketEnd.minus({ days: 1 }), label));
     }
 
     yield todoColumn(
@@ -318,7 +351,20 @@ export function PlanningComponent({deps, settings, app}: PlanningComponentProps)
       "Later",
       getTodosByDate(bracketStart, null),
       hideEmpty,
-      moveToDate(bracketStart));
+      moveToDate(bracketStart),
+      undefined,
+      () => {
+        // For "Later", show a general date picker
+        const modal = new DateSelectionModal(
+          app,
+          bracketStart,
+          bracketStart.plus({ months: 6 }), // 6 months range
+          (selectedDate: DateTime) => {
+            dailyNoteService.createOrOpenDailyNote(selectedDate);
+          }
+        );
+        modal.open();
+      });
   }
 
   deps.logger.debug(`Rendering planning view`)
@@ -332,7 +378,12 @@ export function PlanningComponent({deps, settings, app}: PlanningComponentProps)
       />
     )}
     <div className={`pw-planning-today ${getTodayWipStyle()}`}>
-      <h1><span className="pw-planning-today-icon">☀️</span> Today</h1>
+      <h1 
+        className="pw-planning-today-title--clickable"
+        onClick={handleSingleDateClick(DateTime.now().startOf("day"))}
+      >
+        <span className="pw-planning-today-icon">☀️</span> Today
+      </h1>
       {Array.from(getTodayColumns())}
     </div>
     <div>

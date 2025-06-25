@@ -384,3 +384,60 @@
     border-bottom: 1px solid var(--background-modifier-border);
     padding-bottom: 5px;
 }
+
+/* Clickable column titles */
+.pw-planning-column-title--clickable {
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+  padding: 4px 8px;
+  border-radius: 4px;
+}
+
+.pw-planning-column-title--clickable:hover {
+  background-color: var(--background-modifier-hover);
+}
+
+/* Clickable Today title */
+.pw-planning-today-title--clickable {
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+  padding: 4px 8px;
+  border-radius: 4px;
+  margin: 0;
+}
+
+.pw-planning-today-title--clickable:hover {
+  background-color: var(--background-modifier-hover);
+}
+
+/* Date selection modal */
+.pw-date-selection-container {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  max-height: 300px;
+  overflow-y: auto;
+  margin: 15px 0;
+}
+
+.pw-date-selection-button {
+  width: 100%;
+  text-align: left;
+  padding: 8px 12px;
+  background: transparent;
+  border: 1px solid var(--background-modifier-border);
+  border-radius: 4px;
+  color: var(--text-normal);
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.pw-date-selection-button:hover {
+  background-color: var(--background-modifier-hover);
+}
+
+.pw-date-selected {
+  background-color: var(--interactive-accent);
+  color: var(--text-on-accent);
+  border-color: var(--interactive-accent);
+}
