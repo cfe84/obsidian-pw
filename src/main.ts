@@ -95,9 +95,17 @@ export default class ProletarianWizard extends Plugin {
 		);
 		const openReportCommand = new OpenReportCommand(this.app.workspace);
 		const lineOperations = new LineOperations(this.settings);
-		this.addCommand(new ToggleTodoCommand(lineOperations));
+		this.addCommand(
+			new ToggleTodoCommand(lineOperations, this.settings, this.app)
+		);
 		this.addCommand(new CompleteLineCommand(lineOperations));
-		this.addCommand(new ToggleOngoingTodoCommand(lineOperations));
+		this.addCommand(
+			new ToggleOngoingTodoCommand(
+				lineOperations,
+				this.settings,
+				this.app
+			)
+		);
 		this.addCommand(openPlanningCommand);
 		this.addCommand(openNewPlanningCommand);
 		this.addCommand(openPlanningCurrentCommand);
