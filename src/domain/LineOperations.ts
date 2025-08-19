@@ -40,9 +40,23 @@ export class LineOperations {
 				line: line,
 			};
 		}
+
+		let indentation = parsed[1];
+		let listMarker = parsed[2];
+
+		if (!listMarker) {
+			return {
+				indentation: indentation || "",
+				listMarker: "",
+				checkbox: "",
+				date: "",
+				line: indentation ? line.trimStart() : line,
+			};
+		}
+
 		return {
 			indentation: parsed[1] || "",
-			listMarker: parsed[2] || "",
+			listMarker: listMarker,
 			checkbox: parsed[3] || "",
 			date: parsed[4] || "",
 			line: parsed[5] || "",
