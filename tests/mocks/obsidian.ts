@@ -10,7 +10,10 @@ export class App {
 }
 
 export class TFile {
-	constructor(public name: string, public path: string) {}
+	public basename: string;
+	constructor(public name: string, public path: string) {
+		this.basename = name;
+	}
 }
 
 export class TFolder {
@@ -22,6 +25,9 @@ export class Vault {
 	createFolder = jest.fn();
 	create = jest.fn();
 	read = jest.fn();
+	adapter = {
+		stat: jest.fn().mockResolvedValue({ mtime: Date.now() }),
+	};
 }
 
 export class WorkspaceLeaf {
@@ -61,18 +67,14 @@ export class Notice {
 	constructor(message: string, timeout?: number) {}
 }
 
+export class Editor {
+	getCursor = jest.fn();
+	getLine = jest.fn();
+	setLine = jest.fn();
+}
+
 export class MarkdownView {
+	file?: TFile;
 	getViewType = jest.fn();
 	getDisplayText = jest.fn();
-}
-
-export class Component {
-	load = jest.fn();
-	unload = jest.fn();
-}
-
-export class ItemView extends Component {
-	getViewType = jest.fn();
-	getDisplayText = jest.fn();
-	getIcon = jest.fn();
 }
