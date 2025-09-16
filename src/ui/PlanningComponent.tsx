@@ -102,14 +102,15 @@ export function PlanningComponent({deps, settings, app}: PlanningComponentProps)
   function getTodosByDate(from: DateTime | null, to: DateTime | null, includeSelected: boolean = false): TodoItem<TFile>[] {
     const dateIsInRange = (date: DateTime | null) => date && (from === null || date >= from) && (to === null || date < to)
     function todoInRange<T>(todo: TodoItem<T>){
-      const isDone = todo.status === TodoStatus.Complete || todo.status === TodoStatus.Canceled
-      const isSelected = todo.attributes && !!todo.attributes[settings.selectedAttribute]
-      const dueDate = findTodoDate(todo, settings.dueDateAttribute)
-      const completedDate = findTodoDate(todo, settings.completedDateAttribute)
-      const dueDateIsInRange = dateIsInRange(dueDate)
-      const completedDateIsInRange = dateIsInRange(completedDate)
-      const isInRangeOrSelected = dueDateIsInRange || (includeSelected && isSelected && (isDone && completedDateIsInRange || !isDone))
-      return isInRangeOrSelected
+      const isDone = todo.status === TodoStatus.Complete || todo.status === TodoStatus.Canceled;
+      const isSelected = todo.attributes && !!todo.attributes[settings.selectedAttribute];
+      const dueDate = findTodoDate(todo, settings.dueDateAttribute);
+      const completedDate = findTodoDate(todo, settings.completedDateAttribute);
+      const dueDateIsInRange = dateIsInRange(dueDate);
+      const completedDateIsInRange = dateIsInRange(completedDate);
+      const selectedIsInRange = isSelected && (!isDone || completedDateIsInRange); // Hide completed selected that were completed on another day
+      const isInRangeOrSelected = dueDateIsInRange || (isDone && completedDateIsInRange) || (includeSelected && selectedIsInRange);
+      return isInRangeOrSelected;
     }
     const todosInRange = filteredTodos.filter((todo) => todo.attributes && todoInRange(todo));
     return todosInRange

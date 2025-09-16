@@ -6,13 +6,8 @@ export class TodoMatcher<T> {
 	constructor(matchTerm: string, private fuzzySearch = false) {
 		this.matchTerm = matchTerm.toLowerCase();
 		this.matches = this.matches.bind(this);
-		this.regex = RegExp(
-			matchTerm
-				.replace(/\\/g, "\\\\")
-				.replace(/\//g, "\\/")
-				.replace(/ /g, ""),
-			"gi"
-		);
+		matchTerm = matchTerm.replace(/[|^${}()[\]\\ \/]/g, '\\$&')
+		this.regex = RegExp(matchTerm, "gi");
 	}
 
 	public matches(todo: TodoItem<T>): boolean {
