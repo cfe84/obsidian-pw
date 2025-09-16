@@ -40,6 +40,19 @@ describe("LineOperations", () => {
 			});
 		});
 
+		it("should parse a line beginning with [ ] as a normal line", () => {
+			const line = "[ ] This is not a list item";
+			const result: ILineStructure = lineOperations.parseLine(line);
+
+			expect(result).toEqual({
+				indentation: "",
+				listMarker: "",
+				checkbox: "",
+				date: "",
+				line: "[ ] This is not a list item",
+			});
+		});
+
 		it("should parse an indented line", () => {
 			const line = "  This is an indented line";
 			const result: ILineStructure = lineOperations.parseLine(line);
@@ -50,6 +63,19 @@ describe("LineOperations", () => {
 				checkbox: "",
 				date: "",
 				line: "This is an indented line",
+			});
+		});
+
+		it("should parse an indented line beginning with [ ] as a normal line", () => {
+			const line = "  [ ] This is an indented line";
+			const result: ILineStructure = lineOperations.parseLine(line);
+
+			expect(result).toEqual({
+				indentation: "  ",
+				listMarker: "",
+				checkbox: "",
+				date: "",
+				line: "[ ] This is an indented line",
 			});
 		});
 
