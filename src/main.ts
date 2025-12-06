@@ -6,6 +6,7 @@ import { ObsidianFile } from "./infrastructure/ObsidianFile";
 import { App, MarkdownView, Plugin, PluginManifest, TFile } from "obsidian";
 import { TodoIndex } from "./domain/TodoIndex";
 import { ToggleTodoCommand } from "./Commands/ToggleTodoCommand";
+import { MoveToTodayCommand } from "./Commands/MoveToTodayCommand";
 import { LineOperations } from "./domain/LineOperations";
 import { ToggleOngoingTodoCommand } from "./Commands/ToggleOngoingTodoCommand";
 import { ProletarianWizardSettingsTab } from "./Views/ProletarianWizardSettingsTab";
@@ -106,6 +107,7 @@ export default class ProletarianWizard extends Plugin {
 				this.app
 			)
 		);
+		this.addCommand(new MoveToTodayCommand(lineOperations, this.settings, this.app));
 		this.addCommand(openPlanningCommand);
 		this.addCommand(openNewPlanningCommand);
 		this.addCommand(openPlanningCurrentCommand);

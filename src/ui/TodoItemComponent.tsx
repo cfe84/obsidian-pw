@@ -11,6 +11,7 @@ import { StandardDependencies } from "./StandardDependencies";
 import { PwEvent } from "src/events/PwEvent";
 import { Sound } from "./SoundPlayer";
 import { Random } from "src/Random";
+import { DateTime } from "luxon";
 
 function priorityToIcon(
   attributes: IDictionary<string | boolean> | undefined
@@ -167,10 +168,15 @@ export function TodoItemComponent({todo, deps, playSound, dontCrossCompleted, di
     })
     menu.addSeparator()
     menu.addItem((item) => {
+	  item.setTitle("🗓️ Move to today")
+	  item.setIcon("calendar")
+	  item.onClick((evt) => fileOperations.updateAttributeAsync(todo, settings.dueDateAttribute, DateTime.now().toISODate()).then())
+	})
+	menu.addItem((item) => {
       item.setTitle("📌 Toggle selected")
       item.setIcon("pin")
       item.onClick((evt) => {
-				fileOperations.updateAttributeAsync(todo, settings.selectedAttribute, !todo.attributes[settings.selectedAttribute])
+		fileOperations.updateAttributeAsync(todo, settings.selectedAttribute, !todo.attributes[settings.selectedAttribute])
       })
     })
     menu.showAtMouseEvent(evt)
