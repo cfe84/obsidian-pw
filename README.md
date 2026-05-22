@@ -81,7 +81,7 @@ Produce a report of all the work you did, to help with status reports, and annua
 
 5. **Plan ahead** by adding due dates to future tasks
 
-6. **Use attributes** to sort your tasks: @due date, @started date, @completed date, @priority, and #tags.
+6. **Use attributes** to sort your tasks: @due date, @started date, @completed date, @priority, @list name and #tags.
 
 7. **Use autocomplete** to make input easier. Map command "Complete line attribute" to transform `@today` into `@due(2025-01-02)`, or `@critical` into `@priority(critical)`
 
@@ -166,6 +166,14 @@ Mark tasks as selected for today's work and set priority levels:
 ```
 
 Marking a task as selected adds it to today automatically. This is useful if you want something to stay in today from one day to the next. It also appears in its own sub-section of the todo/in-progress sections, which you can use to identify them even more (e.g. task you're actually currently working on, vs. all in progress.)
+
+#### Custom Lists
+
+You can create and add todos to custom lists:
+
+```markdown
+- [ ] Custom List @list(custom)
+- [ ] Meeting with Bob @list(meetings) @due(2026-05-05) @priority(high)
 
 #### Custom Attributes
 
@@ -255,6 +263,7 @@ Generate comprehensive reports of your work:
 Customize which attributes to use for:
 
 -   Due dates (default: `due`)
+-   Custom list (default: `list`)
 -   Completion dates (default: `completed`)
 -   Selection marker (default: `selected`)
 

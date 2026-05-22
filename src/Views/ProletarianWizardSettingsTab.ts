@@ -219,6 +219,22 @@ export class ProletarianWizardSettingsTab extends PluginSettingTab {
 			);
 
 		new Setting(containerEl)
+			.setName("Custom list attribute")
+			.setDesc("Attribute to set a todo to a custom list")
+			.addText((toggle) =>
+				toggle
+					.setValue(this.plugin.settings.listAttribute)
+					.onChange(async (value) => {
+						if (!value || value.contains(" ")) {
+							return;
+						} else {
+							this.plugin.settings.listAttribute = value;
+							await this.plugin.saveSettings();
+						}
+					})
+			);
+
+		new Setting(containerEl)
 			.setName("Completed date attribute")
 			.setDesc("Attribute to set a todo completed date")
 			.addText((toggle) =>

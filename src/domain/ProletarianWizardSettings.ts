@@ -14,6 +14,7 @@ export interface ProletarianWizardSettings {
 	defaultStartHour: string;
 	defaultEndHour: string;
 	displayTodayProgressBar: boolean;
+	listAttribute: string;
 }
 
 export const DEFAULT_SETTINGS: ProletarianWizardSettings = {
@@ -32,4 +33,5 @@ export const DEFAULT_SETTINGS: ProletarianWizardSettings = {
 	defaultStartHour: "08:00",
 	defaultEndHour: "17:00",
 	displayTodayProgressBar: true,
+	listAttribute: "list",
 };

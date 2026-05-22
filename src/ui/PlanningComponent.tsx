@@ -31,6 +31,35 @@ function findTodoDate<T>(todo: TodoItem<T>, attribute: string): DateTime | null 
   return null;
 }
 
+function findTodoListName<T>(todo: TodoItem<T>, attribute: string): String | null {
+  if (!todo.attributes) {
+    return null
+  }
+
+  const attr = todo.attributes[attribute]
+
+  if (attr) {
+    return (typeof attr == "string") ? attr : null;
+  }
+
+  return null
+} 
+
+function findTodoList<T>(todo: TodoItem<T>, attribute: string, listName: string): String | null {
+  if (!todo.attributes) {
+    return null
+  }
+
+  const attr = todo.attributes[attribute]
+  const list = (typeof attr == "string") ? attr : null;
+
+  if (list && list === listName) {
+    return list;
+  }
+
+  return null
+} 
+
 export interface PlanningComponentDeps {
   logger: ILogger,
   todoIndex: TodoIndex<TFile>,
@@ -124,8 +153,67 @@ export function PlanningComponent({deps, settings, app}: PlanningComponentProps)
       && todo.status !== TodoStatus.Canceled && todo.status !== TodoStatus.Complete)
   }
 
+  function getTodosWithNoDateOrList<T>(): TodoItem<TFile>[] {
+    return filteredTodos.filter(todo =>
+      !findTodoDate(todo, settings.dueDateAttribute)
+      && !findTodoListName(todo, settings.listAttribute)
+      && todo.attributes
+      && !todo.attributes[settings.selectedAttribute]
+      && todo.status !== TodoStatus.Canceled && todo.status !== TodoStatus.Complete)
+  }
+
+    function getTodosWithList<T>(listName: string): TodoItem<TFile>[] {
+    return filteredTodos.filter(todo =>
+      findTodoList(todo, settings.listAttribute, listName)
+      && todo.attributes
+      && !todo.attributes[settings.selectedAttribute]
+      && todo.status !== TodoStatus.Canceled && todo.status !== TodoStatus.Complete)
+  }
+
+  function getTodosWithListAttribute<T>(): TodoItem<TFile>[] {
+    return filteredTodos.filter(todo =>
+      findTodoListName(todo, settings.listAttribute)
+      && todo.attributes
+      && !todo.attributes[settings.selectedAttribute]
+      && todo.status !== TodoStatus.Canceled && todo.status !== TodoStatus.Complete)
+  }
+
+  function getCustomLists<T>(): string[] {
+    const customLists: string[] = []
+    
+    for( const todo of getTodosWithListAttribute() ) {
+      if (!todo.attributes) {
+        continue;
+      }
+
+      const list = todo.attributes[settings.listAttribute];
+
+      const listValue = (typeof list == "string") ? list : null;
+
+      if( listValue && !customLists.includes(listValue)) {
+        customLists.push(listValue)
+      }
+    }
+
+    return customLists;
+  }
+
   function findTodo(todoId: string): TodoItem<TFile> | undefined {
 		return todos.find(todo => getTodoId(todo) === todoId);
+  }
+
+  function moveToList(listName: string) {
+    return (todoId: string) => {
+      const todo = findTodo(todoId);
+      deps.logger.debug(`Moving ${todoId} to ${listName}`);
+      
+      if (!todo) {
+        deps.logger.warn(`Todo ${todoId} not found, it could not be added to list: ${listName}`);
+        return;
+      }
+
+      fileOperations.updateAttributeAsync(todo, settings.listAttribute, listName).then()
+    }
   }
 
   function moveToDate(date: DateTime) {
@@ -140,13 +228,14 @@ export function PlanningComponent({deps, settings, app}: PlanningComponentProps)
     }
   }
 
-  function removeDate() {
+  function removeDateAndList() {
     return (todoId: string) => {
       const todo = findTodo(todoId);
       if (!todo) {
         return;
       }
-			fileOperations.removeAttributeAsync(todo, settings.dueDateAttribute).then()
+			fileOperations.removeAttributeAsync(todo, settings.dueDateAttribute).then(() => {
+        fileOperations.removeAttributeAsync(todo, settings.listAttribute).then() })
     }
   }
 
@@ -279,9 +368,19 @@ export function PlanningComponent({deps, settings, app}: PlanningComponentProps)
     yield todoColumn(
       "📃",
       "Backlog",
-      getTodosWithNoDate(),
+      getTodosWithNoDateOrList(),
       false,
-      removeDate());
+      removeDateAndList());
+
+    const customLists = getCustomLists();
+    for ( const list of customLists) {
+      yield todoColumn(
+        "📃",
+        list,
+        getTodosWithList(list),
+        false,
+        moveToList(list));
+    }
 
     const today = DateTime.now().startOf("day")
 		yield todoColumn(
