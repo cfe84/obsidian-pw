@@ -1,5 +1,5 @@
 import * as React from "react";
-import { createRoot } from "react-dom/client";
+import { createRoot, Root } from "react-dom/client";
 
 import { App, Notice, TFile } from "obsidian";
 import { ILogger } from "src/domain/ILogger";
@@ -181,7 +181,8 @@ export function TodoReportComponent({deps}: TodoReportComponentProps) {
   const [numberOfMonths, setNumberOfMonths] = React.useState(5);
   
   React.useEffect(() => {
-    deps.todoIndex.onUpdateEvent.listen(async(todos) => setTodos(todos));
+    const stopListening = deps.todoIndex.onUpdateEvent.listen(async(todos) => setTodos(todos));
+    return stopListening;
   }, [deps.todoIndex]);
   
   const containers = React.useMemo(() => assembleTodosByDate(todos, numberOfWeeks, numberOfMonths, deps.settings), [
@@ -245,7 +246,8 @@ export function TodoReportComponent({deps}: TodoReportComponentProps) {
   </div>;
 }
 
-export function MountTodoReportComponent(onElement: HTMLElement, props: TodoReportComponentProps) {
+export function MountTodoReportComponent(onElement: HTMLElement, props: TodoReportComponentProps): Root {
   const client = createRoot(onElement);
   client.render(<TodoReportComponent {...props}></TodoReportComponent>);
+  return client;
 }

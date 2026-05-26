@@ -2,16 +2,23 @@ import * as React from "react";
 import { DateTime } from "luxon";
 
 interface DateTimeProgressComponentProps {
-  currentDateTime: DateTime;
   startTime: string;
   endTime: string;
 }
 
 export function DateTimeProgressComponent({
-  currentDateTime,
   startTime,
   endTime
 }: DateTimeProgressComponentProps) {
+  const [currentDateTime, setCurrentDateTime] = React.useState<DateTime>(DateTime.now());
+
+  React.useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentDateTime(DateTime.now());
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, []);
 
   // Separate static date from dynamic time
   const dateStr = currentDateTime.toFormat('EEEE, MMMM d, yyyy');

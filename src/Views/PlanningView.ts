@@ -3,6 +3,7 @@ import { ItemView, TFile, WorkspaceLeaf } from "obsidian";
 import { TodoIndex } from "../domain/TodoIndex";
 import { ProletarianWizardSettings } from "../domain/ProletarianWizardSettings";
 import { MountPlanningComponent } from "../ui/PlanningComponent";
+import { Root } from "react-dom/client";
 
 export interface PlanningViewDeps {
   logger: ILogger,
@@ -11,6 +12,7 @@ export interface PlanningViewDeps {
 
 export class PlanningView extends ItemView {
   private contentView: HTMLDivElement
+  private reactRoot: Root | null = null
   getIcon(): string {
     return "calendar-glyph"
   }
@@ -26,10 +28,16 @@ export class PlanningView extends ItemView {
 
   render() {
     this.deps.logger.info(`Rendering planning view`)
-    MountPlanningComponent(this.contentView, {
+    this.reactRoot?.unmount()
+    this.reactRoot = MountPlanningComponent(this.contentView, {
       deps: this.deps,
       settings: this.settings,
       app: this.app,
     })
+  }
+
+  async onClose(): Promise<void> {
+    this.reactRoot?.unmount()
+    this.reactRoot = null
   }
 }

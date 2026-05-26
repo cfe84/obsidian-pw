@@ -3,6 +3,7 @@ import { ILogger } from "../domain/ILogger";
 import { ProletarianWizardSettings } from "../domain/ProletarianWizardSettings";
 import { MountSidePanelComponent } from "../ui/TodoSidePanelComponent";
 import { TodoIndex } from "src/domain/TodoIndex";
+import { Root } from "react-dom/client";
 
 export interface TodoListViewDeps {
   logger: ILogger
@@ -10,6 +11,7 @@ export interface TodoListViewDeps {
 
 export class TodoListView extends ItemView {
   static viewType: string = "pw.todo-list";
+  private reactRoot: Root | null = null;
 
   constructor(leaf: WorkspaceLeaf, private deps: TodoListViewDeps, private todoIndex: TodoIndex<TFile>, private settings: ProletarianWizardSettings) {
     super(leaf);
@@ -28,11 +30,14 @@ export class TodoListView extends ItemView {
   }
 
   onClose(): Promise<void> {
+    this.reactRoot?.unmount();
+    this.reactRoot = null;
     return Promise.resolve();
   }
 
   public render(): void {
-    MountSidePanelComponent(this.containerEl as HTMLElement, {
+    this.reactRoot?.unmount();
+    this.reactRoot = MountSidePanelComponent(this.containerEl as HTMLElement, {
       deps: {
         app: this.app,
         logger: this.deps.logger,

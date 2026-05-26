@@ -18,7 +18,7 @@ export function SoundPlayer({playSound, deps}: SoundPlayerProps) {
   const id = React.useMemo(() => `audio-${Math.round(Math.random() * 1000000000)}`, []);
 
   React.useEffect(() => {
-    playSound.listen(async (sound) => {
+    const stopListening = playSound.listen(async (sound) => {
       deps.logger.debug(`Playing ${sound}`);
       if (sound === "checked") {
         const checkedAudio = document.getElementById(id) as HTMLAudioElement;
@@ -27,7 +27,8 @@ export function SoundPlayer({playSound, deps}: SoundPlayerProps) {
         deps.logger.error(`Unknown sound: ${sound}`);
       }
     })
-  }, [playSound]);
+    return stopListening;
+  }, [playSound, deps, id]);
 
   return <>
     <audio id={id}>

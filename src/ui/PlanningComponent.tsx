@@ -1,5 +1,5 @@
 import * as React from "react";
-import { createRoot } from "react-dom/client";
+import { createRoot, Root } from "react-dom/client";
 
 import { TodoItem, TodoStatus, getTodoId } from "../domain/TodoItem";
 import { ILogger } from "../domain/ILogger";
@@ -57,7 +57,6 @@ export function PlanningComponent({deps, settings, app}: PlanningComponentProps)
   const [startTime, setStartTime] = React.useState<string>(defaultStartHour);
   const [endTime, setEndTime] = React.useState<string>(defaultEndHour);
   
-  const [currentDateTime, setCurrentDateTime] = React.useState<DateTime>(DateTime.now());
   const [currentDate, setCurrentDate] = React.useState<string>(DateTime.now().toISODate() || "");
 
   // Function to reset the view when day changes
@@ -67,21 +66,19 @@ export function PlanningComponent({deps, settings, app}: PlanningComponentProps)
     
     // Force a refresh by triggering the onUpdateEvent
     deps.todoIndex.onUpdateEvent.fireAsync(deps.todoIndex.todos).then(() => {
-      deps.logger.info(`Date changed to ${currentDateTime.toFormat('yyyy-MM-dd')}. Planning view reset.`);
+      deps.logger.info(`Date changed to ${DateTime.now().toFormat('yyyy-MM-dd')}. Planning view reset.`);
     });
-  }, [defaultStartHour, defaultEndHour, deps.todoIndex, deps.logger, currentDateTime]);
+  }, [defaultStartHour, defaultEndHour, deps.todoIndex, deps.logger]);
 
   React.useEffect(() => {
     const interval = setInterval(() => {
       const now = DateTime.now();
-      setCurrentDateTime(now);
-      
       const today = now.toISODate();
       if (today && today !== currentDate) {
         setCurrentDate(today);
         resetViewForNewDay();
       }
-    }, 1000);
+    }, 60000);
     
     return () => clearInterval(interval); // Clean up on unmount
   }, [currentDate, resetViewForNewDay]);
@@ -94,9 +91,10 @@ export function PlanningComponent({deps, settings, app}: PlanningComponentProps)
   }, [todos, searchParameters]);
 
   React.useEffect(() => {
-    deps.todoIndex.onUpdateEvent.listen(async (todos) => {
+    const stopListening = deps.todoIndex.onUpdateEvent.listen(async (todos) => {
       setTodos(todos);
     })
+    return stopListening;
   }, [deps.todoIndex]);
 
   function getTodosByDate(from: DateTime | null, to: DateTime | null, includeSelected: boolean = false): TodoItem<TFile>[] {
@@ -373,7 +371,6 @@ export function PlanningComponent({deps, settings, app}: PlanningComponentProps)
   return <>
     {settings.displayTodayProgressBar !== false && (
       <DateTimeProgressComponent
-        currentDateTime={currentDateTime}
         startTime={startTime}
         endTime={endTime}
       />
@@ -408,7 +405,8 @@ export function PlanningComponent({deps, settings, app}: PlanningComponentProps)
   </>;
 }
 
-export function MountPlanningComponent(onElement: HTMLElement, props: PlanningComponentProps) {
+export function MountPlanningComponent(onElement: HTMLElement, props: PlanningComponentProps): Root {
   const client = createRoot(onElement);
   client.render(<PlanningComponent {...props}></PlanningComponent>);
+  return client;
 }

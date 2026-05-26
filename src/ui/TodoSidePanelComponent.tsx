@@ -1,5 +1,5 @@
 import * as React from "react";
-import { createRoot } from "react-dom/client";
+import { createRoot, Root } from "react-dom/client";
 import { App, TFile } from "obsidian";
 import { TodoItem, TodoStatus } from "../domain/TodoItem";
 import { ProletarianWizardSettings } from "../domain/ProletarianWizardSettings";
@@ -24,11 +24,12 @@ export function TodoSidePanelComponent({deps}: TodoSidePanelComponentProps) {
   const [todos, setTodos] = React.useState<TodoItem<TFile>[]>(deps.todoIndex.todos);
 
   React.useEffect(() => {
-    deps.todoIndex.onUpdateEvent.listen(async (todos: TodoItem<TFile>[]) => {
+    const stopListening = deps.todoIndex.onUpdateEvent.listen(async (todos: TodoItem<TFile>[]) => {
       setTodos(todos.filter(todo =>
         todo.status !== TodoStatus.Complete
         && todo.status !== TodoStatus.Canceled));
     })
+    return stopListening;
   }, [deps.todoIndex])
 
   function getSelectedTodos(todos: TodoItem<TFile>[]): TodoItem<TFile>[] {
@@ -74,7 +75,8 @@ export function TodoSidePanelComponent({deps}: TodoSidePanelComponentProps) {
   </div>
 }
 
-export function MountSidePanelComponent(onElement: HTMLElement, props: TodoSidePanelComponentProps) {
+export function MountSidePanelComponent(onElement: HTMLElement, props: TodoSidePanelComponentProps): Root {
   const root = createRoot(onElement);
   root.render(<TodoSidePanelComponent {...props}></TodoSidePanelComponent>);
+  return root;
 }

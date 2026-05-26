@@ -1,4 +1,5 @@
 export type eventHandler<T> = (evtDetails: T) => Promise<void>
+export type eventUnsubscribe = () => void
 
 export class PwEvent<T> {
   private handlers: eventHandler<T>[] = []
@@ -9,8 +10,11 @@ export class PwEvent<T> {
     }
   }
 
-  listen(handler: eventHandler<T>) {
+  listen(handler: eventHandler<T>): eventUnsubscribe {
     this.handlers.push(handler);
+    return () => {
+      this.handlers = this.handlers.filter(registeredHandler => registeredHandler !== handler)
+    }
   }
 
   async fireAsync(evtDetails: T) {
