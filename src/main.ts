@@ -178,6 +178,16 @@ export default class ProletarianWizard extends Plugin {
 		});
 	}
 
+	refreshPlanningViews() {
+		this.app.workspace
+			.getLeavesOfType(PlanningView.viewType)
+			.forEach((leaf) => {
+				if (leaf.view instanceof PlanningView) {
+					leaf.view.render();
+				}
+			});
+	}
+
 	private registerEvents() {
 		this.registerEvent(
 			this.app.vault.on("modify", (file) => {

@@ -48,6 +48,7 @@ export function PlanningComponent({deps, settings, app}: PlanningComponentProps)
   const [todos, setTodos] = React.useState<TodoItem<TFile>[]>(deps.todoIndex.todos);
   const setPlanningSettings = PlanningSettingsStore.decorateSetterWithSaveSettings(setPlanningSettingsState);
   const { searchParameters, hideEmpty, wipLimit } = planningSettings;
+  const { selectedTasksInSeparateColumns } = settings;
 	const fileOperations = new FileOperations(settings);
   const dailyNoteService = React.useMemo(() => new DailyNoteService(app), [app]);
   
@@ -97,7 +98,11 @@ export function PlanningComponent({deps, settings, app}: PlanningComponentProps)
     return stopListening;
   }, [deps.todoIndex]);
 
-  function getTodosByDate(from: DateTime | null, to: DateTime | null, includeSelected: boolean = false): TodoItem<TFile>[] {
+  function getTodosByDate(
+    from: DateTime | null,
+    to: DateTime | null,
+    includeSelected: boolean = false,
+    includeSelectedInSeparateColumn: boolean = false): TodoItem<TFile>[] {
     const dateIsInRange = (date: DateTime | null) => date && (from === null || date >= from) && (to === null || date < to)
     function todoInRange<T>(todo: TodoItem<T>){
       const isDone = todo.status === TodoStatus.Complete || todo.status === TodoStatus.Canceled;
@@ -110,8 +115,25 @@ export function PlanningComponent({deps, settings, app}: PlanningComponentProps)
       const isInRangeOrSelected = dueDateIsInRange || (isDone && completedDateIsInRange) || (includeSelected && selectedIsInRange);
       return isInRangeOrSelected;
     }
-    const todosInRange = filteredTodos.filter((todo) => todo.attributes && todoInRange(todo));
+    const todosInRange = filteredTodos.filter((todo) => {
+      if (!todo.attributes || !todoInRange(todo)) {
+        return false;
+      }
+
+      const isActiveSelectedTodo = !!todo.attributes[settings.selectedAttribute]
+        && todo.status !== TodoStatus.Complete
+        && todo.status !== TodoStatus.Canceled;
+      return !selectedTasksInSeparateColumns || includeSelectedInSeparateColumn || !isActiveSelectedTodo;
+    });
     return todosInRange
+  }
+
+  function getSelectedTodos(): TodoItem<TFile>[] {
+    return filteredTodos.filter(todo =>
+      todo.attributes
+      && !!todo.attributes[settings.selectedAttribute]
+      && todo.status !== TodoStatus.Complete
+      && todo.status !== TodoStatus.Canceled);
   }
 
   function getTodosWithNoDate<T>(): TodoItem<TFile>[] {
@@ -162,7 +184,7 @@ export function PlanningComponent({deps, settings, app}: PlanningComponentProps)
   }
 
   function moveToDateAndStatus(date: DateTime, status: TodoStatus) {
-    return (todoId: string) => {
+    return async (todoId: string) => {
       const todo = findTodo(todoId);
       deps.logger.debug(`Moving ${todoId} to ${date}`);
       if (!todo) {
@@ -171,18 +193,38 @@ export function PlanningComponent({deps, settings, app}: PlanningComponentProps)
       }
       todo.status = status;
 
-      fileOperations.updateAttributeAsync(todo, settings.dueDateAttribute, date.toISODate())
-        .then(() => fileOperations.updateTodoStatus(todo, settings.completedDateAttribute))
-        .then(() => {
-          if (settings.trackStartTime && !todo.attributes[settings.startedAttribute] && status === TodoStatus.InProgress) {
-            return fileOperations.updateAttributeAsync(todo, settings.startedAttribute, DateTime.now().toISODate())
-          }
-        });
+      try {
+        await fileOperations.updateAttributeAsync(todo, settings.dueDateAttribute, date.toISODate());
+        await fileOperations.updateTodoStatus(todo, settings.completedDateAttribute);
+        if (settings.trackStartTime && !todo.attributes[settings.startedAttribute] && status === TodoStatus.InProgress) {
+          await fileOperations.updateAttributeAsync(todo, settings.startedAttribute, DateTime.now().toISODate());
+        }
+        if (selectedTasksInSeparateColumns) {
+          await fileOperations.updateAttributeAsync(todo, settings.selectedAttribute, false);
+        }
+      } catch (error) {
+        deps.logger.error(`Couldn't move ${todoId} to ${date} with status ${status}: ${error}`);
+      }
     }
   }
 
-  function getTodosByDateAndStatus(from: DateTime, to: DateTime, status: TodoStatus[]) {
-    const todos = getTodosByDate(from, to, true);
+  function moveToSelected(todoId: string) {
+    const todo = findTodo(todoId);
+    if (!todo) {
+      deps.logger.warn(`Todo ${todoId} not found, couldn't select`);
+      return;
+    }
+
+    fileOperations.updateAttributeAsync(todo, settings.selectedAttribute, true)
+      .catch(error => deps.logger.error(`Couldn't select ${todoId}: ${error}`));
+  }
+
+  function getTodosByDateAndStatus(
+    from: DateTime,
+    to: DateTime,
+    status: TodoStatus[],
+    includeSelectedInSeparateColumn: boolean = false) {
+    const todos = getTodosByDate(from, to, true, includeSelectedInSeparateColumn);
     return todos.filter(todo => status.contains(todo.status));
   }
 
@@ -198,10 +240,12 @@ export function PlanningComponent({deps, settings, app}: PlanningComponentProps)
       label: string,
       icon: string,
       onClick: () => void | Promise<void>,
-    }) {
+    },
+    isSelectedTasksColumn = false) {
     return <PlanningTodoColumn 
       hideIfEmpty={hideIfEmpty}
       planningSettings={planningSettings}
+      selectedTasksInSeparateColumns={selectedTasksInSeparateColumns}
       icon={icon}
       title={title}
       key={title}
@@ -213,6 +257,7 @@ export function PlanningComponent({deps, settings, app}: PlanningComponentProps)
       }}
       substyle={substyle}
       onTitleClick={onTitleClick}
+      isSelectedTasksColumn={isSelectedTasksColumn}
       titleAction={titleAction}
     />;
   }
@@ -245,7 +290,11 @@ export function PlanningComponent({deps, settings, app}: PlanningComponentProps)
     }
     const today = DateTime.now().startOf("day")
     const tomorrow = today.plus({ day: 1 });
-    const todos = getTodosByDateAndStatus(today, tomorrow, [TodoStatus.AttentionRequired, TodoStatus.Delegated, TodoStatus.InProgress, TodoStatus.Todo]);
+    const todos = getTodosByDateAndStatus(
+      today,
+      tomorrow,
+      [TodoStatus.AttentionRequired, TodoStatus.Delegated, TodoStatus.InProgress, TodoStatus.Todo],
+      true);
     if (todos.length > wipLimit.dailyLimit) {
       return "pw-planning-column-content--wip-exceeded"
     }
@@ -263,7 +312,7 @@ export function PlanningComponent({deps, settings, app}: PlanningComponentProps)
       moveToDateAndStatus(today, TodoStatus.Todo),
       "today",
       handleSingleDateClick(today));
-      
+
     yield todoColumn(
       "⏩",
       "In progress",
@@ -272,6 +321,19 @@ export function PlanningComponent({deps, settings, app}: PlanningComponentProps)
       moveToDateAndStatus(today, TodoStatus.InProgress),
       "today",
       handleSingleDateClick(today));
+
+    if (selectedTasksInSeparateColumns) {
+      yield todoColumn(
+        "📌",
+        "Selected",
+        getSelectedTodos(),
+        false,
+        moveToSelected,
+        "today",
+        undefined,
+        undefined,
+        true);
+    }
 
     yield todoColumn(
       "✅",
@@ -403,7 +465,7 @@ export function PlanningComponent({deps, settings, app}: PlanningComponentProps)
         endTime={endTime}
       />
     )}
-    <div className={`pw-planning-today ${getTodayWipStyle()}`}>
+    <div className={`pw-planning-today ${getTodayWipStyle()}${selectedTasksInSeparateColumns ? " pw-planning-today--with-selected" : ""}`}>
       <h1 
         className="pw-planning-today-title--clickable"
         onClick={handleSingleDateClick(DateTime.now().startOf("day"))}

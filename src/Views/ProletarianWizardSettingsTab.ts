@@ -113,6 +113,19 @@ export class ProletarianWizardSettingsTab extends PluginSettingTab {
 					})
 			);
 
+		new Setting(containerEl)
+			.setName("Selected tasks in separate columns")
+			.setDesc("Show selected tasks in a separate column in the planning view")
+			.addToggle((toggle) =>
+				toggle
+					.setValue(this.plugin.settings.selectedTasksInSeparateColumns)
+					.onChange(async (value) => {
+						this.plugin.settings.selectedTasksInSeparateColumns = value;
+						await this.plugin.saveSettings();
+						this.plugin.refreshPlanningViews();
+					})
+			);
+
 		new Setting(containerEl).setName("Ignore").setHeading();
 
 		// Ignored folders section

@@ -26,6 +26,8 @@ export interface PlanningTodoColumnProps {
   substyle?: string,
   playSound?: PwEvent<Sound>,
   onTitleClick?: () => void, // New prop for title click handling
+  selectedTasksInSeparateColumns: boolean,
+  isSelectedTasksColumn?: boolean,
   titleAction?: {
     label: string,
     icon: string,
@@ -36,18 +38,28 @@ export interface PlanningTodoColumnProps {
 const CLASSNAME_NORMAL = "";
 const CLASSNAME_HOVER = "pw-planning-column-content--hover";
 
-export function PlanningTodoColumn({icon, title, planningSettings, onTodoDropped, todos, deps, substyle, playSound, hideIfEmpty, onTitleClick, titleAction}: PlanningTodoColumnProps) {
+export function PlanningTodoColumn({icon, title, planningSettings, selectedTasksInSeparateColumns, onTodoDropped, todos, deps, substyle, playSound, hideIfEmpty, onTitleClick, isSelectedTasksColumn, titleAction}: PlanningTodoColumnProps) {
   const { settings } = deps;
   
   // Filter todos into three categories
-  const selectedTodos = todos.filter(todo => todo.attributes && !!todo.attributes[settings.selectedAttribute]);
-  const delegatedTodos = todos.filter(todo => todo.status === TodoStatus.Delegated && 
+  const selectedTodos = isSelectedTasksColumn || !selectedTasksInSeparateColumns
+    ? todos.filter(todo => todo.attributes && !!todo.attributes[settings.selectedAttribute])
+    : [];
+  const delegatedTodos = isSelectedTasksColumn ? [] : todos.filter(todo => todo.status === TodoStatus.Delegated &&
                                            (!todo.attributes || !todo.attributes[settings.selectedAttribute]));
-  const regularTodos = todos.filter(todo => 
-                                  (!todo.attributes || !todo.attributes[settings.selectedAttribute]) && 
-                                  todo.status !== TodoStatus.Delegated);
+  const regularTodos = isSelectedTasksColumn
+    ? todos
+    : todos.filter(todo => {
+        const isSelected = !!todo.attributes?.[settings.selectedAttribute];
+        const isDone = todo.status === TodoStatus.Complete || todo.status === TodoStatus.Canceled;
+        if (selectedTasksInSeparateColumns && isSelected && isDone) {
+          return true;
+        }
 
-  const hasSelectedTodos = selectedTodos.length > 0;
+        return !isSelected && todo.status !== TodoStatus.Delegated;
+      });
+
+  const hasSelectedTodos = !isSelectedTasksColumn && selectedTodos.length > 0;
   const hasRegularTodos = regularTodos.length > 0;
   const hasDelegatedTodos = delegatedTodos.length > 0;
 
