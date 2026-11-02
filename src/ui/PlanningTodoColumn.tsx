@@ -26,12 +26,17 @@ export interface PlanningTodoColumnProps {
   substyle?: string,
   playSound?: PwEvent<Sound>,
   onTitleClick?: () => void, // New prop for title click handling
+  titleAction?: {
+    label: string,
+    icon: string,
+    onClick: () => void | Promise<void>,
+  },
 }
 
 const CLASSNAME_NORMAL = "";
 const CLASSNAME_HOVER = "pw-planning-column-content--hover";
 
-export function PlanningTodoColumn({icon, title, planningSettings, onTodoDropped, todos, deps, substyle, playSound, hideIfEmpty, onTitleClick}: PlanningTodoColumnProps) {
+export function PlanningTodoColumn({icon, title, planningSettings, onTodoDropped, todos, deps, substyle, playSound, hideIfEmpty, onTitleClick, titleAction}: PlanningTodoColumnProps) {
   const { settings } = deps;
   
   // Filter todos into three categories
@@ -47,6 +52,7 @@ export function PlanningTodoColumn({icon, title, planningSettings, onTodoDropped
   const hasDelegatedTodos = delegatedTodos.length > 0;
 
   const [hoverClassName, setHoverClassName] = React.useState(CLASSNAME_NORMAL);
+  const [isTitleActionRunning, setIsTitleActionRunning] = React.useState(false);
 
   function onDragOver(ev: any) {
     ev.preventDefault()
@@ -71,6 +77,24 @@ export function PlanningTodoColumn({icon, title, planningSettings, onTodoDropped
     }
   }
 
+  async function onTitleActionClick(ev: React.MouseEvent<HTMLButtonElement>) {
+    ev.preventDefault();
+    ev.stopPropagation();
+
+    if (!titleAction || isTitleActionRunning) {
+      return;
+    }
+
+    setIsTitleActionRunning(true);
+    try {
+      await titleAction.onClick();
+    } catch (error) {
+      deps.logger.error(`Error while running '${titleAction.label}': ${error}`);
+    } finally {
+      setIsTitleActionRunning(false);
+    }
+  }
+
   if (hideIfEmpty && todos.length === 0) {
     return <></>
   }
@@ -82,6 +106,18 @@ export function PlanningTodoColumn({icon, title, planningSettings, onTodoDropped
     >
       <span className="pw-planning-column-title-icon">{icon}</span>
       <span>{title}</span>
+      {titleAction && (
+        <button
+          type="button"
+          className="pw-planning-column-title-action"
+          aria-label={titleAction.label}
+          title={titleAction.label}
+          disabled={isTitleActionRunning}
+          onClick={onTitleActionClick}
+        >
+          {titleAction.icon}
+        </button>
+      )}
     </div>
     <div 
       className={`pw-planning-column-content 

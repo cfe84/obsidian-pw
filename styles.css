@@ -96,6 +96,38 @@
     margin-right: 10px;
 }
 
+.pw-planning-column-title-action {
+    appearance: none;
+    background: none;
+    border: 0;
+    box-shadow: none;
+    color: var(--text-accent);
+    cursor: pointer;
+    font-size: 0.85em;
+    font-weight: bold;
+    height: auto;
+    line-height: inherit;
+    margin-left: 8px;
+    padding: 0;
+    text-decoration: underline;
+}
+
+.pw-planning-column-title-action:hover {
+    background: none;
+    box-shadow: none;
+}
+
+.pw-planning-column-title-action:focus-visible {
+    outline: 2px solid var(--text-accent);
+    outline-offset: 2px;
+}
+
+.pw-planning-column-title-action:disabled {
+    color: var(--text-muted);
+    cursor: default;
+    opacity: 0.7;
+}
+
 .pw-planning-column-content {
     padding: 8px;
     font-size: .8em;

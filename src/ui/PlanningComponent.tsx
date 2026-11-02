@@ -138,6 +138,19 @@ export function PlanningComponent({deps, settings, app}: PlanningComponentProps)
     }
   }
 
+  function moveTodosToDate(todos: TodoItem<TFile>[], date: DateTime) {
+    return async () => {
+      for (const todo of todos) {
+        try {
+          deps.logger.debug(`Moving ${getTodoId(todo)} to ${date}`);
+          await fileOperations.updateAttributeAsync(todo, settings.dueDateAttribute, date.toISODate());
+        } catch (error) {
+          deps.logger.error(`Couldn't move ${getTodoId(todo)} to ${date}: ${error}`);
+        }
+      }
+    }
+  }
+
   function removeDate() {
     return (todoId: string) => {
       const todo = findTodo(todoId);
@@ -180,7 +193,12 @@ export function PlanningComponent({deps, settings, app}: PlanningComponentProps)
     hideIfEmpty = hideEmpty,
     onTodoDropped: ((todoId: string) => void) | null = null,
     substyle?: string,
-    onTitleClick?: () => void) {
+    onTitleClick?: () => void,
+    titleAction?: {
+      label: string,
+      icon: string,
+      onClick: () => void | Promise<void>,
+    }) {
     return <PlanningTodoColumn 
       hideIfEmpty={hideIfEmpty}
       planningSettings={planningSettings}
@@ -195,6 +213,7 @@ export function PlanningComponent({deps, settings, app}: PlanningComponentProps)
       }}
       substyle={substyle}
       onTitleClick={onTitleClick}
+      titleAction={titleAction}
     />;
   }
 
@@ -282,12 +301,21 @@ export function PlanningComponent({deps, settings, app}: PlanningComponentProps)
       removeDate());
 
     const today = DateTime.now().startOf("day")
+    const pastTodos = getTodosByDate(null, today).filter(
+      todo => todo.status !== TodoStatus.Canceled && todo.status !== TodoStatus.Complete)
 		yield todoColumn(
       "🕸️",
       "Past",
-      getTodosByDate(null, today).filter(
-        todo => todo.status !== TodoStatus.Canceled && todo.status !== TodoStatus.Complete),
-      true);
+      pastTodos,
+      true,
+      null,
+      undefined,
+      undefined,
+      {
+        label: "Move to today",
+        icon: "↑",
+        onClick: moveTodosToDate(pastTodos, today),
+      });
       
     let bracketStart = today;
     let bracketEnd = today.plus({ day: 1 });
