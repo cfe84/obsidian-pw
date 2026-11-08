@@ -34,7 +34,7 @@
 		"chrono-node": "^2.3.8",
 		"evergreen-ui": "^7.1.8",
 		"luxon": "^2.3.1",
-		"obsidian": "^1.0.0",
+		"obsidian": "^1.14.4",
 		"react": "^18.2.0",
 		"react-dom": "^18.2.0"
 	},
